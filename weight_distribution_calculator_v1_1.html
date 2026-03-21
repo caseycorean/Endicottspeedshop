@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weight Distribution Calculator</title>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --accent:#1f4e78;
+      --accent-light:#d9eaf7;
+      --good:#e2f0d9;
+      --border:#d1d5db;
+    }
+    * { box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.4;
+    }
+    .wrap{
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 20px 14px 40px;
+    }
+    .hero,.section{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:20px;
+      margin-bottom:16px;
+    }
+    h1{
+      margin:0 0 6px;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+    }
+    .sub,.footer-note{
+      color:var(--muted);
+      margin:0;
+    }
+    .section h2{
+      margin:0 0 12px;
+      font-size:1.15rem;
+      color:var(--accent);
+    }
+    .grid-3,.results{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap:12px;
+    }
+    label{
+      display:block;
+      font-size:0.92rem;
+      margin-bottom:4px;
+      font-weight:600;
+    }
+    input{
+      width:100%;
+      padding:12px 10px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      font-size:1rem;
+      background:#fff;
+    }
+    .mod-row{
+      display:grid;
+      grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr;
+      gap:10px;
+      margin-bottom:10px;
+      align-items:end;
+    }
+    .result-card{
+      background:var(--good);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:14px;
+    }
+    .result-label{
+      font-size:0.9rem;
+      color:#35533a;
+      margin-bottom:4px;
+      font-weight:700;
+    }
+    .result-value{
+      font-size:1.7rem;
+      font-weight:700;
+    }
+    .takeaway{
+      margin-top:14px;
+      padding:12px;
+      border-radius:10px;
+      background:var(--accent-light);
+      border:1px solid var(--border);
+      font-weight:600;
+    }
+    .mini-links{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:10px;
+    }
+    .mini-links a{
+      color:var(--accent);
+      text-decoration:none;
+      font-size:0.95rem;
+    }
+    .banner{
+      min-height:80px;
+      border:1px dashed #9ca3af;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      background:#fff;
+      margin-bottom:16px;
+      text-align:center;
+      padding:8px;
+    }
+    @media (max-width: 700px){
+      .grid-3, .results { grid-template-columns: 1fr; }
+      .mod-row{
+        grid-template-columns: 1fr;
+        gap:8px;
+        padding:10px 0;
+        border-top:1px solid #eef2f7;
+      }
+      .mod-row:first-of-type{ border-top:none; padding-top:0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>Weight Distribution Calculator</h1>
+      <p class="sub">See how moving or reducing weight changes your car’s front/rear balance.</p>
+    </div>
+
+    <div class="banner">Ad space / affiliate banner placeholder</div>
+
+    <div class="section">
+      <h2>Baseline Vehicle</h2>
+      <div class="grid-3">
+        <div>
+          <label for="totalWeight">Total Weight (lbs)</label>
+          <input type="number" id="totalWeight" value="3600" step="1" />
+        </div>
+        <div>
+          <label for="frontPct">Front Weight (%)</label>
+          <input type="number" id="frontPct" value="57" step="0.1" />
+        </div>
+        <div>
+          <label for="wheelbase">Wheelbase (in)</label>
+          <input type="number" id="wheelbase" value="108" step="0.1" />
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Modifications</h2>
+
+      <div class="mod-row">
+        <div>
+          <label for="comp1">Component</label>
+          <input type="text" id="comp1" value="Battery" />
+        </div>
+        <div>
+          <label for="origWeight1">Original weight (lbs)</label>
+          <input type="number" id="origWeight1" value="40" step="0.1" />
+        </div>
+        <div>
+          <label for="newWeight1">New weight (lbs)</label>
+          <input type="number" id="newWeight1" value="40" step="0.1" />
+        </div>
+        <div>
+          <label for="from1">From location (in)</label>
+          <input type="number" id="from1" value="140" step="0.1" />
+        </div>
+        <div>
+          <label for="to1">To location (in)</label>
+          <input type="number" id="to1" value="-20" step="0.1" />
+        </div>
+      </div>
+
+      <div class="mod-row">
+        <div>
+          <label for="comp2">Component</label>
+          <input type="text" id="comp2" value="Hood" />
+        </div>
+        <div>
+          <label for="origWeight2">Original weight (lbs)</label>
+          <input type="number" id="origWeight2" value="60" step="0.1" />
+        </div>
+        <div>
+          <label for="newWeight2">New weight (lbs)</label>
+          <input type="number" id="newWeight2" value="25" step="0.1" />
+        </div>
+        <div>
+          <label for="from2">From location (in)</label>
+          <input type="number" id="from2" value="145" step="0.1" />
+        </div>
+        <div>
+          <label for="to2">To location (in)</label>
+          <input type="number" id="to2" value="145" step="0.1" />
+        </div>
+      </div>
+
+      <div class="mod-row">
+        <div>
+          <label for="comp3">Component</label>
+          <input type="text" id="comp3" value="Engine setback" />
+        </div>
+        <div>
+          <label for="origWeight3">Original weight (lbs)</label>
+          <input type="number" id="origWeight3" value="700" step="0.1" />
+        </div>
+        <div>
+          <label for="newWeight3">New weight (lbs)</label>
+          <input type="number" id="newWeight3" value="600" step="0.1" />
+        </div>
+        <div>
+          <label for="from3">From location (in)</label>
+          <input type="number" id="from3" value="104" step="0.1" />
+        </div>
+        <div>
+          <label for="to3">To location (in)</label>
+          <input type="number" id="to3" value="88" step="0.1" />
+        </div>
+      </div>
+
+      <p class="footer-note">Use negative values for locations behind the rear axle. Values above wheelbase may still be valid for components ahead of the front axle.</p>
+    </div>
+
+    <div class="section">
+      <h2>Results</h2>
+      <div class="results">
+        <div class="result-card">
+          <div class="result-label">New Front Weight</div>
+          <div class="result-value" id="newFrontPct">55.0%</div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">Front Weight Change</div>
+          <div class="result-value" id="frontChange">-2.0%</div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">New Total Weight</div>
+          <div class="result-value" id="newTotalWeight">3565 lb</div>
+        </div>
+      </div>
+      <div class="takeaway" id="takeaway">Meaningful shift toward rear balance.</div>
+
+      <div class="mini-links">
+        <a href="#">Why moving weight matters</a>
+        <a href="#">Battery relocation explained</a>
+        <a href="#">Engine setback vs weight reduction</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function getNum(id) {
+      const el = document.getElementById(id);
+      const v = parseFloat(el.value);
+      return isNaN(v) ? 0 : v;
+    }
+
+    function rowDelta(origWeight, newWeight, fromLoc, toLoc) {
+      return (newWeight * toLoc) - (origWeight * fromLoc);
+    }
+
+    function calculate() {
+      const totalWeight = getNum('totalWeight');
+      const frontPct = getNum('frontPct') / 100;
+      const wheelbase = getNum('wheelbase');
+
+      if (totalWeight <= 0 || wheelbase <= 0) {
+        return;
+      }
+
+      const baselineMoment = totalWeight * frontPct * wheelbase;
+
+      const rows = [
+        [getNum('origWeight1'), getNum('newWeight1'), getNum('from1'), getNum('to1')],
+        [getNum('origWeight2'), getNum('newWeight2'), getNum('from2'), getNum('to2')],
+        [getNum('origWeight3'), getNum('newWeight3'), getNum('from3'), getNum('to3')]
+      ];
+
+      let totalMomentDelta = 0;
+      let totalWeightDelta = 0;
+
+      rows.forEach(([origWeight, newWeight, fromLoc, toLoc]) => {
+        totalMomentDelta += rowDelta(origWeight, newWeight, fromLoc, toLoc);
+        totalWeightDelta += (newWeight - origWeight);
+      });
+
+      const newTotalWeight = totalWeight + totalWeightDelta;
+      if (newTotalWeight <= 0) {
+        return;
+      }
+
+      const newFrontPctDecimal = (baselineMoment + totalMomentDelta) / (newTotalWeight * wheelbase);
+      const newFrontPct = newFrontPctDecimal * 100;
+      const deltaPct = newFrontPct - (frontPct * 100);
+
+      let takeaway = "Very small balance change.";
+      const absDelta = Math.abs(deltaPct);
+
+      if (absDelta >= 0.25 && absDelta < 0.75) takeaway = "Small but real balance change.";
+      if (absDelta >= 0.75 && absDelta < 1.5) takeaway = "Meaningful shift in balance.";
+      if (absDelta >= 1.5) takeaway = deltaPct < 0
+        ? "Major shift toward rear balance."
+        : "Major shift toward front bias.";
+
+      document.getElementById('newFrontPct').textContent = `${newFrontPct.toFixed(1)}%`;
+      document.getElementById('frontChange').textContent = `${deltaPct >= 0 ? '+' : ''}${deltaPct.toFixed(1)}%`;
+      document.getElementById('newTotalWeight').textContent = `${newTotalWeight.toFixed(0)} lb`;
+      document.getElementById('takeaway').textContent = takeaway;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('input').forEach(el => {
+        ['input', 'change', 'keyup', 'blur'].forEach(evt => {
+          el.addEventListener(evt, calculate);
+        });
+      });
+      calculate();
+    });
+  </script>
+</body>
+</html>
