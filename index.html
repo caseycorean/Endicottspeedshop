@@ -212,6 +212,97 @@
         padding-top: 0;
       }
 
+.mod-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.label-with-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.info-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  border-radius: 999px;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+}
+
+.info-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.tooltip {
+  margin-top: 4px;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+  display: none;
+}
+
+.remove-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.remove-btn:hover {
+  color: #b42318;
+  border-color: #f0b5ae;
+}
+
+.add-btn {
+  appearance: none;
+  border: 1px solid var(--accent);
+  background: #fff;
+  color: var(--accent);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.add-btn:hover {
+  background: #f8fbff;
+}
+
+.mod-row-wrap {
+  border-top: 1px solid #eef2f7;
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.mod-row-wrap:first-child {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}      
+
+
+      
       .site-header,
       .section {
         border-radius: 16px;
@@ -259,83 +350,18 @@
       </div>
     </div>
 
-    <div class="section">
-      <h2>Modifications</h2>
+<div class="section">
+  <h2>Modifications</h2>
 
-      <div class="mod-row">
-        <div>
-          <label for="comp1">Component</label>
-          <input type="text" id="comp1" value="Battery" />
-        </div>
-        <div>
-          <label for="origWeight1">Original weight (lbs)</label>
-          <input type="number" id="origWeight1" value="40" step="1" />
-        </div>
-        <div>
-          <label for="newWeight1">New weight (lbs)</label>
-          <input type="number" id="newWeight1" value="40" step="1" />
-        </div>
-        <div>
-          <label for="from1">From location (in)</label>
-          <input type="number" id="from1" value="140" step="1" />
-        </div>
-        <div>
-          <label for="to1">To location (in)</label>
-          <input type="number" id="to1" value="-25" step="1" />
-        </div>
-      </div>
+  <div id="modificationsContainer"></div>
 
-      <div class="mod-row">
-        <div>
-          <label for="comp2">Component</label>
-          <input type="text" id="comp2" value="Hood" />
-        </div>
-        <div>
-          <label for="origWeight2">Original weight (lbs)</label>
-          <input type="number" id="origWeight2" value="60" step="1" />
-        </div>
-        <div>
-          <label for="newWeight2">New weight (lbs)</label>
-          <input type="number" id="newWeight2" value="25" step="1" />
-        </div>
-        <div>
-          <label for="from2">From location (in)</label>
-          <input type="number" id="from2" value="145" step="1" />
-        </div>
-        <div>
-          <label for="to2">To location (in)</label>
-          <input type="number" id="to2" value="145" step="1" />
-        </div>
-      </div>
+  <button type="button" class="add-btn" id="addComponentBtn">+ Add Component</button>
 
-      <div class="mod-row">
-        <div>
-          <label for="comp3">Component</label>
-          <input type="text" id="comp3" value="Engine setback" />
-        </div>
-        <div>
-          <label for="origWeight3">Original weight (lbs)</label>
-          <input type="number" id="origWeight3" value="700" step="1" />
-        </div>
-        <div>
-          <label for="newWeight3">New weight (lbs)</label>
-          <input type="number" id="newWeight3" value="600" step="1" />
-        </div>
-        <div>
-          <label for="from3">From location (in)</label>
-          <input type="number" id="from3" value="104" step="1" />
-        </div>
-        <div>
-          <label for="to3">To location (in)</label>
-          <input type="number" id="to3" value="88" step="1" />
-        </div>
-      </div>
-
-      <p class="footer-note">
-        Use negative values for locations behind the rear axle. Values above wheelbase may still
-        be valid for components ahead of the front axle.
-      </p>
-    </div>
+  <p class="footer-note">
+    Use negative values for locations behind the rear axle. Values above wheelbase may still
+    be valid for components ahead of the front axle.
+  </p>
+</div>
 
     <div class="section">
       <h2>Results</h2>
@@ -444,36 +470,38 @@
       const frontPct = frontPctInput / 100;
       const baselineMoment = totalWeight * frontPct * wheelbase;
 
-      const rowIds = [1, 2, 3];
-      let totalMomentDelta = 0;
-      let totalWeightDelta = 0;
+let totalMomentDelta = 0;
+let totalWeightDelta = 0;
 
-      for (const n of rowIds) {
-        const origWeight = getNum(`origWeight${n}`);
-        const newWeight = getNum(`newWeight${n}`);
-        const fromLoc = getNum(`from${n}`);
-        const toLoc = getNum(`to${n}`);
+const rows = document.querySelectorAll(".mod-row-wrap");
 
-        const allBlank =
-          origWeight === null &&
-          newWeight === null &&
-          fromLoc === null &&
-          toLoc === null;
+for (const row of rows) {
+  const origWeight = getNum(row.querySelector(".origWeight").id);
+  const newWeight = getNum(row.querySelector(".newWeight").id);
+  const fromLoc = getNum(row.querySelector(".fromLoc").id);
+  const toLoc = getNum(row.querySelector(".toLoc").id);
 
-        if (allBlank) continue;
+  const allBlank =
+    origWeight === null &&
+    newWeight === null &&
+    fromLoc === null &&
+    toLoc === null;
 
-        if (
-          origWeight === null ||
-          newWeight === null ||
-          fromLoc === null ||
-          toLoc === null
-        ) {
-          setInvalid("Each modification row must be fully filled out, or left completely blank.");
-          return;
-        }
+  if (allBlank) continue;
 
-        totalMomentDelta += rowDelta(origWeight, newWeight, fromLoc, toLoc);
-        totalWeightDelta += (newWeight - origWeight);
+  if (
+    origWeight === null ||
+    newWeight === null ||
+    fromLoc === null ||
+    toLoc === null
+  ) {
+    setInvalid("Each component row must be fully filled out, or left completely blank.");
+    return;
+  }
+
+  totalMomentDelta += rowDelta(origWeight, newWeight, fromLoc, toLoc);
+  totalWeightDelta += (newWeight - origWeight);
+}
       }
 
       const newTotalWeight = totalWeight + totalWeightDelta;
@@ -515,14 +543,185 @@
       document.getElementById("takeaway").textContent = takeaway;
       setValid();
     }
+let componentIndex = 0;
 
+function makeFieldId(prefix, index) {
+  return `${prefix}_${index}`;
+}
+
+function createTooltip(text) {
+  const tip = document.createElement("div");
+  tip.className = "tooltip";
+  tip.textContent = text;
+  return tip;
+}
+
+function createInfoButton(tooltipText) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "info-btn";
+  btn.textContent = "i";
+
+  const tip = createTooltip(tooltipText);
+
+  btn.addEventListener("click", () => {
+    tip.style.display = tip.style.display === "block" ? "none" : "block";
+  });
+
+  return { btn, tip };
+}
+
+function makeLabel(text, tooltipText = null) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "label-with-info";
+
+  const label = document.createElement("label");
+  label.textContent = text;
+
+  wrapper.appendChild(label);
+
+  let tip = null;
+  if (tooltipText) {
+    const info = createInfoButton(tooltipText);
+    wrapper.appendChild(info.btn);
+    tip = info.tip;
+  }
+
+  return { wrapper, tip, label };
+}
+
+function addComponentRow(defaults = {}) {
+  componentIndex += 1;
+
+  const rowWrap = document.createElement("div");
+  rowWrap.className = "mod-row-wrap";
+
+  const head = document.createElement("div");
+  head.className = "mod-head";
+
+  const headTitle = document.createElement("strong");
+  headTitle.textContent = `Component ${componentIndex}`;
+
+  const removeBtn = document.createElement("button");
+  removeBtn.type = "button";
+  removeBtn.className = "remove-btn";
+  removeBtn.textContent = "Remove";
+
+  removeBtn.addEventListener("click", () => {
+    rowWrap.remove();
+    calculate();
+  });
+
+  head.appendChild(headTitle);
+  head.appendChild(removeBtn);
+  rowWrap.appendChild(head);
+
+  const row = document.createElement("div");
+  row.className = "mod-row";
+
+  const componentId = makeFieldId("comp", componentIndex);
+  const origId = makeFieldId("origWeight", componentIndex);
+  const newId = makeFieldId("newWeight", componentIndex);
+  const fromId = makeFieldId("from", componentIndex);
+  const toId = makeFieldId("to", componentIndex);
+
+  const fields = [
+    {
+      label: "Component",
+      tooltip: "Name the part or system being changed.",
+      id: componentId,
+      className: "componentName",
+      type: "text",
+      value: defaults.component || ""
+    },
+    {
+      label: "Original weight (lbs)",
+      tooltip: "Weight of the original component before the change.",
+      id: origId,
+      className: "origWeight",
+      type: "number",
+      value: defaults.origWeight ?? ""
+    },
+    {
+      label: "New weight (lbs)",
+      tooltip: "Weight of the replacement or modified component.",
+      id: newId,
+      className: "newWeight",
+      type: "number",
+      value: defaults.newWeight ?? ""
+    },
+    {
+      label: "From location (in)",
+      tooltip: "Measured from the front axle. Negative values are behind the rear axle.",
+      id: fromId,
+      className: "fromLoc",
+      type: "number",
+      value: defaults.fromLoc ?? ""
+    },
+    {
+      label: "To location (in)",
+      tooltip: "New location measured from the front axle. Negative values are behind the rear axle.",
+      id: toId,
+      className: "toLoc",
+      type: "number",
+      value: defaults.toLoc ?? ""
+    }
+  ];
+
+  fields.forEach((field) => {
+    const cell = document.createElement("div");
+
+    const built = makeLabel(field.label, field.tooltip);
+    built.label.setAttribute("for", field.id);
+    cell.appendChild(built.wrapper);
+    if (built.tip) cell.appendChild(built.tip);
+
+    const input = document.createElement("input");
+    input.id = field.id;
+    input.className = field.className;
+    input.type = field.type;
+    input.value = field.value;
+    if (field.type === "number") input.step = "1";
+
+    ["input", "change", "keyup", "blur"].forEach((evt) => {
+      input.addEventListener(evt, calculate);
+    });
+
+    cell.appendChild(input);
+    row.appendChild(cell);
+  });
+
+  rowWrap.appendChild(row);
+  document.getElementById("modificationsContainer").appendChild(rowWrap);
+}
     window.addEventListener("DOMContentLoaded", () => {
-      document.querySelectorAll("input").forEach((el) => {
-        ["input", "change", "keyup", "blur"].forEach((evt) => {
-          el.addEventListener(evt, calculate);
-        });
-      });
-      calculate();
+  document.querySelectorAll("#totalWeight, #frontPct, #wheelbase").forEach((el) => {
+    ["input", "change", "keyup", "blur"].forEach((evt) => {
+      el.addEventListener(evt, calculate);
+    });
+  });
+
+  addComponentRow({
+    component: "Battery",
+    origWeight: 40,
+    newWeight: 40,
+    fromLoc: 140,
+    toLoc: -25
+  });
+
+  addComponentRow({
+    component: "Hood",
+    origWeight: 60,
+    newWeight: 25,
+    fromLoc: 145,
+    toLoc: 145
+  });
+
+  document.getElementById("addComponentBtn").addEventListener("click", () => {
+    addComponentRow();
+  });
+
+  calculate();
     });
   </script>
 </body>
