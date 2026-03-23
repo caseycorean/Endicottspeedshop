@@ -18,270 +18,615 @@
   gtag('config', 'G-GGJVMS8CZD');
 </script>
 
-<style>
-:root {
-  --bg:#f3f5f8;
-  --card:#ffffff;
-  --text:#1f2937;
-  --muted:#6b7280;
-  --accent:#355e8c;
-  --border:#d8dde4;
-}
+  <style>
+    :root {
+      --bg: #f3f5f8;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #355e8c;
+      --accent-soft: #e9eff6;
+      --result-bg: #eef5ee;
+      --result-border: #cfd9cf;
+      --border: #d8dde4;
+      --warn-bg: #fff4e5;
+      --warn-border: #f0c36d;
+      --warn-text: #7a4b00;
+      --shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
 
-body {
-  margin:0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
+    * { box-sizing: border-box; }
 
-.container {
-  max-width:900px;
-  margin:auto;
-  padding:16px;
-}
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
 
-.card {
-  background:var(--card);
-  border-radius:16px;
-  padding:18px;
-  margin-bottom:16px;
-  border:1px solid var(--border);
-}
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 14px 14px 34px;
+    }
 
-h1, h2 {
-  margin-top:0;
-  color:var(--accent);
-}
+    .site-header,
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
 
-input {
-  width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:1px solid var(--border);
-  font-size:16px;
-  box-sizing:border-box;
-}
+    .site-header {
+      padding: 8px 12px;
+      margin-bottom: 14px;
+    }
 
-.mod-row {
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
-  gap:10px;
-}
+    .site-header img {
+      display: block;
+      width: 100%;
+      max-width: 760px;
+      height: auto;
+    }
 
-.mod-row-wrap {
-  border-top:1px solid #eef2f7;
-  margin-top:12px;
-  padding-top:12px;
-}
+    .section {
+      padding: 16px;
+      margin-bottom: 16px;
+    }
 
-.mod-head {
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:6px;
-}
+    h2 {
+      margin: 0;
+      font-size: clamp(1.05rem, 2.2vw, 1.45rem);
+      color: var(--accent);
+      line-height: 1.15;
+    }
 
-button {
-  cursor:pointer;
-}
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
 
-.add-btn {
-  border:1px solid var(--accent);
-  color:var(--accent);
-  background:#fff;
-  padding:10px;
-  border-radius:10px;
-  font-weight:600;
-}
+    .calculator-title {
+      color: #2b2f38;
+      font-weight: 700;
+    }
 
-.remove-btn {
-  border:1px solid var(--border);
-  background:#fff;
-  padding:6px 10px;
-  border-radius:8px;
-}
+    .grid-3,
+    .results {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
 
-.label-with-info {
-  display:flex;
-  align-items:center;
-  gap:6px;
-}
+    .grid-3 > *,
+    .mod-row > * {
+      min-width: 0;
+    }
 
-.info-btn {
-  border:1px solid var(--border);
-  border-radius:50%;
-  width:18px;
-  height:18px;
-  font-size:12px;
-  background:#fff;
-}
+    label {
+      display: block;
+      font-size: 0.92rem;
+      margin-bottom: 4px;
+      font-weight: 600;
+      color: #374151;
+    }
 
-.tooltip {
-  display:none;
-  font-size:12px;
-  color:var(--muted);
-  margin-bottom:6px;
-}
+    input {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+      background: #fff;
+      color: var(--text);
+    }
 
-.result-box {
-  font-size:22px;
-  font-weight:600;
-}
+    input:focus {
+      outline: 2px solid rgba(53, 92, 140, 0.18);
+      border-color: var(--accent);
+    }
 
-.logo {
-  width:100%;
-  max-width:600px;
-  display:block;
-  margin:auto;
-}
-</style>
+    .info-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .info-btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--muted);
+      border-radius: 999px;
+      width: 18px;
+      height: 18px;
+      font-size: 12px;
+      line-height: 1;
+      padding: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .info-btn:hover,
+    .info-btn:focus {
+      color: var(--accent);
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    .tooltip {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      width: 240px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.35;
+      box-shadow: var(--shadow);
+      display: none;
+      z-index: 20;
+    }
+
+    .info-wrap:hover .tooltip,
+    .info-wrap:focus-within .tooltip {
+      display: block;
+    }
+
+    .mod-row-wrap {
+      border-top: 1px solid #eef2f7;
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+
+    .mod-row-wrap:first-child {
+      border-top: none;
+      padding-top: 0;
+      margin-top: 0;
+    }
+
+    .mod-row {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .remove-btn,
+    .add-btn {
+      appearance: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      white-space: nowrap;
+    }
+
+    .remove-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--muted);
+      padding: 8px 10px;
+    }
+
+    .remove-btn:hover {
+      color: #b42318;
+      border-color: #f0b5ae;
+    }
+
+    .add-btn {
+      border: 1px solid var(--accent);
+      background: #fff;
+      color: var(--accent);
+      padding: 10px 14px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    .add-btn:hover {
+      background: #f8fbff;
+    }
+
+    .result-card {
+      background: var(--result-bg);
+      border: 1px solid var(--result-border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .result-label {
+      font-size: 0.88rem;
+      color: #425642;
+      margin-bottom: 5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .result-value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .takeaway {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--accent-soft);
+      border: 1px solid var(--border);
+      font-weight: 600;
+      font-size: 1rem;
+      color: #24364f;
+    }
+
+    .warning {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      color: var(--warn-text);
+      font-weight: 600;
+      display: none;
+    }
+
+    .section p {
+      margin: 0 0 14px;
+      font-size: 1rem;
+    }
+
+    .section p:last-child {
+      margin-bottom: 0;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 760px) {
+      .grid-3,
+      .results {
+        grid-template-columns: 1fr;
+      }
+
+      .mod-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .site-header,
+      .section {
+        border-radius: 16px;
+      }
+
+      .site-header {
+        padding: 8px 10px;
+      }
+
+      .site-header img {
+        max-width: 100%;
+      }
+
+      .section {
+        padding: 14px;
+      }
+
+      .result-value {
+        font-size: 1rem;
+      }
+
+      .tooltip {
+        width: min(240px, calc(100vw - 60px));
+      }
+    }
+  </style>
 </head>
-
 <body>
+  <div class="wrap">
+    <div class="site-header">
+      <img src="logo-horizontal.png" alt="Endicott Speed Shop logo" />
+    </div>
 
-<div class="container">
+    <div class="section">
+      <div class="section-head">
+        <h2 class="calculator-title">Weight Distribution Calculator</h2>
+      </div>
+      <div class="grid-3">
+        <div>
+          <label for="totalWeight">Total Weight (lbs)</label>
+          <input type="number" id="totalWeight" value="3600" step="1" />
+        </div>
+        <div>
+          <label for="frontPct">Front Weight (%)</label>
+          <input type="number" id="frontPct" value="57" step="0.1" />
+        </div>
+        <div>
+          <label for="wheelbase">Wheelbase (in)</label>
+          <input type="number" id="wheelbase" value="108" step="1" />
+        </div>
+      </div>
+    </div>
 
-<div class="card" style="text-align:center;">
-  <img src="logo-horizontal.png" class="logo">
-</div>
+    <div class="section">
+      <div class="section-head">
+        <h2>Modifications</h2>
+        <span class="info-wrap">
+          <button type="button" class="info-btn" aria-label="Modification help">i</button>
+          <span class="tooltip">Enter values in pounds and inches. Locations are measured from the rear axle. Negative values are behind the rear axle.</span>
+        </span>
+      </div>
 
-<div class="card">
-<h1>Weight Distribution Calculator</h1>
+      <div id="modificationsContainer"></div>
 
-<div class="mod-row">
-<div>
-<label>Total Weight</label>
-<input id="totalWeight" value="3600">
-</div>
+      <button type="button" class="add-btn" id="addComponentBtn">+ Add Component</button>
+    </div>
 
-<div>
-<label>Front %</label>
-<input id="frontPct" value="57">
-</div>
+    <div class="section">
+      <h2>Results</h2>
+      <div class="results">
+        <div class="result-card">
+          <div class="result-label">New Front Weight</div>
+          <div class="result-value" id="newFrontPct">--</div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">Front Weight Change</div>
+          <div class="result-value" id="frontChange">--</div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">New Total Weight</div>
+          <div class="result-value" id="newTotalWeight">--</div>
+        </div>
+      </div>
+      <div class="takeaway" id="takeaway">Enter valid baseline values to calculate results.</div>
+      <div class="warning" id="warningMessage"></div>
+    </div>
 
-<div>
-<label>Wheelbase (in)</label>
-<input id="wheelbase" value="108">
-</div>
-</div>
-</div>
+    <div class="section">
+      <h2>Example: What Happens When You Move Weight</h2>
+      <p>
+        Moving a 40 lb battery from ahead of the front axle (140") to behind the rear (-25")
+        can shift weight distribution by roughly 1–2%. That may sound small, but it can noticeably
+        improve balance and reduce understeer.
+      </p>
+      <p>
+        Try it yourself with the default values above, then compare it to moving the engine back
+        or reducing front weight.
+      </p>
+    </div>
 
-<div class="card">
-<h2>Modifications</h2>
+    <div class="section">
+      <h2>Weight Distribution Explained</h2>
+      <p>
+        Weight distribution affects how a car accelerates, brakes, and turns. Front-heavy cars
+        tend to understeer, while more balanced setups improve handling and responsiveness.
+      </p>
+      <p>
+        This calculator helps estimate how modifications like battery relocation, lightweight
+        panels, or engine swaps affect front-to-rear balance.
+      </p>
+      <p>
+        Even small changes (1–3%) can make a noticeable difference in how a car feels on the road
+        or track.
+      </p>
+    </div>
+  </div>
 
-<div id="modificationsContainer"></div>
+  <script>
+    let componentIndex = 0;
 
-<button class="add-btn" id="addComponentBtn">+ Add Component</button>
+    function getNum(id) {
+      const el = document.getElementById(id);
+      if (!el) return null;
+      const raw = el.value.trim();
+      if (raw === "") return null;
+      const v = parseFloat(raw);
+      return Number.isFinite(v) ? v : null;
+    }
 
-</div>
+    function rowDelta(origWeight, newWeight, fromLoc, toLoc) {
+      return (newWeight * toLoc) - (origWeight * fromLoc);
+    }
 
-<div class="card">
-<h2>Results</h2>
-<div class="result-box" id="results">—</div>
-</div>
+    function setInvalid(message) {
+      document.getElementById("newFrontPct").textContent = "--";
+      document.getElementById("frontChange").textContent = "--";
+      document.getElementById("newTotalWeight").textContent = "--";
+      document.getElementById("takeaway").textContent = "Enter valid baseline values to calculate results.";
+      const warning = document.getElementById("warningMessage");
+      warning.textContent = message;
+      warning.style.display = "block";
+    }
 
-</div>
+    function setValid() {
+      const warning = document.getElementById("warningMessage");
+      warning.textContent = "";
+      warning.style.display = "none";
+    }
 
-<script>
-let componentIndex = 0;
+    function createComponentField(inputId, className, type, value, placeholder) {
+      const input = document.createElement("input");
+      input.id = inputId;
+      input.className = className;
+      input.type = type;
+      input.value = value || "";
+      input.placeholder = placeholder;
+      if (type === "number") input.step = "1";
 
-function createField(labelText, tooltipText, className, type="number", value="") {
-  const wrapper = document.createElement("div");
+      ["input", "change", "keyup", "blur"].forEach(function(evt) {
+        input.addEventListener(evt, calculate);
+      });
 
-  const labelWrap = document.createElement("div");
-  labelWrap.className = "label-with-info";
+      return input;
+    }
 
-  const label = document.createElement("label");
-  label.textContent = labelText;
+    function addComponentRow(defaults) {
+      const cfg = defaults || {};
+      componentIndex += 1;
 
-  const info = document.createElement("button");
-  info.className = "info-btn";
-  info.textContent = "i";
+      const rowWrap = document.createElement("div");
+      rowWrap.className = "mod-row-wrap";
 
-  const tip = document.createElement("div");
-  tip.className = "tooltip";
-  tip.textContent = tooltipText;
+      const row = document.createElement("div");
+      row.className = "mod-row";
 
-  info.onclick = () => {
-    tip.style.display = tip.style.display === "block" ? "none" : "block";
-  };
+      row.appendChild(createComponentField("comp_" + componentIndex, "componentName", "text", cfg.component, "Component"));
+      row.appendChild(createComponentField("origWeight_" + componentIndex, "origWeight", "number", cfg.origWeight, "Orig wt"));
+      row.appendChild(createComponentField("newWeight_" + componentIndex, "newWeight", "number", cfg.newWeight, "New wt"));
+      row.appendChild(createComponentField("from_" + componentIndex, "fromLoc", "number", cfg.fromLoc, "From loc"));
+      row.appendChild(createComponentField("to_" + componentIndex, "toLoc", "number", cfg.toLoc, "To loc"));
 
-  labelWrap.appendChild(label);
-  labelWrap.appendChild(info);
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "remove-btn";
+      removeBtn.textContent = "Remove";
+      removeBtn.addEventListener("click", function() {
+        rowWrap.remove();
+        calculate();
+      });
 
-  const input = document.createElement("input");
-  input.className = className;
-  input.type = type;
-  input.value = value;
+      row.appendChild(removeBtn);
+      rowWrap.appendChild(row);
+      document.getElementById("modificationsContainer").appendChild(rowWrap);
+    }
 
-  input.oninput = calculate;
+    function calculate() {
+      const totalWeight = getNum("totalWeight");
+      const frontPctInput = getNum("frontPct");
+      const wheelbase = getNum("wheelbase");
 
-  wrapper.appendChild(labelWrap);
-  wrapper.appendChild(tip);
-  wrapper.appendChild(input);
+      if (totalWeight === null || frontPctInput === null || wheelbase === null) {
+        setInvalid("Enter total weight, front weight %, and wheelbase to calculate results.");
+        return;
+      }
 
-  return wrapper;
-}
+      if (totalWeight <= 0) {
+        setInvalid("Baseline total weight must be greater than 0.");
+        return;
+      }
 
-function addComponentRow(defaults = {}) {
-  componentIndex++;
+      if (wheelbase <= 0) {
+        setInvalid("Wheelbase must be greater than 0.");
+        return;
+      }
 
-  const wrap = document.createElement("div");
-  wrap.className = "mod-row-wrap";
+      if (frontPctInput <= 0 || frontPctInput >= 100) {
+        setInvalid("Front weight % should be between 0 and 100.");
+        return;
+      }
 
-  const head = document.createElement("div");
-  head.className = "mod-head";
+      const frontPct = frontPctInput / 100;
+      const baselineMoment = totalWeight * frontPct * wheelbase;
 
-  const title = document.createElement("strong");
-  title.textContent = "Component " + componentIndex;
+      let totalMomentDelta = 0;
+      let totalWeightDelta = 0;
 
-  const remove = document.createElement("button");
-  remove.className = "remove-btn";
-  remove.textContent = "Remove";
-  remove.onclick = () => {
-    wrap.remove();
-    calculate();
-  };
+      const rows = document.querySelectorAll(".mod-row-wrap");
 
-  head.appendChild(title);
-  head.appendChild(remove);
+      for (const row of rows) {
+        const origWeight = getNum(row.querySelector(".origWeight").id);
+        const newWeight = getNum(row.querySelector(".newWeight").id);
+        const fromLoc = getNum(row.querySelector(".fromLoc").id);
+        const toLoc = getNum(row.querySelector(".toLoc").id);
 
-  const row = document.createElement("div");
-  row.className = "mod-row";
+        const allBlank =
+          origWeight === null &&
+          newWeight === null &&
+          fromLoc === null &&
+          toLoc === null;
 
-  row.appendChild(createField("Component", "Name of part", "name", "text", defaults.name || ""));
-  row.appendChild(createField("Orig Weight", "Original weight", "orig", "number", defaults.orig || ""));
-  row.appendChild(createField("New Weight", "New weight", "new", "number", defaults.new || ""));
-  row.appendChild(createField("From (in)", "From front axle", "from", "number", defaults.from || ""));
-  row.appendChild(createField("To (in)", "To front axle", "to", "number", defaults.to || ""));
+        if (allBlank) continue;
 
-  wrap.appendChild(head);
-  wrap.appendChild(row);
+        if (
+          origWeight === null ||
+          newWeight === null ||
+          fromLoc === null ||
+          toLoc === null
+        ) {
+          setInvalid("Each component row must be fully filled out, or left completely blank.");
+          return;
+        }
 
-  document.getElementById("modificationsContainer").appendChild(wrap);
-}
+        totalMomentDelta += rowDelta(origWeight, newWeight, fromLoc, toLoc);
+        totalWeightDelta += (newWeight - origWeight);
+      }
 
-function calculate() {
-  let total = 0;
+      const newTotalWeight = totalWeight + totalWeightDelta;
 
-  document.querySelectorAll(".mod-row-wrap").forEach(row => {
-    const orig = parseFloat(row.querySelector(".orig")?.value) || 0;
-    const newW = parseFloat(row.querySelector(".new")?.value) || 0;
+      if (newTotalWeight <= 0) {
+        setInvalid("Baseline weight is too low for the modification values entered.");
+        return;
+      }
 
-    total += (newW - orig);
-  });
+      const newFrontPctDecimal =
+        (baselineMoment + totalMomentDelta) / (newTotalWeight * wheelbase);
 
-  document.getElementById("results").textContent =
-    "Net weight change: " + total.toFixed(1) + " lb";
-}
+      if (!Number.isFinite(newFrontPctDecimal)) {
+        setInvalid("Unable to calculate. Check baseline values and modification inputs.");
+        return;
+      }
 
-document.getElementById("addComponentBtn").onclick = () => addComponentRow();
+      const newFrontPct = newFrontPctDecimal * 100;
+      const deltaPct = newFrontPct - frontPctInput;
 
-addComponentRow({name:"Battery", orig:40, new:40, from:140, to:-25});
-addComponentRow({name:"Hood", orig:60, new:25, from:145, to:145});
+      let takeaway = "Very small balance change.";
+      const absDelta = Math.abs(deltaPct);
 
-calculate();
-</script>
+      if (absDelta >= 0.25 && absDelta < 0.75) {
+        takeaway = "Small but real balance change.";
+      } else if (absDelta >= 0.75 && absDelta < 1.5) {
+        takeaway = "Meaningful shift in balance.";
+      } else if (absDelta >= 1.5) {
+        takeaway = deltaPct < 0
+          ? "Major shift toward rear balance."
+          : "Major shift toward front bias.";
+      }
 
+      document.getElementById("newFrontPct").textContent = newFrontPct.toFixed(1) + "%";
+      document.getElementById("frontChange").textContent =
+        (deltaPct >= 0 ? "+" : "") + deltaPct.toFixed(1) + "%";
+      document.getElementById("newTotalWeight").textContent =
+        newTotalWeight.toFixed(0) + " lb";
+      document.getElementById("takeaway").textContent = takeaway;
+
+      setValid();
+    }
+
+    window.addEventListener("DOMContentLoaded", function() {
+      document.querySelectorAll("#totalWeight, #frontPct, #wheelbase").forEach(function(el) {
+        ["input", "change", "keyup", "blur"].forEach(function(evt) {
+          el.addEventListener(evt, calculate);
+        });
+      });
+
+      addComponentRow({
+        component: "Battery",
+        origWeight: 40,
+        newWeight: 40,
+        fromLoc: 140,
+        toLoc: -25
+      });
+
+      document.getElementById("addComponentBtn").addEventListener("click", function() {
+        addComponentRow();
+      });
+
+      calculate();
+    });
+  </script>
 </body>
 </html>
