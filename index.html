@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Weight Distribution Calculator | Endicott Speed Shop</title>
+  <title>Car Weight Distribution Calculator | Endicott Speed Shop</title>
   <meta
     name="description"
-    content="Free car weight distribution calculator for estimating how moving batteries, engine position, and component weights affects front-to-rear balance."
+    content="Free car weight distribution calculator for estimating how moving batteries, engine position, and component weight affects front-to-rear balance."
   />
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-GGJVMS8CZD"></script>
@@ -34,9 +34,7 @@
       --warn-text: #7a4b00;
       --shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
@@ -44,69 +42,55 @@
       color: var(--text);
       line-height: 1.45;
     }
-
     .wrap {
       max-width: 980px;
       margin: 0 auto;
       padding: 14px 14px 34px;
     }
-
-    .site-header,
-    .section {
+    .site-header, .section {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 18px;
       box-shadow: var(--shadow);
     }
-
     .site-header {
       padding: 8px 12px;
       margin-bottom: 14px;
     }
-
     .site-header img {
       display: block;
       width: 100%;
       max-width: 760px;
       height: auto;
     }
-
     .section {
       padding: 16px;
       margin-bottom: 16px;
     }
-
     h2 {
       margin: 0;
       font-size: clamp(1.05rem, 2.2vw, 1.45rem);
       color: var(--accent);
       line-height: 1.15;
     }
-
     .section-head {
       display: flex;
       align-items: center;
       gap: 8px;
       margin-bottom: 12px;
     }
-
     .calculator-title {
       color: #2b2f38;
       font-weight: 700;
     }
-
-    .grid-3,
-    .results {
+    .grid-3, .results {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
     }
-
-    .grid-3 > *,
-    .mod-row > * {
+    .grid-3 > *, .mod-row > * {
       min-width: 0;
     }
-
     label {
       display: block;
       font-size: 0.92rem;
@@ -114,7 +98,6 @@
       font-weight: 600;
       color: #374151;
     }
-
     input {
       display: block;
       width: 100%;
@@ -127,19 +110,16 @@
       background: #fff;
       color: var(--text);
     }
-
     input:focus {
       outline: 2px solid rgba(53, 92, 140, 0.18);
       border-color: var(--accent);
     }
-
     .info-wrap {
       position: relative;
       display: inline-flex;
       align-items: center;
       flex-shrink: 0;
     }
-
     .info-btn {
       appearance: none;
       border: 1px solid var(--border);
@@ -156,14 +136,11 @@
       align-items: center;
       justify-content: center;
     }
-
-    .info-btn:hover,
-    .info-btn:focus {
+    .info-btn:hover, .info-btn:focus {
       color: var(--accent);
       border-color: var(--accent);
       outline: none;
     }
-
     .tooltip {
       position: absolute;
       top: calc(100% + 6px);
@@ -180,52 +157,43 @@
       display: none;
       z-index: 20;
     }
-
     .info-wrap:hover .tooltip,
     .info-wrap:focus-within .tooltip {
       display: block;
     }
-
     .mod-row-wrap {
       border-top: 1px solid #eef2f7;
       padding-top: 12px;
       margin-top: 12px;
     }
-
     .mod-row-wrap:first-child {
       border-top: none;
       padding-top: 0;
       margin-top: 0;
     }
-
     .mod-row {
       display: grid;
       grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr auto;
       gap: 10px;
       align-items: center;
     }
-
-    .remove-btn,
-    .add-btn {
+    .remove-btn, .add-btn {
       appearance: none;
       border-radius: 10px;
       cursor: pointer;
       font-size: 0.95rem;
       white-space: nowrap;
     }
-
     .remove-btn {
       border: 1px solid var(--border);
       background: #fff;
       color: var(--muted);
       padding: 8px 10px;
     }
-
     .remove-btn:hover {
       color: #b42318;
       border-color: #f0b5ae;
     }
-
     .add-btn {
       border: 1px solid var(--accent);
       background: #fff;
@@ -234,18 +202,15 @@
       font-weight: 600;
       margin-top: 8px;
     }
-
     .add-btn:hover {
       background: #f8fbff;
     }
-
     .result-card {
       background: var(--result-bg);
       border: 1px solid var(--result-border);
       border-radius: 12px;
       padding: 14px;
     }
-
     .result-label {
       font-size: 0.88rem;
       color: #425642;
@@ -254,13 +219,11 @@
       text-transform: uppercase;
       letter-spacing: 0.03em;
     }
-
     .result-value {
-      font-size: 1rem;
+      font-size: 1.15rem;
       font-weight: 700;
       color: #1f2937;
     }
-
     .takeaway {
       margin-top: 14px;
       padding: 12px;
@@ -271,7 +234,6 @@
       font-size: 1rem;
       color: #24364f;
     }
-
     .warning {
       margin-top: 14px;
       padding: 12px;
@@ -282,48 +244,36 @@
       font-weight: 600;
       display: none;
     }
-
     .section p {
       margin: 0 0 14px;
       font-size: 1rem;
     }
-
     .section p:last-child {
       margin-bottom: 0;
     }
-
     @media (max-width: 760px) {
-      .grid-3,
-      .results {
+      .grid-3, .results {
         grid-template-columns: 1fr;
       }
-
       .mod-row {
         grid-template-columns: 1fr;
         gap: 8px;
       }
-
-      .site-header,
-      .section {
+      .site-header, .section {
         border-radius: 16px;
       }
-
       .site-header {
         padding: 8px 10px;
       }
-
       .site-header img {
         max-width: 100%;
       }
-
       .section {
         padding: 14px;
       }
-
       .result-value {
-        font-size: 1rem;
+        font-size: 1.1rem;
       }
-
       .tooltip {
         width: min(240px, calc(100vw - 60px));
       }
@@ -338,7 +288,7 @@
 
     <div class="section">
       <div class="section-head">
-        <h2 class="calculator-title">Weight Distribution Calculator</h2>
+        <h2 class="calculator-title">Car Weight Distribution Calculator</h2>
       </div>
       <div class="grid-3">
         <div>
@@ -391,15 +341,14 @@
     </div>
 
     <div class="section">
-      <h2>Example: What Happens When You Move Weight</h2>
+      <h2>What This Calculator Does</h2>
       <p>
-        Moving a 40 lb battery from ahead of the front axle (140") to behind the rear (-25")
-        can shift weight distribution by roughly 1–2%. That may sound small, but it can noticeably
-        improve balance and reduce understeer.
+        This car weight distribution calculator helps estimate how moving components like batteries,
+        fuel cells, engines, and lightweight body panels affects front-to-rear balance.
       </p>
       <p>
-        Try it yourself with the default values above, then compare it to moving the engine back
-        or reducing front weight.
+        It is designed as a practical ballpark tool for builders who want to understand whether a
+        change is likely to make a small, meaningful, or major difference before getting the car on scales.
       </p>
     </div>
   </div>
@@ -429,6 +378,7 @@
         const start = input.selectionStart;
         const before = input.value;
         const after = normalizeNumericInputValue(before);
+
         if (before !== after) {
           input.value = after;
           if (start !== null) {
@@ -443,8 +393,10 @@
     function getNum(id) {
       const el = document.getElementById(id);
       if (!el) return null;
+
       const raw = normalizeNumericInputValue(el.value.trim());
       if (raw === "" || raw === "-" || raw === "." || raw === "-.") return null;
+
       const v = parseFloat(raw);
       return Number.isFinite(v) ? v : null;
     }
@@ -458,6 +410,7 @@
       document.getElementById("frontChange").textContent = "--";
       document.getElementById("newTotalWeight").textContent = "--";
       document.getElementById("takeaway").textContent = "Enter valid baseline values to calculate results.";
+
       const warning = document.getElementById("warningMessage");
       warning.textContent = message;
       warning.style.display = "block";
@@ -474,7 +427,14 @@
       input.id = inputId;
       input.className = className;
       input.type = "text";
-      if (className !== "componentName") input.setAttribute("inputmode", "decimal");
+
+      if (className === "origWeight" || className === "newWeight") {
+        input.setAttribute("inputmode", "decimal");
+      }
+      if (className === "fromLoc" || className === "toLoc") {
+        input.setAttribute("inputmode", "text");
+      }
+
       input.value = value || "";
       input.placeholder = placeholder;
 
