@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Endicott Speed Shop | Home Test v11</title>
+<meta name="description" content="Minimal, tool-focused homepage test for Endicott Speed Shop.">
+<style>
+:root{
+  --bg:#ffffff;
+  --panel:#ffffff;
+  --text:#2c2c2c;
+  --muted:#727270;
+  --accent-blue:#2f557f;
+  --accent-blue-dark:#24476b;
+  --line:#dbe4ee;
+  --line-strong:#bfd0e0;
+  --content-max:1100px;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  padding:0;
+  background:#ffffff;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  color:var(--text);
+  line-height:1.5;
+}
+a{color:inherit;text-decoration:none}
+
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:40;
+  background:rgba(255,255,255,.98);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(191,208,224,.45);
+}
+.header-inner{
+  max-width:var(--content-max);
+  margin:0 auto;
+  padding:12px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  min-width:0;
+  flex:0 0 auto;
+  margin-right:auto;
+}
+.brand img{
+  display:block;
+  width:350px;
+  height:auto;
+  max-width:100%;
+}
+.menu-toggle{
+  appearance:none;
+  border:none;
+  background:transparent;
+  width:46px;
+  height:46px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition:background-color .18s ease;
+  flex:0 0 auto;
+}
+.menu-toggle:hover{background:rgba(47,85,127,.08)}
+.menu-lines{
+  width:24px;
+  height:18px;
+  position:relative;
+}
+.menu-lines span{
+  position:absolute;
+  left:0;
+  width:100%;
+  height:3px;
+  background:var(--accent-blue);
+  border-radius:999px;
+  transition:background-color .18s ease;
+}
+.menu-toggle:hover .menu-lines span{background:var(--accent-blue-dark)}
+.menu-lines span:nth-child(1){top:0}
+.menu-lines span:nth-child(2){top:7px}
+.menu-lines span:nth-child(3){top:14px}
+
+.sidebar{
+  position:fixed;
+  top:0;
+  right:0;
+  width:min(360px, 88vw);
+  height:100dvh;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  background:#ffffff;
+  border-left:1px solid var(--line);
+  transform:translateX(100%);
+  transition:transform .28s ease;
+  z-index:70;
+  padding:20px 20px 28px;
+  display:flex;
+  flex-direction:column;
+}
+.sidebar.open{transform:translateX(0)}
+.sidebar-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:24px;
+}
+.sidebar-title{
+  font-size:.75rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.close-btn{
+  appearance:none;
+  border:1px solid var(--line-strong);
+  background:transparent;
+  width:40px;
+  height:40px;
+  border-radius:999px;
+  cursor:pointer;
+  font-size:20px;
+  line-height:1;
+  color:var(--text);
+  flex:0 0 auto;
+}
+.nav-group{
+  border-top:1.5px solid var(--line);
+  padding-top:16px;
+  margin-top:6px;
+}
+.nav-link{
+  display:block;
+  padding:13px 0;
+  border-bottom:1px solid rgba(47,85,127,.12);
+  font-size:1.02rem;
+  color:var(--accent-blue);
+}
+.nav-link small{
+  display:block;
+  color:var(--muted);
+  font-size:.82rem;
+  margin-top:4px;
+}
+.connect-box{
+  margin-top:24px;
+  border:1px solid var(--line);
+  padding:16px;
+  background:#ffffff;
+}
+.connect-box h3{
+  margin:0 0 8px 0;
+  font-size:1rem;
+  font-weight:560;
+  color:var(--accent-blue);
+}
+.connect-box p{
+  margin:0 0 12px 0;
+  color:var(--muted);
+  font-size:.95rem;
+}
+.connect-link{
+  display:inline-block;
+  border-bottom:1px solid var(--accent-blue);
+  padding-bottom:2px;
+  color:var(--accent-blue-dark);
+}
+.overlay{
+  position:fixed;
+  inset:0;
+  background:transparent !important;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .24s ease;
+  z-index:60;
+}
+.overlay.show{
+  opacity:1;
+  pointer-events:auto;
+  background:transparent !important;
+}
+
+.page{
+  max-width:var(--content-max);
+  margin:0 auto;
+  padding:40px 20px 44px;
+}
+.hero{
+  padding:12px 0 30px;
+}
+.kicker{
+  font-size:.82rem;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:16px;
+}
+.hero h1{
+  margin:0 0 16px;
+  font-size:clamp(2.25rem,4.7vw,4.25rem);
+  line-height:1.02;
+  letter-spacing:-0.025em;
+  font-weight:520;
+  color:var(--text);
+  max-width:900px;
+}
+.hero p{
+  margin:0;
+  max-width:760px;
+  color:var(--muted);
+  font-size:1.08rem;
+  line-height:1.65;
+}
+.action-row{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-top:26px;
+}
+.btn{
+  min-width:200px;
+  height:52px;
+  padding:0 22px;
+  border-radius:999px;
+  font-size:.96rem;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  transition:filter .18s ease, background-color .18s ease, color .18s ease;
+}
+.primary{
+  background:var(--accent-blue);
+  color:#fff;
+  border:none;
+}
+.primary:hover{filter:brightness(.92)}
+.secondary{
+  border:1px solid var(--line-strong);
+  color:var(--text);
+  background:transparent;
+}
+.secondary:hover{background:rgba(47,85,127,.05)}
+
+.section{
+  padding:24px 0 26px;
+  border-top:1.5px solid var(--line);
+}
+.section-label{
+  font-size:.76rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:10px;
+}
+.section h2{
+  margin:0 0 14px;
+  font-size:clamp(1.55rem,3.1vw,2.25rem);
+  line-height:1.06;
+  letter-spacing:-0.02em;
+  font-weight:520;
+  color:var(--accent-blue);
+}
+.section p{
+  margin:0;
+  color:var(--muted);
+  font-size:1rem;
+  max-width:820px;
+}
+
+.feature-grid{
+  display:grid;
+  grid-template-columns:1.35fr .85fr .85fr;
+  gap:18px;
+  margin-top:18px;
+}
+.feature-card{
+  border:1.5px solid var(--line);
+  border-radius:20px;
+  padding:20px;
+  background:#fff;
+}
+.feature-card h3{
+  margin:0 0 10px;
+  font-size:1.2rem;
+  line-height:1.15;
+  color:var(--text);
+  font-weight:560;
+}
+.feature-card p{
+  margin:0;
+  color:var(--muted);
+  font-size:.98rem;
+}
+.feature-link{
+  display:inline-block;
+  margin-top:14px;
+  color:var(--accent-blue);
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+.status{
+  display:inline-block;
+  margin-top:12px;
+  color:var(--muted);
+  font-size:.9rem;
+}
+
+.footer{
+  max-width:var(--content-max);
+  margin:0 auto;
+  padding:0 20px 42px;
+  color:var(--muted);
+  font-size:.88rem;
+}
+.footer-line{
+  border-top:1.5px solid var(--line);
+  padding-top:16px;
+}
+
+@media (min-width: 900px){
+  .brand img{width:469px}
+}
+@media (max-width: 760px){
+  .header-inner{padding:12px 14px}
+  .brand img{width:350px}
+  .page{padding:30px 18px 38px}
+  .feature-grid{grid-template-columns:1fr}
+  .btn{width:100%}
+  .hero h1{font-size:clamp(2rem,10vw,3.15rem)}
+}
+@media (max-width: 420px){
+  .brand img{width:min(350px, calc(100vw - 92px))}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="homev11.html" class="brand" aria-label="Endicott Speed Shop home">
+      <img src="logo-horizontal.png" alt="Endicott Speed Shop">
+    </a>
+
+    <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="sidebar">
+      <div class="menu-lines" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+    </button>
+  </div>
+</header>
+
+<div class="overlay" id="overlay"></div>
+
+<aside class="sidebar" id="sidebar" aria-hidden="true">
+  <div class="sidebar-top">
+    <div class="sidebar-title">Menu</div>
+    <button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
+  </div>
+
+  <div class="nav-group">
+    <a class="nav-link" href="homev11.html">
+      Home
+      <small>Tool-first platform overview</small>
+    </a>
+    <a class="nav-link" href="index.html">
+      Calculator
+      <small>Weight balance calculator</small>
+    </a>
+    <a class="nav-link" href="#">
+      Guides
+      <small>In development</small>
+    </a>
+    <a class="nav-link" href="#">
+      Build Log
+      <small>In development</small>
+    </a>
+  </div>
+
+  <div class="connect-box">
+    <h3>Connect</h3>
+    <p>Direct contact path for project questions, calculator feedback, and future guide requests.</p>
+    <a class="connect-link" href="mailto:descore.llc@gmail.com?subject=Endicott%20Speed%20Shop%20Inquiry">Email the project</a>
+  </div>
+</aside>
+
+<main class="page">
+  <section class="hero">
+    <div class="kicker">Measure • Test • Improve</div>
+    <h1>Real-world tools for real-world performance decisions.</h1>
+    <p>Endicott Speed Shop is being built as a practical platform for builders, fabricators, and enthusiasts who want clearer answers before they spend time, money, or fabrication effort. The goal is utility first: calculators, technical guides, and tested decision-making tools.</p>
+    <div class="action-row">
+      <a class="btn primary" href="index.html">Open Weight Calculator</a>
+      <a class="btn secondary" href="#platform">View Platform Direction</a>
+    </div>
+  </section>
+
+  <section class="section" id="platform">
+    <div class="section-label">Platform</div>
+    <h2>Built more like a tool platform than a magazine.</h2>
+    <p>The structure stays minimal on purpose. Strong hierarchy, clean spacing, and clear navigation keep the site focused on function instead of decoration.</p>
+
+    <div class="feature-grid">
+      <article class="feature-card">
+        <h3>Weight distribution calculator</h3>
+        <p>A practical way to estimate how moving batteries, engines, fuel cells, and other components can change front-to-rear balance before the car goes on scales.</p>
+        <a class="feature-link" href="index.html">Launch calculator</a>
+      </article>
+
+      <article class="feature-card">
+        <h3>Guides</h3>
+        <p>Future technical content will stay tightly focused on useful build decisions, packaging tradeoffs, and measurable outcomes.</p>
+        <span class="status">In development</span>
+      </article>
+
+      <article class="feature-card">
+        <h3>Build log</h3>
+        <p>Selected project notes and development work will eventually give the platform a grounded record of what was tested and why.</p>
+        <span class="status">In development</span>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-label">Design Direction</div>
+    <h2>Deliberate hierarchy without added visual noise.</h2>
+    <p>Charcoal carries the main headline, blue marks section structure and interaction points, and warm gray handles supporting copy. The result keeps the page from feeling flat or monochrome while still staying restrained.</p>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-line">Endicott Speed Shop — home test v11</div>
+</footer>
+
+<script>
+const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+const closeBtn = document.getElementById('closeBtn');
+
+function openMenu() {
+  sidebar.classList.add('open');
+  overlay.classList.add('show');
+  menuToggle.setAttribute('aria-expanded', 'true');
+  sidebar.setAttribute('aria-hidden', 'false');
+}
+
+function closeMenu() {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('show');
+  menuToggle.setAttribute('aria-expanded', 'false');
+  sidebar.setAttribute('aria-hidden', 'true');
+}
+
+menuToggle.addEventListener('click', openMenu);
+closeBtn.addEventListener('click', closeMenu);
+overlay.addEventListener('click', closeMenu);
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') closeMenu();
+});
+</script>
+
+</body>
+</html>
