@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Weight Distribution Calculator | Endicott Speed Shop</title>
+<meta name="description" content="Estimate how component changes affect total weight and front-to-rear distribution.">
+<style>
+:root{
+  --bg:#ffffff;
+  --panel:#ffffff;
+  --text:#2c2c2c;
+  --muted:#727270;
+  --accent-blue:#2f557f;
+  --accent-blue-dark:#24476b;
+  --line:#dbe4ee;
+  --line-strong:#bfd0e0;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  padding:0;
+  background:#ffffff !important;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.45;
+}
+a{color:inherit;text-decoration:none}
+
+/* Shared site chrome */
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:40;
+  background:rgba(255,255,255,.98);
+  backdrop-filter:blur(10px);
+}
+.header-inner{
+  max-width:1100px;
+  margin:auto;
+  padding:12px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  min-width:0;
+}
+.brand img{
+  display:block;
+  width:304px;   /* mobile upsized */
+  height:auto;
+}
+.menu-toggle{
+  appearance:none;
+  border:none;
+  background:transparent;
+  width:46px;
+  height:46px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition:background-color .18s ease;
+  flex:0 0 auto;
+}
+.menu-toggle:hover{background:rgba(47,85,127,.08)}
+.menu-lines{
+  width:22px;
+  height:16px;
+  position:relative;
+}
+.menu-lines span{
+  position:absolute;
+  left:0;
+  width:100%;
+  height:2.5px;
+  background:var(--accent-blue);
+  border-radius:999px;
+  transition:background-color .18s ease;
+}
+.menu-toggle:hover .menu-lines span{background:var(--accent-blue-dark)}
+.menu-lines span:nth-child(1){top:0}
+.menu-lines span:nth-child(2){top:6px}
+.menu-lines span:nth-child(3){top:12px}
+
+.sidebar{
+  position:fixed;
+  top:0;
+  right:0;
+  width:min(360px, 88vw);
+  height:100dvh;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  background:#ffffff;
+  border-left:1px solid var(--line);
+  box-shadow:none;
+  transform:translateX(100%);
+  transition:transform .28s ease;
+  z-index:70;
+  padding:20px 20px 28px;
+  display:flex;
+  flex-direction:column;
+}
+.sidebar.open{transform:translateX(0)}
+.sidebar-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:24px;
+}
+.sidebar-title{
+  font-size:.75rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.close-btn{
+  appearance:none;
+  border:1px solid var(--line-strong);
+  background:transparent;
+  width:40px;
+  height:40px;
+  border-radius:999px;
+  cursor:pointer;
+  font-size:20px;
+  line-height:1;
+  color:var(--text);
+  flex:0 0 auto;
+}
+.nav-group{
+  border-top:1.5px solid var(--line);
+  padding-top:16px;
+  margin-top:6px;
+}
+.nav-link{
+  display:block;
+  padding:13px 0;
+  border-bottom:1px solid rgba(47,85,127,.12);
+  font-size:1.02rem;
+  color:var(--accent-blue);
+}
+.nav-link small{
+  display:block;
+  color:var(--muted);
+  font-size:.82rem;
+  margin-top:4px;
+}
+.connect-box{
+  margin-top:24px;
+  border:1px solid var(--line);
+  padding:16px;
+  background:#ffffff;
+}
+.connect-box h3{
+  margin:0 0 8px 0;
+  font-size:1rem;
+  font-weight:560;
+  color:var(--accent-blue);
+}
+.connect-box p{
+  margin:0 0 12px 0;
+  color:var(--muted);
+  font-size:.95rem;
+}
+.connect-link{
+  display:inline-block;
+  border-bottom:1px solid var(--accent-blue);
+  padding-bottom:2px;
+  color:var(--accent-blue-dark);
+}
+.overlay{
+  position:fixed;
+  inset:0;
+  background:transparent !important;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .24s ease;
+  z-index:60;
+}
+.overlay.show{
+  opacity:1;
+  pointer-events:auto;
+  background:transparent !important;
+}
+
+/* Page */
+.page{
+  max-width:1100px;
+  margin:auto;
+  padding:34px 20px 42px;
+}
+.intro{
+  padding:10px 0 24px;
+}
+.kicker{
+  font-size:.82rem;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:16px;
+}
+.intro h1{
+  margin:0 0 14px 0;
+  font-size:clamp(2.1rem,4.5vw,3.7rem);
+  line-height:1.02;
+  letter-spacing:-0.02em;
+  font-weight:480;
+  color:var(--text);
+}
+.intro p{
+  margin:0;
+  max-width:760px;
+  color:var(--muted);
+  font-size:1.05rem;
+  line-height:1.6;
+}
+
+.section{
+  padding:22px 0 24px;
+  border-top:1.5px solid var(--line);
+}
+.section-label{
+  font-size:.76rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:10px;
+}
+.section h2{
+  margin:0 0 14px;
+  font-size:clamp(1.55rem,3.2vw,2.25rem);
+  line-height:1.05;
+  letter-spacing:-0.02em;
+  font-weight:500;
+  color:var(--accent-blue);
+}
+.section p{
+  margin:0;
+  color:var(--muted);
+  font-size:1rem;
+}
+
+.grid-3{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:18px;
+}
+.input-group label{
+  display:block;
+  margin:0 0 8px;
+  font-size:1rem;
+  color:var(--text);
+  font-weight:560;
+}
+input{
+  width:100%;
+  min-width:0;
+  height:56px;
+  padding:0 16px;
+  border:1.5px solid var(--line-strong);
+  border-radius:18px;
+  font-size:1rem;
+  color:var(--text);
+  background:#fff;
+}
+input:focus{
+  outline:none;
+  border-color:var(--accent-blue);
+  box-shadow:0 0 0 3px rgba(47,85,127,.08);
+}
+
+.info-wrap{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.info-btn{
+  appearance:none;
+  width:18px;
+  height:18px;
+  border-radius:999px;
+  border:1px solid var(--line-strong);
+  background:transparent;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1;
+  padding:0;
+  cursor:pointer;
+}
+.tooltip{
+  position:absolute;
+  top:calc(100% + 8px);
+  left:0;
+  width:250px;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--muted);
+  font-size:.88rem;
+  line-height:1.45;
+  display:none;
+  z-index:10;
+}
+.info-wrap:hover .tooltip,
+.info-wrap:focus-within .tooltip{
+  display:block;
+}
+
+.mod-row{
+  display:grid;
+  grid-template-columns:1.45fr 1fr 1fr 1fr 1fr auto;
+  gap:12px;
+  align-items:center;
+  margin-bottom:12px;
+}
+.button-row{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+.btn{
+  min-width:180px;
+  height:52px;
+  padding:0 22px;
+  border-radius:999px;
+  font-size:.95rem;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  transition:filter .18s ease, background-color .18s ease, color .18s ease;
+}
+.primary{
+  background:var(--accent-blue);
+  color:#fff;
+  border:none;
+}
+.primary:hover{filter:brightness(.92)}
+.secondary{
+  border:1px solid var(--line-strong);
+  color:#3d3d3b;
+  background:transparent;
+}
+.secondary:hover{background:rgba(47,85,127,.05)}
+.ghost-btn{
+  appearance:none;
+  border:1px solid var(--line-strong);
+  background:transparent;
+  color:var(--text);
+  height:52px;
+  padding:0 18px;
+  border-radius:18px;
+  font-size:.95rem;
+  cursor:pointer;
+}
+.ghost-btn:hover{background:rgba(47,85,127,.05)}
+
+.results-grid{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:18px;
+}
+.result-card{
+  border:1.5px solid var(--line);
+  border-radius:18px;
+  padding:16px;
+}
+.result-label{
+  font-size:.82rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:10px;
+  font-weight:600;
+}
+.result-value{
+  font-size:1.85rem;
+  line-height:1.1;
+  color:var(--text);
+  font-weight:540;
+}
+.takeaway{
+  margin-top:16px;
+  padding:16px;
+  border-radius:18px;
+  border:1.5px solid var(--line);
+  color:var(--text);
+  font-weight:500;
+}
+.warning{
+  margin-top:16px;
+  padding:14px 16px;
+  border-radius:18px;
+  border:1.5px solid #e6d8b6;
+  background:#fff9eb;
+  color:#7c6330;
+  display:none;
+}
+
+.footer{
+  max-width:1100px;
+  margin:0 auto;
+  padding:0 20px 42px;
+  color:var(--muted);
+  font-size:.88rem;
+}
+.footer-line{
+  border-top:1.5px solid var(--line);
+  padding-top:16px;
+}
+
+@media (min-width: 900px){
+  .brand img{width:408px;} /* stronger desktop jump */
+}
+@media (max-width: 760px){
+  .header-inner{padding:12px 14px}
+  .brand img{width:304px}
+  .page{padding:28px 18px 38px}
+  .grid-3,.results-grid{grid-template-columns:1fr}
+  .mod-row{grid-template-columns:1fr}
+  .btn{width:100%}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="home.html" class="brand" aria-label="Endicott Speed Shop home">
+      <img src="logo-horizontal.png" alt="Endicott Speed Shop">
+    </a>
+
+    <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="sidebar">
+      <div class="menu-lines" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+    </button>
+  </div>
+</header>
+
+<div class="overlay" id="overlay"></div>
+
+<aside class="sidebar" id="sidebar" aria-hidden="true">
+  <div class="sidebar-top">
+    <div class="sidebar-title">Menu</div>
+    <button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
+  </div>
+
+  <div class="nav-group">
+    <a class="nav-link" href="home.html">
+      Home
+      <small>Project overview and direction</small>
+    </a>
+    <a class="nav-link" href="index.html">
+      Calculator
+      <small>Weight balance calculator</small>
+    </a>
+    <a class="nav-link" href="#">
+      Guides
+      <small>In development</small>
+    </a>
+    <a class="nav-link" href="#">
+      Build Log
+      <small>In development</small>
+    </a>
+  </div>
+
+  <div class="connect-box">
+    <h3>Connect</h3>
+    <p>As the site grows, this panel can hold your direct email link, YouTube, and other contact paths.</p>
+    <a class="connect-link" href="mailto:descore.llc@gmail.com?subject=Endicott%20Speed%20Shop%20Inquiry">Email the project</a>
+  </div>
+</aside>
+
+<main class="page">
+  <section class="intro">
+    <div class="kicker">Measure • Test • Improve</div>
+    <h1>Car weight distribution calculator</h1>
+    <p>Estimate how component changes affect total weight and front-to-rear distribution before making changes to the car.</p>
+  </section>
+
+  <section class="section">
+    <div class="section-label">Baseline</div>
+    <h2>Vehicle setup</h2>
+    <div class="grid-3">
+      <div class="input-group">
+        <label for="totalWeight">Total Weight (lbs)</label>
+        <input type="text" inputmode="decimal" id="totalWeight" value="3600">
+      </div>
+      <div class="input-group">
+        <label for="frontPct">Front Weight (%)</label>
+        <input type="text" inputmode="decimal" id="frontPct" value="57">
+      </div>
+      <div class="input-group">
+        <label for="wheelbase">Wheelbase (in)</label>
+        <input type="text" inputmode="decimal" id="wheelbase" value="108">
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-label">Changes</div>
+    <div class="info-wrap">
+      <h2 style="margin:0">Modifications</h2>
+      <button type="button" class="info-btn" aria-label="Modification help">i</button>
+      <div class="tooltip">Enter values in pounds and inches. Locations are measured from the rear axle. Negative values are behind the rear axle.</div>
+    </div>
+
+    <div id="modsContainer" style="margin-top:16px;"></div>
+
+    <div class="button-row">
+      <button type="button" class="ghost-btn" id="addRowBtn">+ Add Component</button>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-label">Results</div>
+    <h2>Estimated outcome</h2>
+    <div class="results-grid">
+      <div class="result-card">
+        <div class="result-label">New Front Weight</div>
+        <div class="result-value" id="newFrontPct">--</div>
+      </div>
+      <div class="result-card">
+        <div class="result-label">Front Weight Change</div>
+        <div class="result-value" id="frontChange">--</div>
+      </div>
+      <div class="result-card">
+        <div class="result-label">New Total Weight</div>
+        <div class="result-value" id="newTotalWeight">--</div>
+      </div>
+    </div>
+    <div class="takeaway" id="takeaway">Enter valid baseline values to calculate results.</div>
+    <div class="warning" id="warningMessage"></div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-line">Endicott Speed Shop — early platform build</div>
+</footer>
+
+<script>
+const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+const closeBtn = document.getElementById('closeBtn');
+
+function openMenu() {
+  sidebar.classList.add('open');
+  overlay.classList.add('show');
+  menuToggle.setAttribute('aria-expanded', 'true');
+  sidebar.setAttribute('aria-hidden', 'false');
+}
+function closeMenu() {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('show');
+  menuToggle.setAttribute('aria-expanded', 'false');
+  sidebar.setAttribute('aria-hidden', 'true');
+}
+menuToggle.addEventListener('click', openMenu);
+closeBtn.addEventListener('click', closeMenu);
+overlay.addEventListener('click', closeMenu);
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') closeMenu();
+});
+
+let componentIndex = 0;
+
+function normalizeNumericInputValue(value) {
+  let cleaned = (value || "").replace(/[^0-9.\-]/g, "");
+  if (cleaned.includes("-")) {
+    cleaned = (cleaned[0] === "-" ? "-" : "") + cleaned.replace(/-/g, "");
+  }
+  const firstDot = cleaned.indexOf(".");
+  if (firstDot !== -1) {
+    cleaned = cleaned.slice(0, firstDot + 1) + cleaned.slice(firstDot + 1).replace(/\./g, "");
+  }
+  return cleaned;
+}
+
+function attachNumericSanitizer(input) {
+  input.addEventListener("input", function() {
+    const start = input.selectionStart;
+    const before = input.value;
+    const after = normalizeNumericInputValue(before);
+    if (before !== after) {
+      input.value = after;
+      if (start !== null) {
+        const delta = before.length - after.length;
+        const pos = Math.max(0, start - delta);
+        input.setSelectionRange(pos, pos);
+      }
+    }
+  });
+}
+
+function getNum(id) {
+  const el = document.getElementById(id);
+  if (!el) return null;
+  const raw = normalizeNumericInputValue(el.value.trim());
+  if (raw === "" || raw === "-" || raw === "." || raw === "-.") return null;
+  const v = parseFloat(raw);
+  return Number.isFinite(v) ? v : null;
+}
+
+function rowDelta(origWeight, newWeight, fromLoc, toLoc) {
+  return (newWeight * toLoc) - (origWeight * fromLoc);
+}
+
+function setInvalid(message) {
+  document.getElementById("newFrontPct").textContent = "--";
+  document.getElementById("frontChange").textContent = "--";
+  document.getElementById("newTotalWeight").textContent = "--";
+  document.getElementById("takeaway").textContent = "Enter valid baseline values to calculate results.";
+  const warning = document.getElementById("warningMessage");
+  warning.textContent = message;
+  warning.style.display = "block";
+}
+
+function setValid() {
+  const warning = document.getElementById("warningMessage");
+  warning.textContent = "";
+  warning.style.display = "none";
+}
+
+function createField(inputId, className, value, placeholder) {
+  const input = document.createElement("input");
+  input.id = inputId;
+  input.className = className;
+  input.type = "text";
+  input.value = value || "";
+  input.placeholder = placeholder || "";
+  if (className !== "componentName") {
+    input.setAttribute("inputmode", className === "fromLoc" || className === "toLoc" ? "text" : "decimal");
+    attachNumericSanitizer(input);
+  }
+  ["input","change","keyup","blur"].forEach(evt => input.addEventListener(evt, calculate));
+  return input;
+}
+
+function addRow(defaults) {
+  const cfg = defaults || {};
+  componentIndex += 1;
+
+  const row = document.createElement("div");
+  row.className = "mod-row";
+
+  row.appendChild(createField("comp_" + componentIndex, "componentName", cfg.component, "Component"));
+  row.appendChild(createField("origWeight_" + componentIndex, "origWeight", cfg.origWeight, "Orig wt"));
+  row.appendChild(createField("newWeight_" + componentIndex, "newWeight", cfg.newWeight, "New wt"));
+  row.appendChild(createField("from_" + componentIndex, "fromLoc", cfg.fromLoc, "From loc"));
+  row.appendChild(createField("to_" + componentIndex, "toLoc", cfg.toLoc, "To loc"));
+
+  const removeBtn = document.createElement("button");
+  removeBtn.type = "button";
+  removeBtn.className = "ghost-btn";
+  removeBtn.textContent = "Remove";
+  removeBtn.addEventListener("click", function() {
+    row.remove();
+    calculate();
+  });
+  row.appendChild(removeBtn);
+
+  document.getElementById("modsContainer").appendChild(row);
+}
+
+function calculate() {
+  const totalWeight = getNum("totalWeight");
+  const frontPctInput = getNum("frontPct");
+  const wheelbase = getNum("wheelbase");
+
+  if (totalWeight === null || frontPctInput === null || wheelbase === null) {
+    setInvalid("Enter total weight, front weight %, and wheelbase to calculate results.");
+    return;
+  }
+  if (totalWeight <= 0) {
+    setInvalid("Baseline total weight must be greater than 0.");
+    return;
+  }
+  if (wheelbase <= 0) {
+    setInvalid("Wheelbase must be greater than 0.");
+    return;
+  }
+  if (frontPctInput <= 0 || frontPctInput >= 100) {
+    setInvalid("Front weight % should be between 0 and 100.");
+    return;
+  }
+
+  const baselineMoment = totalWeight * (frontPctInput / 100) * wheelbase;
+  let totalMomentDelta = 0;
+  let totalWeightDelta = 0;
+
+  const rows = document.querySelectorAll(".mod-row");
+  for (const row of rows) {
+    const origWeight = getNum(row.querySelector(".origWeight").id);
+    const newWeight = getNum(row.querySelector(".newWeight").id);
+    const fromLoc = getNum(row.querySelector(".fromLoc").id);
+    const toLoc = getNum(row.querySelector(".toLoc").id);
+
+    const allBlank = origWeight === null && newWeight === null && fromLoc === null && toLoc === null;
+    if (allBlank) continue;
+
+    if (origWeight === null || newWeight === null || fromLoc === null || toLoc === null) {
+      setInvalid("Each component row must be fully filled out, or left completely blank.");
+      return;
+    }
+
+    totalMomentDelta += rowDelta(origWeight, newWeight, fromLoc, toLoc);
+    totalWeightDelta += (newWeight - origWeight);
+  }
+
+  const newTotalWeight = totalWeight + totalWeightDelta;
+  if (newTotalWeight <= 0) {
+    setInvalid("Baseline weight is too low for the modification values entered.");
+    return;
+  }
+
+  const newFrontPct = ((baselineMoment + totalMomentDelta) / (newTotalWeight * wheelbase)) * 100;
+  if (!Number.isFinite(newFrontPct)) {
+    setInvalid("Unable to calculate. Check baseline values and modification inputs.");
+    return;
+  }
+
+  const deltaPct = newFrontPct - frontPctInput;
+  let takeaway = "Very small balance change.";
+  const absDelta = Math.abs(deltaPct);
+  if (absDelta >= 0.25 && absDelta < 0.75) takeaway = "Small but real balance change.";
+  else if (absDelta >= 0.75 && absDelta < 1.5) takeaway = "Meaningful shift in balance.";
+  else if (absDelta >= 1.5) takeaway = deltaPct < 0 ? "Major shift toward rear balance." : "Major shift toward front bias.";
+
+  document.getElementById("newFrontPct").textContent = newFrontPct.toFixed(1) + "%";
+  document.getElementById("frontChange").textContent = (deltaPct >= 0 ? "+" : "") + deltaPct.toFixed(1) + "%";
+  document.getElementById("newTotalWeight").textContent = newTotalWeight.toFixed(0) + " lb";
+  document.getElementById("takeaway").textContent = takeaway;
+  setValid();
+}
+
+document.querySelectorAll("#totalWeight, #frontPct, #wheelbase").forEach(el => {
+  attachNumericSanitizer(el);
+  ["input","change","keyup","blur"].forEach(evt => el.addEventListener(evt, calculate));
+});
+document.getElementById("addRowBtn").addEventListener("click", () => addRow());
+
+addRow({
+  component: "Battery",
+  origWeight: 40,
+  newWeight: 40,
+  fromLoc: 140,
+  toLoc: -25
+});
+calculate();
+</script>
+
+</body>
+</html>
