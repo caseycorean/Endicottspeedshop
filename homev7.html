@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Endicott Speed Shop</title>
+<style>
+:root{
+  --bg:#ffffff;
+  --text:#2c2c2c;
+  --muted:#8a8a88;
+  --line:#ececea;
+  --line-strong:#ddddda;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+.site-header{
+  position:sticky;
+  top:0;
+  background:rgba(255,255,255,.96);
+  border-bottom:1px solid var(--line);
+}
+.header-inner{
+  max-width:1100px;
+  margin:auto;
+  padding:12px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.brand img{width:280px}
+.menu-toggle{
+  border:1px solid var(--line-strong);
+  border-radius:999px;
+  width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  background:none;
+}
+.hero{
+  max-width:1100px;
+  margin:auto;
+  padding:64px 20px 24px;
+}
+.hero h1{
+  font-size:clamp(2.4rem,5vw,4.2rem);
+  font-weight:480;
+  letter-spacing:-0.02em;
+  line-height:1;
+  margin:0 0 16px;
+}
+.hero p{
+  color:#6f6f6d;
+  max-width:600px;
+}
+.cta{
+  margin-top:28px;
+  display:flex;
+  gap:12px;
+}
+.btn{
+  padding:14px 20px;
+  border-radius:999px;
+  font-size:.95rem;
+}
+.primary{background:#2f2f2f;color:#fff}
+.secondary{border:1px solid var(--line-strong)}
+.section{
+  max-width:1100px;
+  margin:auto;
+  padding:22px 20px;
+  border-top:1px solid var(--line);
+}
+h2{
+  font-weight:500;
+  letter-spacing:-0.015em;
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <img src="logo-horizontal.png">
+    <button class="menu-toggle">≡</button>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>Tools and guidance for better performance decisions.</h1>
+  <p>Focused on real-world setups and clearer thinking around what actually changes how a car behaves.</p>
+  <div class="cta">
+    <div class="btn primary">Use Calculator</div>
+    <div class="btn secondary">Learn More</div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Weight Balance Calculator</h2>
+  <p>Estimate changes before making them.</p>
+</section>
+
+</body>
+</html>
