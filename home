@@ -150,7 +150,7 @@ body {
 <body>
 
 <!-- BACKGROUND LOGO -->
-<img src="round-logo.png" class="background-logo">
+<img src="logo-round.png" class="background-logo">
 
 <!-- HEADER -->
 <div class="header">
