@@ -47,17 +47,17 @@
 <div class="result"><div class="l">Front axle</div><div class="v" id="oFA">–</div><div class="d">lb</div></div>
 <div class="result"><div class="l">Rear axle</div><div class="v" id="oRA">–</div><div class="d">lb</div></div>
 <div class="result"><div class="l">CG behind front axle</div><div class="v" id="oX">–</div><div class="d" id="dX"></div></div>
-<div class="result"><div class="l">Yaw inertia change*</div><div class="v" id="oI">–</div><div class="d">lb·ft² from listed parts</div></div>
+<div class="result"><div class="l">Yaw inertia change*</div><div class="v" id="oI">–</div><div class="d">lb·ft²</div></div>
 </div>
 <div class="note warn" id="warn"></div>
 <p class="callout" id="take" style="margin-top:14px">–</p>
 <svg class="diagram" id="diag" viewBox="0 0 700 190" aria-label="Side view with center of gravity"></svg>
-<p class="hint">* Change in the car's resistance to rotating (polar moment), counting only the parts you listed, about the new center of gravity. Negative means mass moved toward the middle of the car — it will be quicker to change direction. See <a href="../../articles/weight-distribution-50-50/">why that matters more than 50/50</a>.</p>
+<p class="hint">* Change in the car's resistance to rotating about a vertical axis (yaw, or polar, moment of inertia), measured about the car's center of gravity before and after. It treats each listed part as a point weight that moves without rotating, and includes the effect of the center of gravity itself shifting. Negative means less yaw inertia, which helps the car change direction — but how quickly it actually responds also depends on the tires, suspension and the turning force available. See <a href="../../articles/weight-distribution-50-50/">why that matters more than 50/50</a>.</p>
 </div>
 
 <div class="section narrow"><div class="section-label">How it works</div>
 <p>Each part's weight times its distance from the front axle is a moment. Removing a part takes its moment away; adding one puts a moment in; moving one does both. The new center of gravity is the total moment divided by the new total weight; front weight follows from where that center sits between the axles. The same arithmetic gives side-to-side balance and, when you supply a starting height, CG height.</p>
-<p>Part weights marked <span class="badge">measured</span> were weighed by ESS (see <a href="../../articles/measured-firebird-weights/">what each includes</a>). Locations in the presets are typical estimates for a second-gen F-body — edit them for your car.</p></div>
+<p>Part weights marked <span class="badge">measured</span> were weighed by ESS (see <a href="../../articles/measured-firebird-weights/">what each includes</a>). Locations in the presets are typical estimates for a second-gen F-body — edit them for your car. Measured weights include different hardware (for example, the stock subframe was weighed on its wheels and the C5 assembly without), so don't subtract one preset from another unless they include the same parts. A blank Y means on the centerline; a blank Z means at the car's CG height.</p></div>
 </main>
 <script>
 (function(){
@@ -83,12 +83,15 @@ var PRESETS=[
  ["Trunk lid",24,"measured",140,0,34]];
 var sel=document.getElementById('preset');
 PRESETS.forEach(function(p,i){var o=document.createElement('option');o.value=i;o.textContent=p[0]+' — '+p[1]+' lb'+(p[2]==='measured'?' (measured)':'');sel.appendChild(o);});
-function num(v){v=(v||'').toString().replace(/[^0-9.\-]/g,'');if(v===''||v==='-'||v==='.')return null;var n=parseFloat(v);return isFinite(n)?n:null}
-function g(id){return num(document.getElementById(id).value)}
+function num(v){v=(v===undefined||v===null?'':v).toString().trim().replace(/,/g,'');if(v==='')return null;if(!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(v))return NaN;return parseFloat(v)}
+var BAD=false;
+function mark(el,ok){if(ok){el.removeAttribute('aria-invalid')}else{el.setAttribute('aria-invalid','true');BAD=true}}
+function g(id,rule){var el=document.getElementById(id),v=num(el.value),ok=!(v!==v)&&(v===null||!rule||rule(v));mark(el,ok);return ok?v:NaN}
+function pos(v){return v>0}function nonneg(v){return v>=0}function pct(v){return v>=0&&v<=100}
 var rows=document.getElementById('rows');
 function addRow(p,mode){
  var r=document.createElement('div');r.className='row';
- var f=function(c,lab,val){return '<div class="'+(c==='name'?'name':'')+'"><label>'+lab+'</label><input class="'+c+'" '+(c==='name'?'':'inputmode="decimal"')+' value="'+(val===undefined||val===null?'':val)+'"></div>'};
+ var f=function(c,lab,val){return '<div class="'+(c==='name'?'name':'')+'"><label>'+lab+'</label><input class="'+c+'" aria-label="'+lab+'" '+(c==='name'?'':'inputmode="decimal"')+' value="'+(val===undefined||val===null?'':val)+'"></div>'};
  var nowx=null,nowy=null,nowz=null,tox=null,toy=null,toz=null;
  if(p){ if(mode==='add'){tox=p[3];toy=p[4];toz=p[5];} else {nowx=p[3];nowy=p[4];nowz=p[5];} }
  r.innerHTML=f('name','Part',p?p[0]:'')+f('w','Weight lb',p?p[1]:'')+f('nx','Now at X',nowx)+f('ny','Y',nowy)+f('nz','Z',nowz)+f('tx','Moves to X',tox)+f('ty','Y',toy)+f('tz','Z',toz)+'<div><button class="btn-small ghost" type="button">Remove</button></div><div class="effect"></div>';
@@ -104,17 +107,20 @@ function fmt(v,d){return v.toLocaleString(undefined,{minimumFractionDigits:d,max
 function sign(v,d,u){return (v>=0?'+':'')+fmt(v,d)+(u||'')}
 function warn(m){var w=document.getElementById('warn');w.style.display=m?'block':'none';w.textContent=m||''}
 function base(){
- var wb=g('wb'),tf=g('tf'),tr=g('tr');if(!wb||wb<=0||tf===null||tr===null)return null;
+ var wb=g('wb',pos),tf=g('tf',pos),tr=g('tr',pos);
  var W,front,left,h;
  if(document.getElementById('mode').value==='corners'){
-  var lf=g('lf'),rf=g('rf'),lr=g('lr'),rr=g('rr');if([lf,rf,lr,rr].some(function(v){return v===null||v<0}))return null;
-  W=lf+rf+lr+rr;if(W<=0)return null;front=(lf+rf)/W;left=(lf+lr)/W;h=g('hcg2');
+  var lf=g('lf',nonneg),rf=g('rf',nonneg),lr=g('lr',nonneg),rr=g('rr',nonneg);h=g('hcg2',pos);
+  if([wb,tf,tr,lf,rf,lr,rr,h].some(function(v){return v!==v})||[wb,tf,tr,lf,rf,lr,rr].some(function(v){return v===null}))return null;
+  W=lf+rf+lr+rr;if(W<=0)return null;front=(lf+rf)/W;left=(lf+lr)/W;
   var yf=(rf-lf)/2*tf,yr=(rr-lr)/2*tr;
-  return {W:W,x:wb*(1-front),y:(yf+yr)/W,z:h,wb:wb,tf:tf,tr:tr};
+  return {W:W,x:wb*(1-front),y:(yf+yr)/W,z:h,wb:wb,tf:tf,tr:tr,left:left};
  }
- W=g('tot');var fp=g('fpct'),lp=g('lpct');if(!W||W<=0||fp===null||fp<=0||fp>=100)return null;if(lp===null)lp=50;
- front=fp/100;h=g('hcg');var tavg=front*tf+(1-front)*tr;
- return {W:W,x:wb*(1-front),y:(0.5-lp/100)*tavg,z:h,wb:wb,tf:tf,tr:tr};
+ W=g('tot',pos);var fp=g('fpct',function(v){return v>0&&v<100}),lp=g('lpct',pct);h=g('hcg',pos);
+ if([wb,tf,tr,W,fp,lp,h].some(function(v){return v!==v})||[wb,tf,tr,W,fp].some(function(v){return v===null}))return null;
+ if(lp===null)lp=50;
+ front=fp/100;var tavg=front*tf+(1-front)*tr;
+ return {W:W,x:wb*(1-front),y:(0.5-lp/100)*tavg,z:h,wb:wb,tf:tf,tr:tr,left:lp/100};
 }
 function apply(b,list){
  var W=b.W,Mx=b.W*b.x,My=b.W*b.y,Mz=b.z!==null?b.W*b.z:null;
@@ -123,17 +129,19 @@ function apply(b,list){
   if(c.to){W+=c.w;Mx+=c.w*c.to[0];My+=c.w*(c.to[1]||0);if(Mz!==null)Mz+=c.w*(c.to[2]===null?b.z:c.to[2]);}
  });
  if(W<=0)return null;
- var x=Mx/W,y=My/W,z=Mz!==null?Mz/W:null,front=1-x/b.wb,tavg=front*b.tf+(1-front)*b.tr,left=0.5-y/tavg;
+ var x=Mx/W,y=My/W,z=Mz!==null?Mz/W:null,front=1-x/b.wb,tavg=front*b.tf+(1-front)*b.tr,bf0=1-b.x/b.wb,tavg0=bf0*b.tf+(1-bf0)*b.tr,left=b.left+(0.5-y/tavg)-(0.5-b.y/tavg0);
  return {W:W,x:x,y:y,z:z,front:front,left:left};
 }
 function readRows(){
  var out=[],bad=false;
  rows.querySelectorAll('.row').forEach(function(r){
-  var q=function(c){return num(r.querySelector('.'+c).value)};
-  var w=q('w'),nx=q('nx'),tx=q('tx');
-  var c={el:r,name:r.querySelector('.name').value,w:w,now:nx!==null?[nx,q('ny'),q('nz')]:null,to:tx!==null?[tx,q('ty'),q('tz')]:null};
+  var q=function(c){var el=r.querySelector('.'+c),v=num(el.value),ok=v===v&&(c!=='w'||v===null||v>=0);mark(el,ok);if(!ok)rowbad=true;return ok?v:null};
+  var rowbad=false,w=q('w'),nx=q('nx'),tx=q('tx'),ny=q('ny'),nz=q('nz'),ty=q('ty'),tz=q('tz');
+  if(rowbad){bad=true;r.querySelector('.effect').textContent='Check the highlighted numbers.';return}
+  var c={el:r,name:r.querySelector('.name').value,w:w,now:nx!==null?[nx,ny,nz]:null,to:tx!==null?[tx,ty,tz]:null};
   if(w===null&&!c.now&&!c.to)return;
   if(w===null||w<0||(!c.now&&!c.to)){bad=true;r.querySelector('.effect').textContent='Enter a weight and at least one X location.';return}
+  r.querySelector('.effect').textContent='';
   out.push(c);
  });
  return {list:out,bad:bad};
@@ -149,24 +157,33 @@ function draw(b,n){
  h+='<circle cx="'+px(n.x)+'" cy="'+pz(nz)+'" r="8" fill="#2f557f"/><text x="'+px(n.x)+'" y="'+(pz(nz)+24)+'" text-anchor="middle" font-size="12" fill="#2f557f" font-weight="600">CG now</text>';
  s.innerHTML=h;
 }
+function clearOut(){['oTot','dTot','oF','dF','oL','dL','oH','dH','oFA','oRA','oX','dX','oI'].forEach(function(id){document.getElementById(id).textContent=id.charAt(0)==='o'?'–':''});document.getElementById('take').textContent='–';document.getElementById('diag').innerHTML=''}
 function calc(){
- var b=base();if(!b){warn('Enter a positive total weight (or four corner weights), a front % between 0 and 100, a wheelbase and track widths.');return}
- var rr=readRows();warn(rr.bad?'Some rows are incomplete and were skipped.':'');
- var n=apply(b,rr.list);if(!n){warn('The changes remove more weight than the car has.');return}
- var bf=1-b.x/b.wb,tavg=bf*b.tf+(1-bf)*b.tr,bl=0.5-b.y/tavg;
+ BAD=false;
+ var b=base();if(!b){clearOut();warn(BAD?'Check the highlighted numbers: use plain numbers only (no units or letters).':'Enter a positive total weight (or four corner weights), a front % between 0 and 100, a wheelbase and track widths.');return}
+ var rr=readRows();var msgs=[];if(rr.bad)msgs.push('Some rows are incomplete or have invalid numbers and were skipped.');
+ var n=apply(b,rr.list);if(!n){clearOut();warn('The changes remove more weight than the car has.');return}
+ if(n.x<0||n.x>b.wb){clearOut();warn('With these changes the center of gravity falls outside the wheelbase — one axle would carry negative weight, which is impossible for a car resting on its wheels. Check the weights and X locations.');return}
+ if(Math.abs(n.y)>Math.min(b.tf,b.tr)/2){clearOut();warn('With these changes the center of gravity falls outside the track width — check the weights and Y locations.');return}
+ if(b.tf!==b.tr)msgs.push('Front and rear tracks differ, so the new left-side % is an approximation.');
+ warn(msgs.join(' '));
+ var bf=1-b.x/b.wb,bl=b.left;
  document.getElementById('oTot').textContent=fmt(n.W,0)+' lb';document.getElementById('dTot').textContent=sign(n.W-b.W,0,' lb');
  document.getElementById('oF').textContent=fmt(n.front*100,1)+'%';document.getElementById('dF').textContent=sign((n.front-bf)*100,2,' pts');
  document.getElementById('oL').textContent=fmt(n.left*100,1)+'%';document.getElementById('dL').textContent=sign((n.left-bl)*100,2,' pts');
  if(n.z!==null){document.getElementById('oH').textContent=fmt(n.z,1)+' in';document.getElementById('dH').textContent=sign(n.z-b.z,2,' in')}else{document.getElementById('oH').textContent='–';document.getElementById('dH').textContent='enter a starting height'}
  document.getElementById('oFA').textContent=fmt(n.W*n.front,0);document.getElementById('oRA').textContent=fmt(n.W*(1-n.front),0);
  document.getElementById('oX').textContent=fmt(n.x,1)+' in';document.getElementById('dX').textContent=sign(n.x-b.x,2,' in');
+ // Change in yaw (polar) moment about the CG, lb·ft². Listed parts are point masses translated without rotating.
+ // dI = sum(signed w·d² about new CG)/144 + W0·|CG shift|²/144  (the rest of the car now sits off the new CG)
  var dI=0;rr.list.forEach(function(c){var d2=function(p){var dx=p[0]-n.x,dy=(p[1]||0)-n.y;return (dx*dx+dy*dy)/144};if(c.now)dI-=c.w*d2(c.now);if(c.to)dI+=c.w*d2(c.to)});
+ dI+=b.W*((n.x-b.x)*(n.x-b.x)+(n.y-b.y)*(n.y-b.y))/144;
  document.getElementById('oI').textContent=rr.list.length?sign(dI,0):'–';
  rr.list.forEach(function(c){var one=apply(b,[c]);if(one)c.el.querySelector('.effect').textContent='On its own: front '+sign((one.front-bf)*100,2,' pts')+', total '+sign(one.W-b.W,0,' lb')+(c.now&&c.to?' (move)':c.now?' (removed)':' (added)')});
  var d=Math.abs((n.front-bf)*100),t='Very small balance change.';
  if(!rr.list.length)t='Add, remove or move parts to see the effect.';
  else if(d>=1.5)t=(n.front<bf?'Major shift toward the rear.':'Major shift toward the front.');else if(d>=0.75)t='Meaningful shift in balance.';else if(d>=0.25)t='Small but real balance change.';
- document.getElementById('take').textContent=t+(rr.list.length&&dI<0?' Mass moved toward the center of the car.':'');
+ document.getElementById('take').textContent=t+(rr.list.length&&dI<0?' Yaw inertia went down: mass is closer to the center of gravity.':'');
  draw(b,n);
 }
 addRow(PRESETS[2],'remove');addRow(PRESETS[3],'add');

@@ -7,6 +7,7 @@
 <meta name="description" content="Find a part's weight and fore-aft location from four-corner scale readings taken before and after removing it.">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-GGJVMS8CZD"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD');</script>
+<link rel="canonical" href="https://endicottspeedshop.com/tools/scale-delta/">
 <link rel="stylesheet" href="../../assets/site.css">
 
 </head>
@@ -25,54 +26,62 @@
 <h1>Part Weight from Corner Scales</h1>
 <p class="lede">Weigh the car on four corner scales, remove a part (or install one), and weigh again. The difference tells you the part's weight — and how it splits between the axles tells you where it sat. No need to lift an engine onto a bathroom scale.</p>
 <div class="panel"><h2>Before</h2><div class="fields">
-<div><label>Left front</label><input id="b_lf" inputmode="decimal" value="582"></div><div><label>Right front</label><input id="b_rf" inputmode="decimal" value="608"></div>
-<div><label>Left rear</label><input id="b_lr" inputmode="decimal" value="760"></div><div><label>Right rear</label><input id="b_rr" inputmode="decimal" value="716"></div></div></div>
+<div><label for="b_lf">Left front</label><input id="b_lf" inputmode="decimal" value="582"></div><div><label for="b_rf">Right front</label><input id="b_rf" inputmode="decimal" value="608"></div>
+<div><label for="b_lr">Left rear</label><input id="b_lr" inputmode="decimal" value="760"></div><div><label for="b_rr">Right rear</label><input id="b_rr" inputmode="decimal" value="716"></div></div></div>
 <div class="panel"><h2>After</h2><div class="fields">
-<div><label>Left front</label><input id="a_lf" inputmode="decimal" value="355"></div><div><label>Right front</label><input id="a_rf" inputmode="decimal" value="370"></div>
-<div><label>Left rear</label><input id="a_lr" inputmode="decimal" value="709"></div><div><label>Right rear</label><input id="a_rr" inputmode="decimal" value="674"></div></div></div>
+<div><label for="a_lf">Left front</label><input id="a_lf" inputmode="decimal" value="355"></div><div><label for="a_rf">Right front</label><input id="a_rf" inputmode="decimal" value="370"></div>
+<div><label for="a_lr">Left rear</label><input id="a_lr" inputmode="decimal" value="709"></div><div><label for="a_rr">Right rear</label><input id="a_rr" inputmode="decimal" value="674"></div></div></div>
 <div class="panel"><h2>Car and scales</h2><div class="fields">
-<div><label>Wheelbase (in)</label><input id="wb" inputmode="decimal" value="108"></div>
-<div><label>Track width (in)</label><input id="tw" inputmode="decimal" value="61"></div>
-<div><label>Scale reading step (lb)</label><input id="res" inputmode="decimal" value="1"></div>
-<div><label>Change made</label><select id="dir"><option value="rem" selected>Part removed</option><option value="add">Part added</option></select></div></div>
+<div><label for="wb">Wheelbase (in)</label><input id="wb" inputmode="decimal" value="108"></div>
+<div><label for="tw">Track width (in)</label><input id="tw" inputmode="decimal" value="61"></div>
+<div><label for="res">Scale reading step (lb)</label><input id="res" inputmode="decimal" value="1"></div>
+<div><label for="dir">Change made</label><select id="dir"><option value="rem" selected>Part removed</option><option value="add">Part added</option></select></div></div>
 <p class="hint">Example values: an ESS weighing in March 2026 before and after pulling an LS1/T5 package (totals and front/rear split as recorded; the left/right split of the "after" readings is illustrative). Keep fuel, tire pressures, the car's position on the scales and anything sitting in the car the same for both weighings — every pound you forget lands in the answer.</p></div>
 <div class="panel"><h2>Result</h2><div class="results">
 <div class="result"><div class="l">Part weight</div><div class="v" id="w">–</div><div class="d" id="wu"></div></div>
 <div class="result"><div class="l">Location behind front axle</div><div class="v" id="x">–</div><div class="d" id="xu"></div></div>
-<div class="result"><div class="l">Side of center</div><div class="v" id="y">–</div><div class="d">+ right / − left</div></div>
+<div class="result"><div class="l">Side of center</div><div class="v" id="y">–</div><div class="d" id="yu">+ right / − left</div></div>
 <div class="result"><div class="l">Front axle share</div><div class="v" id="fs">–</div><div class="d">of the part's weight</div></div></div>
 <div class="note warn" id="warn"></div>
 <p class="callout" id="take">–</p></div>
 <div class="section narrow"><div class="section-label">How it works</div>
 <p>The part's weight is the change in the total. Its fore-aft location follows from how that change divides between the front and rear axles: if the rear scales lost 20% of it, the part sat 20% of the wheelbase behind the front axle. Side-to-side works the same way across the track.</p>
-<p>Each scale reading is rounded, so the result has an uncertainty. This tool assumes each of the eight readings can be off by up to half a reading step and shows the worst case. Small parts on big scales give large location uncertainty — use this method for heavy assemblies and a component scale for small parts.</p>
+<p>Each scale reading is rounded, so the result has an uncertainty. This tool assumes each of the eight readings can be off by up to half a reading step and shows the worst case. That covers rounding only — it is not the scales' accuracy or repeatability, which you should check by weighing the car more than once. Small parts on big scales give large location uncertainty — use this method for heavy assemblies and a component scale for small parts.</p>
 <p>Part weights ESS measured this way are in <a href="../../articles/measured-firebird-weights/">the measured weights reference</a>; use them in the <a href="../cg-builder/">Balance &amp; CG Builder</a>.</p></div>
 </main>
 <script>
 (function(){
-function n(id){var v=document.getElementById(id).value.replace(/[^0-9.\-]/g,'');var x=parseFloat(v);return isFinite(x)?x:null}
+function num(v){v=(v||'').toString().trim().replace(/,/g,'');if(v==='')return null;if(!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(v))return NaN;return parseFloat(v)}
 function f(v,d){return v.toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d})}
+function up(v,d){var k=Math.pow(10,d);return Math.ceil(v*k-1e-9)/k}
+var OUT=['w','wu','x','xu','y','yu','fs'];
+function clearOut(){OUT.forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=(id.length===1||id==='fs')?'–':''})}
 function calc(){
- var ids=['b_lf','b_rf','b_lr','b_rr','a_lf','a_rf','a_lr','a_rr','wb','tw','res'],v={};
- for(var i=0;i<ids.length;i++){v[ids[i]]=n(ids[i]);if(v[ids[i]]===null){return show('Fill in every reading.')}}
+ var ids=['b_lf','b_rf','b_lr','b_rr','a_lf','a_rf','a_lr','a_rr','wb','tw','res'],v={},bad=false,blank=false;
+ ids.forEach(function(id){var el=document.getElementById(id),x=num(el.value),ok=x===x&&(x===null||(/^[ab]_/.test(id)?x>=0:x>0));if(ok)el.removeAttribute('aria-invalid');else{el.setAttribute('aria-invalid','true');bad=true}if(x===null)blank=true;v[id]=x});
+ if(bad)return show('Check the highlighted numbers: scale readings must be zero or more, and wheelbase, track and reading step must be positive. Plain numbers only.');
+ if(blank)return show('Fill in every reading.');
  var s=document.getElementById('dir').value==='rem'?1:-1;
  var dLF=s*(v.b_lf-v.a_lf),dRF=s*(v.b_rf-v.a_rf),dLR=s*(v.b_lr-v.a_lr),dRR=s*(v.b_rr-v.a_rr);
- var W=dLF+dRF+dLR+dRR,F=dLF+dRF,R=dLR+dRR,Rt=dRF+dRR;
- if(Math.abs(W)<0.5)return show('The totals barely changed — nothing to locate.');
+ var W=dLF+dRF+dLR+dRR,F=dLF+dRF,R=dLR+dRR,Rt=dRF+dRR,Lt=dLF+dLR,st=v.res;
+ // Each of the 8 readings can be off by up to half a step. A front, rear, left or right sum is the
+ // difference of 2+2 readings, so it can be off by +/-2 steps; the total by +/-4 steps.
+ var uA=2*st,uW=4*st;
  if(W<0)return show('The car got heavier. Check "Change made".');
- var x=v.wb*R/W,y=v.tw*(Rt/W-0.5),e=v.res/2;
- var uW=8*e,uR=4*e,uF=4*e;
- var xs=[];[[R+uR,W+uW-uF],[R-uR,W-uW+uF],[R+uR,W+uR-uF],[R-uR,W-uR+uF]].forEach(function(p){if(p[1]>0)xs.push(v.wb*p[0]/p[1])});
- var ux=Math.max.apply(null,xs.map(function(a){return Math.abs(a-x)}));
- document.getElementById('w').textContent=f(W,1)+' lb';document.getElementById('wu').textContent='± '+f(uW,1)+' lb worst case';
- document.getElementById('x').textContent=f(x,1)+' in';document.getElementById('xu').textContent='± '+f(ux,1)+' in worst case';
- document.getElementById('y').textContent=(y>=0?'+':'')+f(y,1)+' in';
+ document.getElementById('w').textContent=f(W,1)+' lb';document.getElementById('wu').textContent='± '+f(up(uW,1),1)+' lb from reading steps';
+ if(W<=uW){['x','y','fs'].forEach(function(id){document.getElementById(id).textContent='not resolved'});document.getElementById('xu').textContent='';document.getElementById('yu').textContent='';
+  show('The weight change is within the scales\' reading steps, so its location can\'t be found. Use a component scale for small parts.',true);return}
+ var x=v.wb*R/W,y=v.tw*(Rt-Lt)/(2*W),xs=[],ys=[];
+ [-1,1].forEach(function(i){[-1,1].forEach(function(j){var Fp=F+i*uA,Rp=R+j*uA,Lp=Lt+i*uA,Rtp=Rt+j*uA;xs.push(v.wb*Rp/(Fp+Rp));ys.push(v.tw*(Rtp-Lp)/(2*(Lp+Rtp)))})});
+ var ux=Math.max.apply(null,xs.map(function(a){return Math.abs(a-x)})),uy=Math.max.apply(null,ys.map(function(a){return Math.abs(a-y)}));
+ document.getElementById('x').textContent=f(x,1)+' in';document.getElementById('xu').textContent='± '+f(up(ux,1),1)+' in from reading steps';
+ document.getElementById('y').textContent=(y>=0?'+':'')+f(y,1)+' in';document.getElementById('yu').textContent='± '+f(up(uy,1),1)+' in · + right / − left';
  document.getElementById('fs').textContent=f(100*F/W,1)+'%';
  var where=x<0?'ahead of the front axle':x>v.wb?'behind the rear axle':'between the axles';
- document.getElementById('take').textContent='The part weighed about '+f(W,0)+' lb and sat about '+f(Math.abs(x),0)+' in '+(x<0?'ahead of':'behind')+' the front axle ('+where+').';
  show('');
+ document.getElementById('take').textContent='The part weighed about '+f(W,0)+' lb and sat about '+f(Math.abs(x),0)+' in '+(x<0?'ahead of':'behind')+' the front axle ('+where+').';
 }
-function show(m){var w=document.getElementById('warn');w.style.display=m?'block':'none';w.textContent=m;if(m)document.getElementById('take').textContent='–'}
+function show(m,keep){var w=document.getElementById('warn');w.style.display=m?'block':'none';w.textContent=m;if(m){document.getElementById('take').textContent='–';if(!keep)clearOut()}}
 document.querySelectorAll('input,select').forEach(function(i){i.addEventListener('input',calc);i.addEventListener('change',calc)});
 calc();
 })();

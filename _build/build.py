@@ -11,9 +11,14 @@ NAV = [("Tools", "tools/", "Calculators built from measured data"),
        ("The Build", "build/", "The green car, measured"),
        ("About", "about/", "Why this exists")]
 
+SITE = "https://endicottspeedshop.com/"
+URLS = ["weight-distribution-calculator/"]  # hand-made page, not generated here
+
 def page(path, title, desc, body, active="", extra_head=""):
     depth = path.count("/")
     rel = "../" * depth
+    canon = path[:-len("index.html")] if path.endswith("index.html") else path
+    URLS.append(canon)
     links = "".join(f'<a href="{rel}{h}"{" class=on" if active==n else ""}>{n}</a>' for n, h, _ in NAV)
     side = "".join(f'<a href="{rel}{h}">{n}<small>{s}</small></a>' for n, h, s in NAV)
     html = f"""<!DOCTYPE html>
@@ -24,6 +29,7 @@ def page(path, title, desc, body, active="", extra_head=""):
 <title>{title}</title>
 <meta name="description" content="{desc}">
 {GA}
+<link rel="canonical" href="{SITE}{canon}">
 <link rel="stylesheet" href="{rel}assets/site.css">
 {extra_head}
 </head>
@@ -52,3 +58,7 @@ if __name__ == "__main__":
     spec = importlib.util.spec_from_file_location("pages", os.path.join(ROOT, "_build", "pages.py"))
     m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
     m.build(page)
+    sm = "".join(f"<url><loc>{SITE}{u}</loc></url>" for u in sorted(set(URLS)))
+    open(os.path.join(ROOT, "sitemap.xml"), "w").write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + sm + "</urlset>\n")
+    open(os.path.join(ROOT, "robots.txt"), "w").write(f"User-agent: *\nAllow: /\nSitemap: {SITE}sitemap.xml\n")
+    print("wrote sitemap.xml, robots.txt")
