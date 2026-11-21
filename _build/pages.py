@@ -99,4 +99,6 @@ def build(page):
     for slug, title, desc in [("cg-builder", "Balance & CG Builder", "Free center of gravity and weight distribution builder: start from corner weights, add, remove or move parts, see front %, side balance and CG height change."),
                               ("scale-delta", "Part Weight from Corner Scales", "Find a part's weight and fore-aft location from four-corner scale readings taken before and after removing it.")]:
         body = open(os.path.join(HERE, "content", "tool-" + slug + ".html")).read()
-        page(f"tools/{slug}/index.html", f"{title} | Endicott Speed Shop", desc, body, active="Tools")
+        ev, res = {"cg-builder": ("cg_builder", "oF"), "scale-delta": ("scale_delta", "w")}[slug]
+        tag = f'<script src="../../assets/tool-events.js" data-tool="{ev}" data-result="{res}" defer></script>'
+        page(f"tools/{slug}/index.html", f"{title} | Endicott Speed Shop", desc, body, active="Tools", extra_head=tag)
