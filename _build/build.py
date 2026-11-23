@@ -44,7 +44,7 @@ def page(path, title, desc, body, active="", extra_head=""):
 <p class="hint" style="margin-top:20px">Questions or calculator feedback: <a href="mailto:descore.llc@gmail.com?subject=Endicott%20Speed%20Shop">email the shop</a></p>
 </aside>
 {body}
-<footer class="footer"><div class="line"><span>Endicott Speed Shop — Measure. Test. Improve. Know why.</span><span><a href="mailto:descore.llc@gmail.com?subject=Endicott%20Speed%20Shop">Contact</a></span></div></footer>
+<footer class="footer"><div class="line"><span>Endicott Speed Shop — Measure. Test. Improve. Know why.</span><span><a href="{rel}privacy/">Privacy</a> · <a href="mailto:descore.llc@gmail.com?subject=Endicott%20Speed%20Shop">Contact</a></span></div></footer>
 <script src="{rel}assets/site.js"></script>
 </body>
 </html>

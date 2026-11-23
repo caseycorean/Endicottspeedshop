@@ -92,6 +92,10 @@ def build(page):
 <p>Questions, corrections or data to share: <a href="mailto:descore.llc@gmail.com?subject=Endicott%20Speed%20Shop">email the shop</a>.</p>
 </main>""", active="About")
 
+    # PRIVACY (launch blocker fix, 23 Nov 2026)
+    page("privacy/index.html", "Privacy | Endicott Speed Shop", "What Endicott Speed Shop collects when you visit, why, and how to opt out.",
+         open(os.path.join(HERE, "content", "privacy.html")).read())
+
     # ARTICLES
     for p, t, k, d in ARTICLES:
         body = open(os.path.join(HERE, "content", p.strip("/").split("/")[-1] + ".html")).read()
