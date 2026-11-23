@@ -19,6 +19,8 @@ TOOLS = [
   "The quick version: move or change components and see the front-to-rear balance change."),
  ("tools/load-transfer/", "Load Transfer Calculator", "New",
   "See how much load moves front to rear under braking and side to side in a corner, and what each tire carries when you brake into a turn."),
+ ("tools/spring-rate/", "Spring Rate & Ride Frequency", "New",
+  "Turn a spring rate into the rate the wheel actually feels, see how stiff the car rides, and find the spring you need for a target."),
  ("tools/scale-delta/", "Part Weight from Corner Scales", "New",
   "Weigh the car before and after removing a part to get the part's weight AND where it sat — the method ESS uses."),
 ]
@@ -53,8 +55,8 @@ def build(page):
 </main>""", active="")
 
     # TOOLS HUB
-    page("tools/index.html", "Tools | Endicott Speed Shop", "Free calculators for weight distribution, center of gravity, load transfer and part weights.",
-         f'<main class="page"><div class="kicker">Tools</div><h1>Model it before you build it.</h1><p class="lede">Free calculators for balance, center of gravity, load transfer and part weights. Results are estimates — the scales have the final word.</p><div class="grid">{cards(TOOLS, "../")}</div></main>', active="Tools")
+    page("tools/index.html", "Tools | Endicott Speed Shop", "Free calculators for weight distribution, center of gravity, load transfer, spring rates and part weights.",
+         f'<main class="page"><div class="kicker">Tools</div><h1>Model it before you build it.</h1><p class="lede">Free calculators for balance, center of gravity, load transfer, springs and part weights. Results are estimates — the scales have the final word.</p><div class="grid">{cards(TOOLS, "../")}</div></main>', active="Tools")
 
     # ARTICLES HUB
     page("articles/index.html", "Articles | Endicott Speed Shop", "Engineering foundations and measured build notes from Endicott Speed Shop.",
@@ -100,8 +102,9 @@ def build(page):
     # TOOLS
     for slug, title, desc in [("cg-builder", "Balance & CG Builder", "Free center of gravity and weight distribution builder: start from corner weights, add, remove or move parts, see front %, side balance and CG height change."),
                               ("scale-delta", "Part Weight from Corner Scales", "Find a part's weight and fore-aft location from four-corner scale readings taken before and after removing it."),
-                              ("load-transfer", "Load Transfer Calculator", "Free load transfer calculator: braking, acceleration and cornering weight transfer, front/rear split from roll stiffness and roll centers, and the load on each tire.")]:
+                              ("load-transfer", "Load Transfer Calculator", "Free load transfer calculator: braking, acceleration and cornering weight transfer, front/rear split from roll stiffness and roll centers, and the load on each tire.",
+                              ("spring-rate", "Spring Rate & Ride Frequency Calculator", "Free spring rate calculator: wheel rate from motion ratio and spring angle, ride rate with the tire, ride frequency front and rear, and the spring rate needed for a target frequency.")]:
         body = open(os.path.join(HERE, "content", "tool-" + slug + ".html")).read()
-        ev, res = {"cg-builder": ("cg_builder", "oF"), "scale-delta": ("scale_delta", "w"), "load-transfer": ("load_transfer", "lx")}[slug]
+        ev, res = {"cg-builder": ("cg_builder", "oF"), "scale-delta": ("scale_delta", "w"), "load-transfer": ("load_transfer", "lx"), "spring-rate": ("spring_rate", "ff")}[slug]
         tag = f'<script src="../../assets/tool-events.js" data-tool="{ev}" data-result="{res}" defer></script>'
         page(f"tools/{slug}/index.html", f"{title} | Endicott Speed Shop", desc, body, active="Tools", extra_head=tag)
