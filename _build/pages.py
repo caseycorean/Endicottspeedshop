@@ -106,7 +106,7 @@ def build(page):
     # TOOLS
     for slug, title, desc in [("cg-builder", "Balance & CG Builder", "Free center of gravity and weight distribution builder: start from corner weights, add, remove or move parts, see front %, side balance and CG height change."),
                               ("scale-delta", "Part Weight from Corner Scales", "Find a part's weight and fore-aft location from four-corner scale readings taken before and after removing it."),
-                              ("load-transfer", "Load Transfer Calculator", "Free load transfer calculator: braking, acceleration and cornering weight transfer, front/rear split from roll stiffness and roll centers, and the load on each tire.",
+                              ("load-transfer", "Load Transfer Calculator", "Free load transfer calculator: braking, acceleration and cornering weight transfer, front/rear split from roll stiffness and roll centers, and the load on each tire."),
                               ("spring-rate", "Spring Rate & Ride Frequency Calculator", "Free spring rate calculator: wheel rate from motion ratio and spring angle, ride rate with the tire, ride frequency front and rear, and the spring rate needed for a target frequency.")]:
         body = open(os.path.join(HERE, "content", "tool-" + slug + ".html")).read()
         ev, res = {"cg-builder": ("cg_builder", "oF"), "scale-delta": ("scale_delta", "w"), "load-transfer": ("load_transfer", "lx"), "spring-rate": ("spring_rate", "ff")}[slug]
