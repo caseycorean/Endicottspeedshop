@@ -56,7 +56,8 @@ def build(page):
 
     # TOOLS HUB
     page("tools/index.html", "Tools | Endicott Speed Shop", "Free calculators for weight distribution, center of gravity, load transfer, spring rates and part weights.",
-         f'<main class="page"><div class="kicker">Tools</div><h1>Model it before you build it.</h1><p class="lede">Free calculators for balance, center of gravity, load transfer, springs and part weights. Results are estimates — the scales have the final word.</p><div class="grid">{cards(TOOLS, "../")}</div></main>', active="Tools")
+         f'<main class="page"><div class="kicker">Tools</div><h1>Model it before you build it.</h1><p class="lede">Free calculators for balance, center of gravity, load transfer, springs and part weights. Results are estimates — the scales have the final word.</p><div class="grid">{cards(TOOLS, "../")}</div>'
+         f'<section class="section"><div class="section-label">Coming next</div><h2>Compare upgrades side by side.</h2><p>We are building a way to run two versions of your car through the same math — stock springs against a stiffer set, an iron part against an aluminum one — and see what each change actually does before you buy it. It will arrive after launch; no date yet.</p></section></main>', active="Tools")
 
     # ARTICLES HUB
     page("articles/index.html", "Articles | Endicott Speed Shop", "Engineering foundations and measured build notes from Endicott Speed Shop.",
