@@ -5,11 +5,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ARTICLES = [
  ("articles/measured-firebird-weights/", "What Second-Gen Firebird Parts Actually Weigh (Measured)", "Build data",
   "Scale-measured weights of LS-swap and second-gen F-body parts, with what each number includes."),
- ("articles/weight-distribution-50-50/", "Why 50/50 Weight Distribution Is Not the Goal", "Engineering foundations",
-  "Where the mass sits matters more than the percentage on the scale."),
- ("articles/traction-circle/", "The Traction Circle: The One Concept That Explains Everything", "Engineering foundations",
-  "Why braking into a corner costs grip, and why modern tires changed everything."),
- ("articles/ls-swap-real-cost/", "What LS Swap Parts Actually Cost", "Build log · green car",
+ ("articles/weight-distribution-50-50/", "What 50/50 Weight Distribution Really Means", "Engineering foundations",
+  "A balanced car is a good thing, but the percentage alone doesn't tell you where the mass sits — and that matters too."),
+ ("articles/traction-circle/", "Understanding the Traction Circle", "Engineering foundations",
+  "Why braking into a corner costs grip, and how tires set the limit on everything the car can do."),
+ ("articles/ls-swap-real-cost/", "What LS Swap Parts Actually Cost", "Build notes · green car",
   "The advertised price is rarely the real price: a documented LS1/T5 swap parts list."),
 ]
 TOOLS = [
@@ -25,8 +25,47 @@ TOOLS = [
   "Weigh the car before and after removing a part to get the part's weight AND where it sat — the method ESS uses."),
 ]
 
+CATS = {"Engineering foundations": "cat-found", "Build data": "cat-data", "Testing": "cat-test"}
+def cat(t):
+    return CATS.get(t, "cat-notes" if t.startswith("Build notes") else "")
+
 def cards(items, rel):
-    return "".join(f'<article class="card"><span class="tag">{t}</span><h3><a href="{rel}{p}">{h}</a></h3><p>{d}</p><a class="more" href="{rel}{p}">Open</a></article>' for p, h, t, d in items)
+    return "".join(f'<article class="card"><span class="tag {cat(t)}">{t}</span><h3><a href="{rel}{p}">{h}</a></h3><p>{d}</p><a class="more" href="{rel}{p}">Open</a></article>' for p, h, t, d in items)
+
+# Goal-first routing (owner desktop review, 24 Nov 2026): each goal pairs the idea with a tool.
+GOALS = [
+ ("Balance and weight placement", "Where your car's weight sits, and what moving, removing or swapping parts does to it.",
+  [("What 50/50 really means", "articles/weight-distribution-50-50/"), ("Balance &amp; CG Builder", "tools/cg-builder/")]),
+ ("Grip in corners and under braking", "How tires share their grip, and how much load moves when you brake, accelerate and turn.",
+  [("Understanding the traction circle", "articles/traction-circle/"), ("Load Transfer Calculator", "tools/load-transfer/")]),
+ ("Springs and ride", "Turn a spring rate into what the wheel feels, and find the spring for the ride you want.",
+  [("Spring Rate &amp; Ride Frequency", "tools/spring-rate/")]),
+ ("Know what your parts weigh", "Measured second-gen F-body part weights, and how to weigh parts on your own car.",
+  [("Measured Firebird part weights", "articles/measured-firebird-weights/"), ("Part Weight from Corner Scales", "tools/scale-delta/")]),
+]
+def GOALS_HTML(rel):
+    return "".join(f'<article class="card goal"><h3>{g}</h3><p>{d}</p><ul class="links">' +
+                   "".join(f'<li><a href="{rel}{h}">{n}</a></li>' for n, h in links) + '</ul></article>' for g, d, links in GOALS)
+
+def COMING_SOON(rel):
+    return (f'<section class="section"><div class="section-label">Coming soon</div><h2>Compare options before you buy them.</h2>'
+            f'<p>We are building ways to run two versions of a car through the same model — stock springs against a stiffer set, '
+            f'an iron part against an aluminum one, and eventually whole suspension approaches side by side — and see what each change '
+            f'is likely to do before you spend the money. These arrive after launch, as each one is checked; no dates yet.</p></section>')
+
+def contact(page, address):
+    """Contact page. The address is passed in (environment variable ESS_CONTACT_EMAIL) so it lives in one published page only."""
+    page("contact/index.html", "Contact | Endicott Speed Shop", "Contact Endicott Speed Shop with corrections, calculator problems, questions or measured part data.",
+         f"""<main class="page narrow article"><div class="kicker">Contact</div><h1>Contact the shop.</h1>
+<p class="lede">Endicott Speed Shop is a one-person shop. Email is the best way to reach us; replies may take a few days.</p>
+{('<p class="note">PREVIEW: the contact address is added before launch.</p>' if address == "pending" else f'<p><a class="btn primary" href="mailto:{address}?subject=Endicott%20Speed%20Shop">Email the shop</a></p>')}
+<h2>Especially welcome</h2>
+<ul><li><strong>Corrections.</strong> Which page, what looks wrong, and your source if you have one.</li>
+<li><strong>Calculator problems.</strong> Which tool, the numbers you entered, and your device and browser.</li>
+<li><strong>Measured data.</strong> A part's weight with what it included (hardware, fluids, brackets) and how it was weighed.</li>
+<li><strong>Questions</strong> about the builds, the articles or the tools.</li></ul>
+<p class="hint">What happens to your email: see <a href="../privacy/">Privacy</a>.</p>
+</main>""", active="Contact")
 
 def article(page, path, title, kicker, desc, meta, body):
     rel = "../" * path.count("/")
@@ -40,24 +79,28 @@ def build(page):
     page("index.html", "Endicott Speed Shop | Measured tools for real performance decisions",
          "Calculators, measured part weights and engineering articles for builders making real performance decisions on classic cars.",
          f"""<main class="page">
-<section><div class="kicker">Measure • Test • Improve</div>
+<section>
 <h1>Measured answers for real performance builds.</h1>
 <p class="lede">Endicott Speed Shop builds second-generation Firebirds and publishes what the scales, the receipts and the engineering actually say — so you can make better decisions on your own car before you spend the money or cut the metal.</p>
-<div class="action-row"><a class="btn primary" href="tools/cg-builder/">Open the Balance &amp; CG Builder</a><a class="btn secondary" href="weight-distribution-calculator/">Weight distribution calculator</a></div></section>
+<div class="action-row"><a class="btn primary" href="plan/">Start planning your build</a><a class="btn secondary" href="tools/">Browse the calculators</a></div></section>
+<section class="section"><div class="section-label">Start with your question</div><h2>What are you trying to improve?</h2>
+<p>Pick the closest goal. Each one pairs the idea behind it with a calculator you can run on your own numbers.</p>
+<div class="grid goals">{GOALS_HTML("")}</div></section>
 <section class="section"><div class="section-label">Tools</div><h2>Calculators built around measured data.</h2>
 <p>Model a change before you make it. Every tool shows its assumptions.</p><div class="grid">{cards(TOOLS, "")}</div></section>
 <section class="section"><div class="section-label">Articles</div><h2>Know why, not just what.</h2>
 <p>Engineering foundations explained plainly, and build notes with real numbers.</p><div class="grid">{cards(ARTICLES[:3], "")}</div>
 <p style="margin-top:14px"><a href="articles/">All articles →</a></p></section>
 <section class="section"><div class="section-label">The build</div><h2>A 1977 Firebird Formula, measured as it's built.</h2>
-<p>The green car is an LS1/T5 swap built on a tight budget: every part weighed, every cost recorded, every decision explained. It is the baseline for the more ambitious builds that follow.</p>
+<p>A budget-conscious LS1 and T5-powered 1977 Firebird Formula serving as our real-world development and testing platform. Follow the build as we document component weights, costs, engineering decisions and measured performance.</p>
 <div class="action-row"><a class="btn secondary" href="build/">Follow the build</a></div></section>
+{COMING_SOON("")}
 </main>""", active="")
 
     # TOOLS HUB
     page("tools/index.html", "Tools | Endicott Speed Shop", "Free calculators for weight distribution, center of gravity, load transfer, spring rates and part weights.",
          f'<main class="page"><div class="kicker">Tools</div><h1>Model it before you build it.</h1><p class="lede">Free calculators for balance, center of gravity, load transfer, springs and part weights. Results are estimates — the scales have the final word.</p><div class="grid">{cards(TOOLS, "../")}</div>'
-         f'<section class="section"><div class="section-label">Coming next</div><h2>Compare upgrades side by side.</h2><p>We are building a way to run two versions of your car through the same math — stock springs against a stiffer set, an iron part against an aluminum one — and see what each change actually does before you buy it. It will arrive after launch; no date yet.</p></section></main>', active="Tools")
+         f'{COMING_SOON("../")}</main>', active="Tools")
 
     # ARTICLES HUB
     page("articles/index.html", "Articles | Endicott Speed Shop", "Engineering foundations and measured build notes from Endicott Speed Shop.",
@@ -74,7 +117,7 @@ def build(page):
 <li>C5 Corvette front brakes; fuel and brake plumbing largely done.</li>
 <li><strong>Next:</strong> finish wiring and final assembly, then first start.</li></ul>
 <h2>What gets measured</h2>
-<p>Every part going on or off the car is weighed. The whole car is weighed on four corner scales at each milestone, and the scale differences give each major part's weight and location. The finished car will be weighed with fuel, fluids and driver recorded, and taken to autocross.</p>
+<p>Major parts going on or off the car are weighed, and each published weight says what it includes. The whole car is weighed on four corner scales at milestones, and the scale differences give a major part's weight and location. The plan for the finished car is to weigh it with fuel, fluids and driver recorded, then take it to autocross.</p>
 <div class="callout">Latest recorded weighing (July 2026, not yet complete — no nose, hood, radiator, exhaust, fuel or coolant): <strong>2,786 lb, 51% front</strong>.</div>
 <h2>What comes next</h2>
 <p>The green car is the baseline. Later development explores moving the engine rearward, Corvette front suspension, a three-link rear axle and, eventually, a reworked structure and underbody aerodynamics — each step measured against this car.</p>
@@ -90,8 +133,37 @@ def build(page):
 <p>The current work centers on second-generation Firebirds. The green car is the proof of concept — a budget build with honest constraints, designed to show that the philosophy produces results against cars costing far more. The white car is the full expression of the idea: an architectural build developed from the ground up, every decision deliberate.</p>
 <p>The tools, articles and guides here are built around the same question those cars ask every day: not what do I do next, but why is this the right move? That question has an engineering answer. Usually more than one. The goal of this platform is to help you find yours.</p>
 <div class="callout">Measure. Test. Improve. Know why.</div>
-<p>Questions, corrections or data to share: <a href="mailto:descore.llc@gmail.com?subject=Endicott%20Speed%20Shop">email the shop</a>.</p>
+<h2 id="beta">Why the site says "beta"</h2>
+<p>Endicott Speed Shop launched in November 2026 and is still being built. Tools are checked against hand calculations before they go up, but they are new, and articles will be corrected and expanded as the cars are measured and tested. If something looks wrong, <a href="../contact/">please tell us</a> — corrections are welcome.</p>
+<p>Questions, corrections or data to share: <a href="../contact/">contact the shop</a>.</p>
 </main>""", active="About")
+
+    # PLAN YOUR BUILD (owner desktop review, 24 Nov 2026): first version of the Build Planning Guide.
+    page("plan/index.html", "Plan Your Build | Endicott Speed Shop",
+         "A step-by-step way to go from a performance goal to a build plan you can test: goal, baseline, constraints, options, modeling and measurement.",
+         f"""<main class="page narrow article"><div class="kicker">Build planning</div><h1>Plan your build.</h1>
+<p class="lede">Most builds go wrong before the first bolt is turned: parts get bought before the goal is clear. This guide walks from what you want the car to do, to a plan you can test — using the articles and calculators on this site along the way.</p>
+<div class="callout">This is the first version of the ESS build-planning guide. Some steps link to working tools today; others point to comparisons and simulations that are still being built and checked.</div>
+<h2>1 · Name the goal</h2>
+<p>What should the car do better: turn in, put power down, stop, ride, or simply weigh less? Is it a street car, a track car or both? A clear goal is what lets you say no to parts that don't serve it.</p>
+<ul class="links">{"".join(f'<li>{g}: ' + ' · '.join(f'<a href="../{h}">{n}</a>' for n, h in links) + '</li>' for g, d, links in GOALS)}</ul>
+<h2>2 · Record your baseline</h2>
+<p>Write down what you have now: total weight and corner weights if you can get the car on scales, wheelbase and track, tires, and the current suspension. Every later decision is measured against this.</p>
+<p><a href="../tools/cg-builder/">Balance &amp; CG Builder</a> · <a href="../tools/scale-delta/">Part Weight from Corner Scales</a> · <a href="../articles/measured-firebird-weights/">Measured part weights</a></p>
+<h2>3 · Set your constraints</h2>
+<p>Budget, time, tools, the fabrication you can actually do, and what has to stay (comfort, registration, originality). Constraints aren't limits on a good build — they are design inputs that narrow the options to the ones that fit.</p>
+<h2>4 · Understand what drives the result</h2>
+<p>Before comparing parts, understand the mechanism you're trying to change: how tires share grip, how load moves when the car brakes and turns, and why where mass sits matters as well as the percentage on the scale.</p>
+<p><a href="../articles/traction-circle/">Understanding the traction circle</a> · <a href="../articles/weight-distribution-50-50/">What 50/50 really means</a></p>
+<h2>5 · Compare the options on the same terms</h2>
+<p>Put each option side by side: cost, weight and where it sits, fabrication required, what it changes and what it doesn't. For example, a second-gen F-body owner improving the front suspension might compare upgrading the stock parts, a bolt-in aftermarket package such as those from QA1 or Pro Touring F-Body, and a Corvette front suspension conversion. ESS is documenting comparisons like this one; they will be published here as the data is checked. (Brands are examples, not recommendations.)</p>
+<h2>6 · Model before you spend</h2>
+<p>Use the calculators for the questions they answer well: balance, load transfer and spring rates. Simulations that show how a change affects the car through a corner or a lap are in development, and will be added once they have been checked against measurements.</p>
+<p><a href="../tools/">All calculators</a></p>
+<h2>7 · Build in stages, and measure each one</h2>
+<p>Make the reversible decisions first. After each stage, weigh, test and compare against your baseline — that is how you find out whether a change did what you expected, and it's how the ESS cars are developed too.</p>
+<p><a href="../build/">Follow the green car</a> · <a href="../contact/">Questions or suggestions for this guide</a></p>
+</main>""", active="")
 
     # PRIVACY (launch blocker fix, 23 Nov 2026)
     page("privacy/index.html", "Privacy | Endicott Speed Shop", "What Endicott Speed Shop collects when you visit, why, and how to opt out.",
