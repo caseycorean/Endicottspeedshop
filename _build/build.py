@@ -14,6 +14,19 @@ NAV = [("Tools", "tools/", "Calculators built from measured data"),
 SITE = "https://endicottspeedshop.com/"
 URLS = ["weight-distribution-calculator/"]  # hand-made page, not generated here
 
+def share_tags(title, desc, url):
+    """Link-preview tags (Facebook, iMessage, forums, X) so a shared link shows the logo, title and summary."""
+    return (f'<meta property="og:type" content="website">\n'
+            f'<meta property="og:site_name" content="Endicott Speed Shop">\n'
+            f'<meta property="og:title" content="{title}">\n'
+            f'<meta property="og:description" content="{desc}">\n'
+            f'<meta property="og:url" content="{url}">\n'
+            f'<meta property="og:image" content="{SITE}logo-round.png">\n'
+            f'<meta property="og:image:width" content="1536">\n'
+            f'<meta property="og:image:height" content="1024">\n'
+            f'<meta property="og:image:alt" content="Endicott Speed Shop logo: a second-generation Firebird in a round badge">\n'
+            f'<meta name="twitter:card" content="summary_large_image">')
+
 def page(path, title, desc, body, active="", extra_head=""):
     depth = path.count("/")
     rel = "../" * depth
@@ -30,6 +43,7 @@ def page(path, title, desc, body, active="", extra_head=""):
 <meta name="description" content="{desc}">
 {GA}
 <link rel="canonical" href="{SITE}{canon}">
+{share_tags(title, desc, SITE + canon)}
 <link rel="stylesheet" href="{rel}assets/site.css">
 {extra_head}
 </head>
