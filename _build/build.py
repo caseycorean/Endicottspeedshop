@@ -35,16 +35,17 @@ def page(path, title, desc, body, active="", extra_head=""):
 </head>
 <body>
 <header class="site-header"><div class="header-inner">
-<a href="{rel}./" class="brand" aria-label="Endicott Speed Shop home"><img src="{rel}logo-horizontal.png" alt="Endicott Speed Shop"></a>
+<a href="{rel}./" class="brand" aria-label="Endicott Speed Shop home"><img src="{rel}logo-horizontal.png" alt="Endicott Speed Shop"></a><span class="beta-pill">Beta</span>
 <nav class="topnav">{links}</nav>
 <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
 </div></header>
+<div class="beta-bar" role="note"><strong>Beta.</strong> Endicott Speed Shop is a work in progress: tools and articles are still being checked and expanded, so some things may change or not work perfectly yet. Spot a problem? Use Contact at the bottom of the page — and check back soon.</div>
 <aside class="sidebar" id="sidebar"><button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
 <nav><a href="{rel}./">Home<small>Start here</small></a>{side}</nav>
 <p class="hint" style="margin-top:20px">Questions or calculator feedback: <a href="mailto:descore.llc@gmail.com?subject=Endicott%20Speed%20Shop">email the shop</a></p>
 </aside>
 {body}
-<footer class="footer"><div class="line"><span>Endicott Speed Shop — Measure. Test. Improve. Know why.</span><span><a href="mailto:descore.llc@gmail.com?subject=Endicott%20Speed%20Shop">Contact</a></span></div></footer>
+<footer class="footer"><div class="line"><span>Endicott Speed Shop — Measure. Test. Improve. Know why.</span><span><a href="{rel}privacy/">Privacy</a> · <a href="mailto:descore.llc@gmail.com?subject=Endicott%20Speed%20Shop">Contact</a></span></div></footer>
 <script src="{rel}assets/site.js"></script>
 </body>
 </html>

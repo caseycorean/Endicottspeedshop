@@ -92,6 +92,10 @@ def build(page):
 <p>Questions, corrections or data to share: <a href="mailto:descore.llc@gmail.com?subject=Endicott%20Speed%20Shop">email the shop</a>.</p>
 </main>""", active="About")
 
+    # PRIVACY (launch blocker fix, 23 Nov 2026)
+    page("privacy/index.html", "Privacy | Endicott Speed Shop", "What Endicott Speed Shop collects when you visit, why, and how to opt out.",
+         open(os.path.join(HERE, "content", "privacy.html")).read())
+
     # ARTICLES
     for p, t, k, d in ARTICLES:
         body = open(os.path.join(HERE, "content", p.strip("/").split("/")[-1] + ".html")).read()
@@ -102,7 +106,7 @@ def build(page):
     # TOOLS
     for slug, title, desc in [("cg-builder", "Balance & CG Builder", "Free center of gravity and weight distribution builder: start from corner weights, add, remove or move parts, see front %, side balance and CG height change."),
                               ("scale-delta", "Part Weight from Corner Scales", "Find a part's weight and fore-aft location from four-corner scale readings taken before and after removing it."),
-                              ("load-transfer", "Load Transfer Calculator", "Free load transfer calculator: braking, acceleration and cornering weight transfer, front/rear split from roll stiffness and roll centers, and the load on each tire.",
+                              ("load-transfer", "Load Transfer Calculator", "Free load transfer calculator: braking, acceleration and cornering weight transfer, front/rear split from roll stiffness and roll centers, and the load on each tire."),
                               ("spring-rate", "Spring Rate & Ride Frequency Calculator", "Free spring rate calculator: wheel rate from motion ratio and spring angle, ride rate with the tire, ride frequency front and rear, and the spring rate needed for a target frequency.")]:
         body = open(os.path.join(HERE, "content", "tool-" + slug + ".html")).read()
         ev, res = {"cg-builder": ("cg_builder", "oF"), "scale-delta": ("scale_delta", "w"), "load-transfer": ("load_transfer", "lx"), "spring-rate": ("spring_rate", "ff")}[slug]
