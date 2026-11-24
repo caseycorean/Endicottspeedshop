@@ -23,19 +23,18 @@
 </head>
 <body>
 <header class="site-header"><div class="header-inner">
-<a href="../.././" class="brand" aria-label="Endicott Speed Shop home"><img src="../../logo-horizontal.png" alt="Endicott Speed Shop"></a><span class="beta-pill">Beta</span>
-<nav class="topnav"><a href="../../tools/" class=on>Tools</a><a href="../../articles/">Articles</a><a href="../../build/">The Build</a><a href="../../about/">About</a></nav>
+<div class="brand-wrap"><a href="../.././" class="brand" aria-label="Endicott Speed Shop home"><img src="../../logo-horizontal-tight.png" alt="Endicott Speed Shop — Measure, Test, Improve" width="611" height="192"></a><a class="beta-pill" href="../../about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
+<nav class="topnav"><a href="../../tools/" class=on>Tools</a><a href="../../articles/">Articles</a><a href="../../build/">The Build</a><a href="../../about/">About</a><a href="../../contact/">Contact</a></nav>
 <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
 </div></header>
-<div class="beta-bar" role="note"><strong>Beta.</strong> Endicott Speed Shop is a work in progress: tools and articles are still being checked and expanded, so some things may change or not work perfectly yet. Spot a problem? Use Contact at the bottom of the page — and check back soon.</div>
 <aside class="sidebar" id="sidebar"><button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
-<nav><a href="../.././">Home<small>Start here</small></a><a href="../../tools/">Tools<small>Calculators built from measured data</small></a><a href="../../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../../build/">The Build<small>The green car, measured</small></a><a href="../../about/">About<small>Why this exists</small></a></nav>
-<p class="hint" style="margin-top:20px">Questions or calculator feedback: <a href="mailto:descore.llc@gmail.com?subject=Endicott%20Speed%20Shop">email the shop</a></p>
+<nav><a href="../.././">Home<small>Start here</small></a><a href="../../tools/">Tools<small>Calculators built from measured data</small></a><a href="../../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../../build/">The Build<small>The green car, measured</small></a><a href="../../about/">About<small>Why this exists</small></a><a href="../../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
+<p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="../../contact/">Spot a problem? Tell us.</a></p>
 </aside>
 <main class="page">
 <div class="kicker">Tools</div>
 <h1>Balance &amp; CG Builder</h1>
-<p class="lede">Start from your scale numbers, then add, remove or move parts. See front-to-rear balance, side-to-side balance and center of gravity change — before you buy, cut or weld anything.</p>
+<p class="lede">Start from your scale numbers, then add, remove, move or replace parts. See how front-to-rear balance, side-to-side balance and the center of gravity (CG) change — before you buy, cut or weld anything.</p>
 
 <div class="panel"><h2>1 · Your car now</h2>
 <div class="fields">
@@ -57,51 +56,60 @@
 <div><label for="rr">Right rear (lb)</label><input id="rr" inputmode="decimal" value="683"></div>
 <div><label for="hcg2">CG height (in, optional)</label><input id="hcg2" inputmode="decimal" placeholder="e.g. 19"></div>
 </div>
-<p class="hint">Example values: the ESS green car, July 2026 (2,786 lb, 51% front, not yet complete). CG height can't be found from flat scales alone; enter an estimate (or a value from a tilt test) to see how parts move it. Leave blank to skip height.</p>
+<p class="hint">Example values: the ESS green car, July 2026 (2,786 lb, 51% front, not yet complete). CG height can't be found from flat scales alone; enter an estimate (or a value from a tilt test) to see how parts move it. Leave it blank to skip height.</p>
 </div>
 
 <div class="panel"><h2>2 · Changes</h2>
-<p class="hint" style="margin-top:0"><strong>Locations:</strong> X = inches <em>behind the front axle</em> (negative = ahead of it; the rear axle is at the wheelbase). Y = inches right of center (left is negative). Z = inches above the ground.<br><strong>Remove</strong> a part: fill "Now at", leave "Moves to" blank. <strong>Add</strong>: leave "Now at" blank. <strong>Move</strong>: fill both.</p>
-<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin:10px 0 6px">
-<div style="flex:1;min-width:240px"><label for="preset">Add a measured or typical part</label><select id="preset"></select></div>
-<button class="btn-small" id="addPreset" type="button">Add part</button>
-<button class="btn-small ghost" id="addBlank" type="button">+ Blank row</button>
+<div class="opbar" role="group" aria-label="Add a change">
+<button class="btn-small" type="button" data-op="add">+ Add a part</button>
+<button class="btn-small" type="button" data-op="remove">− Remove a part</button>
+<button class="btn-small" type="button" data-op="move">↔ Move a part</button>
+<button class="btn-small" type="button" data-op="replace">⇄ Replace a part</button>
+<span class="opbar-gap"></span>
+<button class="btn-small ghost" type="button" id="loadEx">Load example</button>
+<button class="btn-small ghost" type="button" id="clearAll">Clear all</button>
 </div>
-<div class="rows" id="rows"></div>
+<div class="changes" id="rows"></div>
+<p class="empty hint" id="empty">No changes yet. Choose what you want to do above — each change can be filled in by hand or from the list of measured and typical parts.</p>
+<p class="summary" id="summary"></p>
+<details class="hint coords"><summary><strong>Where locations are measured from</strong></summary>
+<p><strong>X</strong> = inches <em>behind the front axle</em> (negative = ahead of it; the rear axle is at the wheelbase). <strong>Y</strong> = inches right of the car's centerline (left is negative; blank = on the centerline). <strong>Z</strong> = inches above the ground (blank = at the car's CG height). Use the location of the part's own center of gravity, not its mounting point.</p></details>
 </div>
 
-<div class="panel"><h2>3 · Result</h2>
-<div class="results">
-<div class="result"><div class="l">Total weight</div><div class="v" id="oTot">–</div><div class="d" id="dTot"></div></div>
-<div class="result"><div class="l">Front weight</div><div class="v" id="oF">–</div><div class="d" id="dF"></div></div>
-<div class="result"><div class="l">Left side</div><div class="v" id="oL">–</div><div class="d" id="dL"></div></div>
-<div class="result"><div class="l">CG height</div><div class="v" id="oH">–</div><div class="d" id="dH"></div></div>
-</div>
-<div class="results" style="margin-top:12px">
-<div class="result"><div class="l">Front axle</div><div class="v" id="oFA">–</div><div class="d">lb</div></div>
-<div class="result"><div class="l">Rear axle</div><div class="v" id="oRA">–</div><div class="d">lb</div></div>
-<div class="result"><div class="l">CG behind front axle</div><div class="v" id="oX">–</div><div class="d" id="dX"></div></div>
-<div class="result"><div class="l">Yaw inertia change*</div><div class="v" id="oI">–</div><div class="d">lb·ft²</div></div>
-</div>
+<div class="panel"><h2>3 · Before and after</h2>
 <div class="note warn" id="warn"></div>
-<p class="callout" id="take" style="margin-top:14px">–</p>
-<svg class="diagram" id="diag" viewBox="0 0 700 190" aria-label="Side view with center of gravity"></svg>
-<p class="hint">* Change in the car's resistance to rotating about a vertical axis (yaw, or polar, moment of inertia), measured about the car's center of gravity before and after. It treats each listed part as a point weight that moves without rotating, and includes the effect of the center of gravity itself shifting. Negative means less yaw inertia, which helps the car change direction — but how quickly it actually responds also depends on the tires, suspension and the turning force available. See <a href="../../articles/weight-distribution-50-50/">why that matters more than 50/50</a>.</p>
+<p class="callout" id="take" style="margin-top:0">–</p>
+<div class="table-wrap"><table class="data compare" id="cmp" aria-label="Before and after comparison">
+<thead><tr><th></th><th class="n">Before</th><th class="n">After</th><th class="n">Change</th></tr></thead><tbody></tbody></table></div>
+<span id="oF" class="sr-only">–</span>
+<div class="diagrams">
+<figure><figcaption>Side view</figcaption><svg class="diagram" id="diagSide" viewBox="0 0 700 220" role="img" aria-label="Side view: center of gravity before and after"></svg></figure>
+<figure><figcaption>Top view</figcaption><svg class="diagram" id="diagTop" viewBox="0 0 700 220" role="img" aria-label="Top view: center of gravity before and after"></svg></figure>
+</div>
+<p class="legend"><span class="mk before"></span> Before &nbsp; <span class="mk after"></span> After <span id="shift"></span></p>
+</div>
+
+<div class="panel yaw"><h2>4 · Yaw inertia: how hard the car is to rotate</h2>
+<div class="yaw-row"><div class="result"><div class="l">Yaw inertia change</div><div class="v" id="oI">–</div><div class="d">lb·ft²</div></div>
+<div><p id="yawTake" style="margin-top:0">–</p>
+<p class="hint">Yaw (or polar) inertia is the car's resistance to starting or stopping a rotation about a vertical axis — turning in, and catching a slide. Weight far from the center of gravity adds a lot of it; weight near the center adds little. That's why two cars with the same weight and the same 50/50 split can feel very different.</p>
+<p class="hint">This is an estimate of the <em>change</em>, about each configuration's own center of gravity. Each listed part is treated as a single point weight, so a long assembly (a subframe, an exhaust) is approximated. It isn't the car's total yaw inertia — that needs a measured baseline — and it doesn't predict how the car will respond, which also depends on the tires, suspension and the turning force available. <a href="../../articles/weight-distribution-50-50/">More: what 50/50 really means</a>.</p></div></div>
 </div>
 
 <div class="section narrow"><div class="section-label">How it works</div>
-<p>Each part's weight times its distance from the front axle is a moment. Removing a part takes its moment away; adding one puts a moment in; moving one does both. The new center of gravity is the total moment divided by the new total weight; front weight follows from where that center sits between the axles. The same arithmetic gives side-to-side balance and, when you supply a starting height, CG height.</p>
-<p>Part weights marked <span class="badge">measured</span> were weighed by ESS (see <a href="../../articles/measured-firebird-weights/">what each includes</a>). Locations in the presets are typical estimates for a second-gen F-body — edit them for your car. Measured weights include different hardware (for example, the stock subframe was weighed on its wheels and the C5 assembly without), so don't subtract one preset from another unless they include the same parts. A blank Y means on the centerline; a blank Z means at the car's CG height.</p></div>
+<p>Each part's weight times its distance from the front axle is a moment. Removing a part takes its moment away; adding one puts a moment in; moving one does both; replacing one removes the old part and adds the new one. The new center of gravity is the total moment divided by the new total weight; front weight follows from where that center sits between the axles. The same arithmetic gives side-to-side balance and, when you supply a starting height, CG height.</p>
+<p>Part weights marked <span class="badge">measured</span> were weighed by ESS (see <a href="../../articles/measured-firebird-weights/">what each includes</a>); <span class="badge">typical</span> values are reasonable starting points, not measurements. Locations in the list are typical estimates for a second-gen F-body — edit them for your car. Measured weights include different hardware (for example, the stock subframe was weighed on its wheels and the C5 assembly without), so when you replace one with another, make sure the two include the same parts.</p></div>
 </main>
 <script>
 (function(){
+// [name, weight lb, source, X, Y, Z] — X behind front axle, Y right of centerline, Z above ground (in)
 var PRESETS=[
  ["LS1 + T5 engine package (no clutch/flywheel)",558,"measured",18,0.5,18],
  ["GTO flywheel + clutch",50,"measured",30,0,11],
  ["Stock radiator (drained)",31,"measured",-20,0,18],
  ["Aluminum 2-core radiator",11,"measured",-20,0,18],
- ["Battery — engine bay (typical)",40,"typical",-12,18,20],
- ["Battery — trunk (typical)",40,"typical",138,10,12],
+ ["Battery — engine bay",40,"typical",-12,18,20],
+ ["Battery — trunk",40,"typical",138,10,12],
  ["Hood (no hinges)",61,"measured",8,0,34],
  ["Front bumper assembly (1977)",73,"measured",-38,0,18],
  ["Front fender, left",32,"measured",-5,-33,26],
@@ -115,30 +123,51 @@ var PRESETS=[
  ["Driver (180 lb)",180,"typical",64,-16,20],
  ["Fuel, 10 gal gasoline (62 lb)",62,"typical",118,0,14],
  ["Trunk lid",24,"measured",140,0,34]];
-var sel=document.getElementById('preset');
-PRESETS.forEach(function(p,i){var o=document.createElement('option');o.value=i;o.textContent=p[0]+' — '+p[1]+' lb'+(p[2]==='measured'?' (measured)':'');sel.appendChild(o);});
+var OPS={add:"Add a part",remove:"Remove a part",move:"Move a part",replace:"Replace a part"};
 function num(v){v=(v===undefined||v===null?'':v).toString().trim().replace(/,/g,'');if(v==='')return null;if(!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(v))return NaN;return parseFloat(v)}
 var BAD=false;
 function mark(el,ok){if(ok){el.removeAttribute('aria-invalid')}else{el.setAttribute('aria-invalid','true');BAD=true}}
 function g(id,rule){var el=document.getElementById(id),v=num(el.value),ok=!(v!==v)&&(v===null||!rule||rule(v));mark(el,ok);return ok?v:NaN}
 function pos(v){return v>0}function nonneg(v){return v>=0}function pct(v){return v>=0&&v<=100}
-var rows=document.getElementById('rows');
-function addRow(p,mode){
- var r=document.createElement('div');r.className='row';
- var f=function(c,lab,val){return '<div class="'+(c==='name'?'name':'')+'"><label>'+lab+'</label><input class="'+c+'" aria-label="'+lab+'" '+(c==='name'?'':'inputmode="decimal"')+' value="'+(val===undefined||val===null?'':val)+'"></div>'};
- var nowx=null,nowy=null,nowz=null,tox=null,toy=null,toz=null;
- if(p){ if(mode==='add'){tox=p[3];toy=p[4];toz=p[5];} else {nowx=p[3];nowy=p[4];nowz=p[5];} }
- r.innerHTML=f('name','Part',p?p[0]:'')+f('w','Weight lb',p?p[1]:'')+f('nx','Now at X',nowx)+f('ny','Y',nowy)+f('nz','Z',nowz)+f('tx','Moves to X',tox)+f('ty','Y',toy)+f('tz','Z',toz)+'<div><button class="btn-small ghost" type="button">Remove</button></div><div class="effect"></div>';
- r.querySelector('button').onclick=function(){r.remove();calc()};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var rows=document.getElementById('rows'),seq=0;
+function presetSelect(){var h='<option value="">Fill from list (optional)…</option>';PRESETS.forEach(function(p,i){h+='<option value="'+i+'">'+esc(p[0])+' — '+p[1]+' lb ('+p[2]+')</option>'});return '<select class="pick" aria-label="Fill from the list of measured and typical parts">'+h+'</select>'}
+function inp(cls,lab,ph){return '<div class="'+(cls.indexOf('name')>=0?'f-name':'f')+'"><label>'+lab+'</label><input class="'+cls+'" aria-label="'+lab+'" '+(cls.indexOf('name')>=0?'':'inputmode="decimal"')+(ph?' placeholder="'+ph+'"':'')+'></div>'}
+// A change has two part groups: "o" (the part as it is now / the part taken out) and "n" (where it goes / the part put in).
+function group(k,title,showPart,locLabel,locPh){
+ return '<fieldset class="grp grp-'+k+'"><legend>'+title+'</legend>'+(showPart?presetSelect():'')+'<div class="gfields">'+
+  (showPart?inp(k+'name','Part'):'')+(showPart?inp(k+'w','Weight (lb)'):'')+
+  inp(k+'x',locLabel+' X',locPh)+inp(k+'y','Y','0')+inp(k+'z','Z','')+'</div></fieldset>'}
+function addRow(op,fill){
+ var r=document.createElement('div');r.className='change op-'+op;r.dataset.op=op;var id=++seq;
+ var h='<div class="chead"><span class="cnum"></span> <strong>'+OPS[op]+'</strong><button class="btn-small ghost del" type="button">Delete this change</button></div>';
+ if(op==='add')h+=group('n','Part added',true,'Goes at');
+ if(op==='remove')h+=group('o','Part removed',true,'Now at');
+ if(op==='move')h+=group('o','Part moved',true,'From')+group('n','To',false,'To');
+ if(op==='replace')h+=group('o','Part taken out',true,'Now at')+group('n','Part put in',true,'At','same');
+ h+='<div class="effect"></div>';r.innerHTML=h;
+ r.querySelector('.del').onclick=function(){r.remove();renum();calc()};
  r.querySelectorAll('input').forEach(function(i){i.addEventListener('input',calc)});
- rows.appendChild(r);calc();
+ r.querySelectorAll('.pick').forEach(function(s){s.addEventListener('change',function(){if(s.value==='')return;var k=s.closest('.grp').classList.contains('grp-o')?'o':'n';fillGroup(r,k,PRESETS[+s.value],op);s.value='';calc()})});
+ rows.appendChild(r);if(fill)fill(r);renum();calc();
+ var first=r.querySelector('.pick');if(first&&!fill)first.focus();
+ return r;
 }
-document.getElementById('addPreset').onclick=function(){addRow(PRESETS[+sel.value],'remove')};
-document.getElementById('addBlank').onclick=function(){addRow(null)};
+function setv(r,c,v){var el=r.querySelector('.'+c);if(el)el.value=(v===null||v===undefined)?'':v}
+function fillGroup(r,k,p,op){setv(r,k+'name',p[0]);setv(r,k+'w',p[1]);
+ // For a replacement the new part goes where the old one was unless you say otherwise; for a move, only the starting point is filled.
+ if(op==='replace'&&k==='n'){setv(r,'nx','');setv(r,'ny','');setv(r,'nz','');}else{setv(r,k+'x',p[3]);setv(r,k+'y',p[4]);setv(r,k+'z',p[5]);}
+}
+function renum(){var i=0;rows.querySelectorAll('.change').forEach(function(r){r.querySelector('.cnum').textContent=(++i)+'.'});document.getElementById('empty').style.display=i?'none':''}
+document.querySelectorAll('.opbar [data-op]').forEach(function(b){b.onclick=function(){addRow(b.getAttribute('data-op'))}});
+document.getElementById('clearAll').onclick=function(){rows.innerHTML='';renum();calc()};
+document.getElementById('loadEx').onclick=function(){rows.innerHTML='';
+ addRow('replace',function(r){fillGroup(r,'o',PRESETS[2],'replace');fillGroup(r,'n',PRESETS[3],'replace')});
+ addRow('move',function(r){fillGroup(r,'o',PRESETS[4],'move');setv(r,'nx',138);setv(r,'ny',10);setv(r,'nz',12)});};
 document.getElementById('mode').onchange=function(){var c=this.value==='corners';document.getElementById('cornerFields').style.display=c?'':'none';document.getElementById('totalFields').style.display=c?'none':'';calc()};
 document.querySelectorAll('.panel input').forEach(function(i){if(!i.closest('#rows'))i.addEventListener('input',calc)});
 function fmt(v,d){return v.toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d})}
-function sign(v,d,u){return (v>=0?'+':'')+fmt(v,d)+(u||'')}
+function sign(v,d,u){var s=fmt(Math.abs(v),d);if(+s.replace(/,/g,'')===0)return '0'+(u||'');return (v>0?'+':'−')+s+(u||'')}
 function warn(m){var w=document.getElementById('warn');w.style.display=m?'block':'none';w.textContent=m||''}
 function base(){
  var wb=g('wb',pos),tf=g('tf',pos),tr=g('tr',pos);
@@ -156,6 +185,7 @@ function base(){
  front=fp/100;var tavg=front*tf+(1-front)*tr;
  return {W:W,x:wb*(1-front),y:(0.5-lp/100)*tavg,z:h,wb:wb,tf:tf,tr:tr,left:lp/100};
 }
+// list items: {w, now:[x,y,z]|null, to:[x,y,z]|null} — elementary removals/additions/moves
 function apply(b,list){
  var W=b.W,Mx=b.W*b.x,My=b.W*b.y,Mz=b.z!==null?b.W*b.z:null;
  list.forEach(function(c){
@@ -166,66 +196,111 @@ function apply(b,list){
  var x=Mx/W,y=My/W,z=Mz!==null?Mz/W:null,front=1-x/b.wb,tavg=front*b.tf+(1-front)*b.tr,bf0=1-b.x/b.wb,tavg0=bf0*b.tf+(1-bf0)*b.tr,left=b.left+(0.5-y/tavg)-(0.5-b.y/tavg0);
  return {W:W,x:x,y:y,z:z,front:front,left:left};
 }
+// Read each change into elementary items. Returns {changes:[{el,op,items,dw}], bad}
 function readRows(){
  var out=[],bad=false;
- rows.querySelectorAll('.row').forEach(function(r){
-  var q=function(c){var el=r.querySelector('.'+c),v=num(el.value),ok=v===v&&(c!=='w'||v===null||v>=0);mark(el,ok);if(!ok)rowbad=true;return ok?v:null};
-  var rowbad=false,w=q('w'),nx=q('nx'),tx=q('tx'),ny=q('ny'),nz=q('nz'),ty=q('ty'),tz=q('tz');
-  if(rowbad){bad=true;r.querySelector('.effect').textContent='Check the highlighted numbers.';return}
-  var c={el:r,name:r.querySelector('.name').value,w:w,now:nx!==null?[nx,ny,nz]:null,to:tx!==null?[tx,ty,tz]:null};
-  if(w===null&&!c.now&&!c.to)return;
-  if(w===null||w<0||(!c.now&&!c.to)){bad=true;r.querySelector('.effect').textContent='Enter a weight and at least one X location.';return}
-  r.querySelector('.effect').textContent='';
-  out.push(c);
+ rows.querySelectorAll('.change').forEach(function(r){
+  var op=r.dataset.op,rowbad=false,eff=r.querySelector('.effect');
+  var q=function(c,nonNeg){var el=r.querySelector('.'+c);if(!el)return null;var v=num(el.value),ok=v===v&&(!nonNeg||v===null||v>=0);mark(el,ok);if(!ok)rowbad=true;return ok?v:null};
+  var ow=q('ow',1),ox=q('ox'),oy=q('oy'),oz=q('oz'),nw=q('nw',1),nx=q('nx'),ny=q('ny'),nz=q('nz');
+  if(rowbad){bad=true;eff.textContent='Check the highlighted numbers (plain numbers only; weights can\'t be negative).';eff.className='effect bad';return}
+  var any=[ow,ox,oy,oz,nw,nx,ny,nz].some(function(v){return v!==null});
+  if(!any){eff.textContent='Not counted yet: fill in the part.';eff.className='effect';return}
+  var need=null,items=[];
+  if(op==='add'){if(nw===null||nx===null)need='a weight and where it goes (X)';else items=[{w:nw,now:null,to:[nx,ny,nz]}]}
+  if(op==='remove'){if(ow===null||ox===null)need='a weight and where it is now (X)';else items=[{w:ow,now:[ox,oy,oz],to:null}]}
+  if(op==='move'){if(ow===null||ox===null||nx===null)need='a weight, where it is now (X) and where it moves to (X)';else items=[{w:ow,now:[ox,oy,oz],to:[nx,ny,nz]}]}
+  if(op==='replace'){if(ow===null||ox===null||nw===null)need='the old part\'s weight and location (X) and the new part\'s weight';
+   else{var to=nx===null?[ox,oy,oz]:[nx,ny,nz];items=[{w:ow,now:[ox,oy,oz],to:null},{w:nw,now:null,to:to}]}}
+  if(need){bad=true;eff.textContent='Not counted yet: enter '+need+'.';eff.className='effect bad';return}
+  if(op==='move'&&ox===nx&&(oy||0)===(ny||0)&&oz===nz){eff.className='effect';}
+  var dw=items.reduce(function(s,c){return s+(c.to?c.w:0)-(c.now?c.w:0)},0);
+  out.push({el:r,op:op,items:items,dw:dw,eff:eff});
  });
- return {list:out,bad:bad};
+ return {changes:out,bad:bad};
+}
+var NS='http://www.w3.org/2000/svg';
+function carSide(px,pz,b){
+ // simple, recognizable side schematic: body, cabin, two wheels, ground
+ var f=px(-40),r=px(b.wb+40),wf=px(0),wr=px(b.wb);
+ return '<line x1="20" y1="'+pz(0)+'" x2="680" y2="'+pz(0)+'" stroke="#9fb3c8" stroke-width="2"/>'+
+  '<path d="M'+f+' '+pz(14)+' L'+f+' '+pz(28)+' Q'+px(-30)+' '+pz(34)+' '+px(10)+' '+pz(36)+' L'+px(38)+' '+pz(37)+' L'+px(58)+' '+pz(50)+' L'+px(98)+' '+pz(50)+' L'+px(128)+' '+pz(37)+' L'+r+' '+pz(33)+' L'+r+' '+pz(14)+' Z" fill="#f2f5f8" stroke="#9fb3c8" stroke-width="1.5"/>'+
+  [wf,wr].map(function(x){return '<circle cx="'+x+'" cy="'+pz(13)+'" r="'+(pz(0)-pz(13))+'" fill="#fff" stroke="#55585c" stroke-width="5"/><circle cx="'+x+'" cy="'+pz(13)+'" r="3" fill="#55585c"/>'}).join('')+
+  '<text x="'+wf+'" y="214" text-anchor="middle" font-size="12" fill="#55585c">front axle</text><text x="'+wr+'" y="214" text-anchor="middle" font-size="12" fill="#55585c">rear axle</text>'+
+  '<text x="24" y="'+(pz(0)-6)+'" font-size="11" fill="#55585c">ground</text>';
+}
+function carTop(px,py,b){
+ var f=px(-40),r=px(b.wb+40),hw=Math.max(b.tf,b.tr)/2+6;
+ var h='<rect x="'+f+'" y="'+py(-hw)+'" width="'+(r-f)+'" height="'+(py(hw)-py(-hw))+'" rx="26" fill="#f2f5f8" stroke="#9fb3c8" stroke-width="1.5"/>';
+ h+='<line x1="'+f+'" y1="'+py(0)+'" x2="'+r+'" y2="'+py(0)+'" stroke="#cfd9e3" stroke-dasharray="4 4"/>';
+ [[0,b.tf],[b.wb,b.tr]].forEach(function(a){[-1,1].forEach(function(s){h+='<rect x="'+(px(a[0])-14)+'" y="'+(py(s*a[1]/2)-6)+'" width="28" height="12" rx="3" fill="#55585c"/>'})});
+ h+='<text x="'+(f-6)+'" y="'+(py(0)+4)+'" text-anchor="end" font-size="11" fill="#55585c">front</text>';
+ h+='<text x="'+px(0)+'" y="214" text-anchor="middle" font-size="12" fill="#55585c">front axle</text><text x="'+px(b.wb)+'" y="214" text-anchor="middle" font-size="12" fill="#55585c">rear axle</text>';
+ h+='<text x="'+(r+6)+'" y="'+(py(-hw)+10)+'" font-size="11" fill="#55585c">left</text><text x="'+(r+6)+'" y="'+(py(hw))+'" font-size="11" fill="#55585c">right</text>';
+ return h;
+}
+// Before = hollow amber ring with label above-left; After = solid blue diamond with label below-right. Both always drawn.
+function markers(bx,by,ax,ay,dashed){
+ var h='';
+ h+='<line x1="'+bx+'" y1="'+by+'" x2="'+(bx-34)+'" y2="'+(by-30)+'" stroke="#b26b00" stroke-width="1"/><text x="'+(bx-38)+'" y="'+(by-34)+'" text-anchor="end" font-size="12" fill="#8a5300" font-weight="600">Before</text>';
+ h+='<line x1="'+ax+'" y1="'+ay+'" x2="'+(ax+34)+'" y2="'+(ay+30)+'" stroke="#2f557f" stroke-width="1"/><text x="'+(ax+38)+'" y="'+(ay+42)+'" font-size="12" fill="#2f557f" font-weight="600">After</text>';
+ h+='<circle cx="'+bx+'" cy="'+by+'" r="11" fill="none" stroke="#b26b00" stroke-width="3"'+(dashed?' stroke-dasharray="4 3"':'')+'/>';
+ h+='<path d="M'+ax+' '+(ay-7)+' L'+(ax+7)+' '+ay+' L'+ax+' '+(ay+7)+' L'+(ax-7)+' '+ay+' Z" fill="#2f557f"'+(dashed?' fill-opacity=".75"':'')+'/>';
+ return h;
 }
 function draw(b,n){
- var s=document.getElementById('diag'),L=60,R=640,ground=160,px=function(x){return L+(x+45)/(b.wb+90)*(R-L)},pz=function(z){return ground-z*2.2};
- var h='<line x1="20" y1="'+ground+'" x2="680" y2="'+ground+'" stroke="#bfd0e0"/>';
- h+='<path d="M'+px(-42)+' '+pz(18)+' L'+px(-38)+' '+pz(30)+' L'+px(20)+' '+pz(36)+' L'+px(48)+' '+pz(52)+' L'+px(92)+' '+pz(52)+' L'+px(150)+' '+pz(36)+' L'+px(152)+' '+pz(18)+' Z" fill="#f4f7fa" stroke="#bfd0e0"/>';
- [0,b.wb].forEach(function(x){h+='<circle cx="'+px(x)+'" cy="'+pz(13)+'" r="27" fill="#fff" stroke="#727270" stroke-width="5"/>'});
- h+='<text x="'+px(0)+'" y="185" text-anchor="middle" font-size="12" fill="#727270">front axle</text><text x="'+px(b.wb)+'" y="185" text-anchor="middle" font-size="12" fill="#727270">rear axle</text>';
- var bz=b.z!==null?b.z:22,nz=n.z!==null?n.z:22;
- h+='<circle cx="'+px(b.x)+'" cy="'+pz(bz)+'" r="7" fill="#b9c2cc"/><text x="'+px(b.x)+'" y="'+(pz(bz)-12)+'" text-anchor="middle" font-size="11" fill="#727270">before</text>';
- h+='<circle cx="'+px(n.x)+'" cy="'+pz(nz)+'" r="8" fill="#2f557f"/><text x="'+px(n.x)+'" y="'+(pz(nz)+24)+'" text-anchor="middle" font-size="12" fill="#2f557f" font-weight="600">CG now</text>';
- s.innerHTML=h;
+ var L=70,R=630,px=function(x){return L+(x+40)/(b.wb+80)*(R-L)};
+ var ground=190,sc=(R-L)/(b.wb+80),pz=function(z){return ground-z*sc};
+ var known=b.z!==null,bz=known?b.z:20,nz=known&&n.z!==null?n.z:20;
+ var s=carSide(px,pz,b)+markers(px(b.x),pz(bz),px(n.x),pz(nz),!known);
+ if(!known)s+='<text x="350" y="20" text-anchor="middle" font-size="12" fill="#55585c">CG height not entered — markers drawn at an assumed height, not a measured one</text>';
+ document.getElementById('diagSide').innerHTML=s;
+ var py=function(y){return 105+y*sc};
+ document.getElementById('diagTop').innerHTML=carTop(px,py,b)+markers(px(b.x),py(b.y),px(n.x),py(n.y),false);
 }
-function clearOut(){['oTot','dTot','oF','dF','oL','dL','oH','dH','oFA','oRA','oX','dX','oI'].forEach(function(id){document.getElementById(id).textContent=id.charAt(0)==='o'?'–':''});document.getElementById('take').textContent='–';document.getElementById('diag').innerHTML=''}
+function clearOut(){document.querySelector('#cmp tbody').innerHTML='';document.getElementById('take').textContent='–';document.getElementById('oF').textContent='–';
+ document.getElementById('oI').textContent='–';document.getElementById('yawTake').textContent='–';document.getElementById('diagSide').innerHTML='';document.getElementById('diagTop').innerHTML='';document.getElementById('shift').textContent=''}
+function dir(v,pos,neg,d,u){if(Math.abs(v)<Math.pow(10,-d)/2)return null;return fmt(Math.abs(v),d)+u+' '+(v>0?pos:neg)}
 function calc(){
  BAD=false;
- var b=base();if(!b){clearOut();warn(BAD?'Check the highlighted numbers: use plain numbers only (no units or letters).':'Enter a positive total weight (or four corner weights), a front % between 0 and 100, a wheelbase and track widths.');return}
- var rr=readRows();var msgs=[];if(rr.bad)msgs.push('Some rows are incomplete or have invalid numbers and were skipped.');
- var n=apply(b,rr.list);if(!n){clearOut();warn('The changes remove more weight than the car has.');return}
+ var b=base(),rr=readRows(),summ=document.getElementById('summary');
+ var nAct=rr.changes.length,net=rr.changes.reduce(function(s,c){return s+c.dw},0);
+ summ.textContent=nAct?(nAct+' change'+(nAct>1?'s':'')+' counted · net weight '+sign(net,1,' lb')):'';
+ if(!b){clearOut();warn(BAD?'Check the highlighted numbers: use plain numbers only (no units or letters).':'Enter a positive total weight (or four corner weights), a front % between 0 and 100, a wheelbase and track widths.');return}
+ var msgs=[];if(rr.bad)msgs.push('Some changes are incomplete and are not counted yet — see the note under each.');
+ var list=[];rr.changes.forEach(function(c){list=list.concat(c.items)});
+ var n=apply(b,list);if(!n){clearOut();warn('The changes remove more weight than the car has.');return}
  if(n.x<0||n.x>b.wb){clearOut();warn('With these changes the center of gravity falls outside the wheelbase — one axle would carry negative weight, which is impossible for a car resting on its wheels. Check the weights and X locations.');return}
  if(Math.abs(n.y)>Math.min(b.tf,b.tr)/2){clearOut();warn('With these changes the center of gravity falls outside the track width — check the weights and Y locations.');return}
  if(b.tf!==b.tr)msgs.push('Front and rear tracks differ, so the new left-side % is an approximation.');
  warn(msgs.join(' '));
  var bf=1-b.x/b.wb,bl=b.left;
- document.getElementById('oTot').textContent=fmt(n.W,0)+' lb';document.getElementById('dTot').textContent=sign(n.W-b.W,0,' lb');
- document.getElementById('oF').textContent=fmt(n.front*100,1)+'%';document.getElementById('dF').textContent=sign((n.front-bf)*100,2,' pts');
- document.getElementById('oL').textContent=fmt(n.left*100,1)+'%';document.getElementById('dL').textContent=sign((n.left-bl)*100,2,' pts');
- if(n.z!==null){document.getElementById('oH').textContent=fmt(n.z,1)+' in';document.getElementById('dH').textContent=sign(n.z-b.z,2,' in')}else{document.getElementById('oH').textContent='–';document.getElementById('dH').textContent='enter a starting height'}
- document.getElementById('oFA').textContent=fmt(n.W*n.front,0);document.getElementById('oRA').textContent=fmt(n.W*(1-n.front),0);
- document.getElementById('oX').textContent=fmt(n.x,1)+' in';document.getElementById('dX').textContent=sign(n.x-b.x,2,' in');
- // Change in yaw (polar) moment about the CG, lb·ft². Listed parts are point masses translated without rotating.
- // dI = sum(signed w·d² about new CG)/144 + W0·|CG shift|²/144  (the rest of the car now sits off the new CG)
- var dI=0;rr.list.forEach(function(c){var d2=function(p){var dx=p[0]-n.x,dy=(p[1]||0)-n.y;return (dx*dx+dy*dy)/144};if(c.now)dI-=c.w*d2(c.now);if(c.to)dI+=c.w*d2(c.to)});
+ var T=[['Total weight',b.W,n.W,0,' lb'],['Front axle',b.W*bf,n.W*n.front,0,' lb'],['Rear axle',b.W*(1-bf),n.W*(1-n.front),0,' lb'],
+  ['Front weight',bf*100,n.front*100,1,'%',' pts'],['Left side',bl*100,n.left*100,1,'%',' pts'],
+  ['CG behind front axle',b.x,n.x,1,' in'],['CG right of center',b.y,n.y,1,' in']];
+ if(b.z!==null)T.push(['CG height',b.z,n.z,1,' in']);
+ document.querySelector('#cmp tbody').innerHTML=T.map(function(t){var dd=t[4]==='%'?2:t[3];return '<tr><th scope="row">'+t[0]+'</th><td class="n">'+fmt(t[1],t[3])+t[4]+'</td><td class="n"><strong>'+fmt(t[2],t[3])+t[4]+'</strong></td><td class="n">'+sign(t[2]-t[1],dd,t[5]||t[4])+'</td></tr>'}).join('')+
+  (b.z===null?'<tr><th scope="row">CG height</th><td class="n" colspan="3">enter a starting height to see this</td></tr>':'');
+ document.getElementById('oF').textContent=fmt(n.front*100,1)+'%';
+ var dx=n.x-b.x,dy=n.y-b.y,dz=(b.z!==null&&n.z!==null)?n.z-b.z:null;
+ var parts=[dir(dx,'rearward','forward',2,' in'),dir(dy,'to the right','to the left',2,' in'),dz===null?null:dir(dz,'higher','lower',2,' in')].filter(Boolean);
+ document.getElementById('shift').textContent=nAct?(' · CG moved: '+(parts.length?parts.join(', '):'no measurable change')):'';
+ // Yaw inertia change about each configuration's own CG (point masses translated without rotating).
+ var dI=0;list.forEach(function(c){var d2=function(p){var ex=p[0]-n.x,ey=(p[1]||0)-n.y;return (ex*ex+ey*ey)/144};if(c.now)dI-=c.w*d2(c.now);if(c.to)dI+=c.w*d2(c.to)});
  dI+=b.W*((n.x-b.x)*(n.x-b.x)+(n.y-b.y)*(n.y-b.y))/144;
- document.getElementById('oI').textContent=rr.list.length?sign(dI,0):'–';
- rr.list.forEach(function(c){var one=apply(b,[c]);if(one)c.el.querySelector('.effect').textContent='On its own: front '+sign((one.front-bf)*100,2,' pts')+', total '+sign(one.W-b.W,0,' lb')+(c.now&&c.to?' (move)':c.now?' (removed)':' (added)')});
- var d=Math.abs((n.front-bf)*100),t='Very small balance change.';
- if(!rr.list.length)t='Add, remove or move parts to see the effect.';
- else if(d>=1.5)t=(n.front<bf?'Major shift toward the rear.':'Major shift toward the front.');else if(d>=0.75)t='Meaningful shift in balance.';else if(d>=0.25)t='Small but real balance change.';
- document.getElementById('take').textContent=t+(rr.list.length&&dI<0?' Yaw inertia went down: mass is closer to the center of gravity.':'');
+ document.getElementById('oI').textContent=nAct?sign(dI,0):'–';
+ document.getElementById('yawTake').textContent=!nAct?'Add a change to see its effect.':(Math.abs(dI)<0.5?'Essentially no change in yaw inertia.':dI<0?'Lower: these changes put mass closer to the center of gravity, so the car needs less effort to start or stop rotating.':'Higher: these changes put mass farther from the center of gravity, so the car needs more effort to start or stop rotating.');
+ rr.changes.forEach(function(c){var one=apply(b,c.items);c.eff.className='effect';if(one)c.eff.textContent='On its own: front weight '+sign((one.front-bf)*100,2,' pts')+', total '+sign(one.W-b.W,1,' lb')});
+ var take='No changes yet: the table shows your car as entered.';
+ if(nAct)take='Front weight '+fmt(bf*100,1)+'% → '+fmt(n.front*100,1)+'% ('+sign((n.front-bf)*100,2,' pts')+'). Total '+fmt(b.W,0)+' → '+fmt(n.W,0)+' lb ('+sign(n.W-b.W,1,' lb')+').';
+ document.getElementById('take').textContent=take;
  draw(b,n);
 }
-addRow(PRESETS[2],'remove');addRow(PRESETS[3],'add');
-calc();
+renum();calc();
 })();
 </script>
 
-<footer class="footer"><div class="line"><span>Endicott Speed Shop — Measure. Test. Improve. Know why.</span><span><a href="../../privacy/">Privacy</a> · <a href="mailto:descore.llc@gmail.com?subject=Endicott%20Speed%20Shop">Contact</a></span></div></footer>
+<footer class="footer"><div class="line"><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/">report a problem</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span></div></footer>
 <script src="../../assets/site.js"></script>
 </body>
 </html>
