@@ -35,6 +35,7 @@ export function shareFragment(state, view = 'compare') {
   return '#v1/' + view + '/' + encodeURIComponent(JSON.stringify({
     a: state.a, b: state.b, aMode: state.aMode, bMode: state.bMode, focus: state.focus,
     ...(state.event ? { event: state.event } : {}),
+    ...(state.tool ? { tool: state.tool } : {}),
   }));
 }
 
@@ -50,6 +51,8 @@ export function readFragment(hash) {
     const raw = JSON.parse(decodeURIComponent(matched[2]));
     const a = cleanSetup(raw.a);
     const b = cleanSetup(raw.b);
+    const tool = raw.tool;
+    if (tool !== undefined && (!tool || ![tool.brake, tool.lateral].every(n => Number.isFinite(n) && n >= 0 && n <= 1.2))) return { invalid: true, view: 'home' };
     if (!a || !b || !usableSetup(a) || !usableSetup(b) ||
         !['a', 'b'].includes(raw.focus) ||
         !['before', 'after'].includes(raw.aMode) || !['before', 'after'].includes(raw.bMode) ||
@@ -57,7 +60,7 @@ export function readFragment(hash) {
       return { invalid: true, view: 'home' };
     }
     return { view: matched[1], state: { a, b, aMode: raw.aMode, bMode: raw.bMode, focus: raw.focus,
-      ...(raw.event ? { event: raw.event } : {}) } };
+      ...(raw.event ? { event: raw.event } : {}), ...(tool ? { tool: { brake: tool.brake, lateral: tool.lateral } } : {}) } };
   } catch {
     return { invalid: true, view: 'home' };
   }

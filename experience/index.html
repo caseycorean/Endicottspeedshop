@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#101417">
+  <meta name="description" content="Build a virtual project car, compare the changes and share an experiment with Endicott Speed Shop.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="The Vehicle Lab · Endicott Speed Shop">
+  <meta property="og:description" content="Open a shared experiment or try a build of your own.">
+  <meta property="og:image" content="https://endicottspeedshop.com/logo-round.png">
+  <title>Vehicle Lab · Endicott Speed Shop</title>
+  <link rel="stylesheet" href="lab.css">
+  <script type="module" src="app.mjs"></script>
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="masthead">
+    <div class="shell masthead-inner">
+      <a class="wordmark" href="./"><span>ENDICOTT</span><span>SPEED SHOP</span></a>
+      <nav aria-label="Vehicle Lab">
+        <a href="#home" data-view="home">Start</a>
+        <a href="#build" data-view="build">Build</a>
+        <a href="#compare" data-view="compare">Compare</a>
+        <a href="#tools" data-view="tools">Tools</a>
+        <a href="#learn" data-view="learn">Learn</a>
+      </nav>
+      <a class="library-link" href="../articles/">Articles</a>
+    </div>
+  </header>
+  <main id="content" tabindex="-1">
+    <div id="link-notice" class="shell" aria-live="polite"></div>
+    <div id="app"></div>
+    <p id="status" class="status shell" role="status"></p>
+    <noscript><p class="shell">Enable JavaScript to run an experiment. <a href="../tools/">Browse ESS calculators</a>.</p></noscript>
+  </main>
+  <footer class="shell foot">
+    <span>Endicott Speed Shop <span class="quiet">/</span> Vehicle Lab prototype</span>
+    <a href="../">ESS home</a><a href="../tools/">All calculators</a><a href="../articles/">Articles</a>
+  </footer>
+</body>
+</html>
