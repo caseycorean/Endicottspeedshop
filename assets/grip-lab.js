@@ -7,12 +7,16 @@
 (function () {
   var FIX = { wb: 108, tf: 61, tr: 60, kf: 60, zf: 2, zr: 12 };
   var EX = { w: 3300, fp: 54, h: 20, ax: 0.4, ay: 0.9 };
-  var LIM = { w: [1500, 6000], fp: [35, 70], h: [10, 34], ax: [0, 1.4], ay: [0, 1.4] };
+  // One table drives the sliders, the model limits and shared-link validation, so they can never disagree (Q13 #1).
+  var LIM = { w: [1800, 5000, 50], fp: [40, 65, 0.5], h: [12, 30, 0.5], ax: [0, 1.2, 0.05], ay: [0, 1.2, 0.05] };
   var KEYS = ["w", "fp", "h", "ax", "ay"];
   var TIRES = [["lf", "Left front"], ["rf", "Right front"], ["lr", "Left rear"], ["rr", "Right rear"]];
 
   function f0(x) { return Math.round(x).toLocaleString("en-US"); }
-  function clamp(k, x) { return Math.min(LIM[k][1], Math.max(LIM[k][0], x)); }
+  // clamp to the slider range and snap to the slider step
+  function clamp(k, x) { var L = LIM[k], v = Math.min(L[1], Math.max(L[0], x)); return +(L[0] + Math.round((v - L[0]) / L[2]) * L[2]).toFixed(2); }
+  var NUM = /^\d{1,5}(\.\d{1,3})?$/; // a complete plain number: rejects "3300junk", "Infinity", "", "-1", "1e3"
+  function inRange(k, v) { return v >= LIM[k][0] - 1e-9 && v <= LIM[k][1] + 1e-9; }
   function ev(name, p) { try { if (typeof window.gtag === "function") window.gtag("event", name, p || {}); } catch (e) {} }
 
   // Identical formulas to tools/load-transfer (turning right: load goes to the left tires).
@@ -28,12 +32,19 @@
 
   function readHash() {
     var m = (location.hash || "").match(/^#lab:(.+)$/); if (!m) return null;
-    var o = {}, b = {}, okA = true, okB = true, anyB = false;
-    m[1].split("&").forEach(function (kv) { var p = kv.split("="), k = p[0], v = parseFloat(p[1]);
-      if (KEYS.indexOf(k) >= 0) o[k] = v; else if (k.charAt(0) === "b" && KEYS.indexOf(k.slice(1)) >= 0) { b[k.slice(1)] = v; anyB = true; } });
-    KEYS.forEach(function (k) { if (!(o[k] === o[k] && typeof o[k] === "number")) okA = false; else o[k] = clamp(k, o[k]);
-      if (anyB) { if (!(b[k] === b[k] && typeof b[k] === "number")) okB = false; else b[k] = clamp(k, b[k]); } });
-    return okA ? { s: o, before: anyB && okB ? b : null } : { bad: true };
+    // Strict: every value must be a complete plain number inside the slider range, each key once; otherwise the
+    // whole link is treated as broken and the example car is shown with an explanation (Q13 #2).
+    var o = {}, b = {}, anyB = false, ok = true;
+    m[1].split("&").forEach(function (kv) {
+      var p = kv.split("="), k = p[0], tok = p.length === 2 ? p[1] : "", tgt = null, kk = k;
+      if (KEYS.indexOf(k) >= 0) tgt = o; else if (k.charAt(0) === "b" && KEYS.indexOf(k.slice(1)) >= 0) { tgt = b; kk = k.slice(1); anyB = true; }
+      if (!tgt) return; // unknown keys are ignored
+      if (!NUM.test(tok) || kk in tgt) { ok = false; return; }
+      var v = Number(tok); if (!isFinite(v) || !inRange(kk, v)) { ok = false; return; }
+      tgt[kk] = clamp(kk, v); // on-range values only snap to the slider step
+    });
+    KEYS.forEach(function (k) { if (!(k in o)) ok = false; if (anyB && !(k in b)) ok = false; });
+    return ok ? { s: o, before: anyB ? b : null } : { bad: true };
   }
   function hashOf(s, before) {
     var q = KEYS.map(function (k) { return k + "=" + (+s[k].toFixed(k === "ax" || k === "ay" ? 2 : 1)); });
@@ -50,9 +61,9 @@
     var fromLink = readHash();
     if (fromLink && !fromLink.bad) { s = fromLink.s; before = fromLink.before; shared = true; ev("lab_open_shared"); }
 
-    function slider(k, label, min, max, step, unit) {
+    function slider(k, label) {
       return '<label class="gl-s"><span class="gl-sl">' + label + ' <output id="gl-o-' + k + '"></output></span>' +
-        '<input type="range" id="gl-' + k + '" min="' + min + '" max="' + max + '" step="' + step + '" aria-describedby="gl-o-' + k + '"></label>';
+        '<input type="range" id="gl-' + k + '" min="' + LIM[k][0] + '" max="' + LIM[k][1] + '" step="' + LIM[k][2] + '" aria-describedby="gl-o-' + k + '"></label>';
     }
     root.innerHTML =
       '<div class="gl-shared" hidden>You opened a setup someone shared: their numbers, the same math. Change anything, or <button type="button" class="gl-link" data-act="example">start from the example car</button>.</div>' +
@@ -61,16 +72,16 @@
       '<figcaption>Top view, front at the top, turning right. Circle = load on that tire; dashed ring = parked; orange = the most lightly loaded tire.</figcaption></figure>' +
       '<div class="gl-ctl">' +
       '<p class="gl-take" aria-live="polite"></p>' +
-      slider("ax", "Braking", 0, 1.2, 0.05) + slider("ay", "Cornering", 0, 1.2, 0.05) +
+      slider("ax", "Braking") + slider("ay", "Cornering") +
       '<div class="gl-try"><span>Try:</span> <button type="button" data-act="trail">Trail off the brakes</button> <button type="button" data-act="hard">Brake hard, no turn</button> <button type="button" data-act="lower">Lower the car 2 in</button></div>' +
-      '<details class="gl-car"><summary>Change the car</summary>' + slider("w", "Weight", 1800, 5000, 50) + slider("fp", "Front weight", 40, 65, 0.5) + slider("h", "Center of gravity height", 12, 30, 0.5) +
+      '<details class="gl-car"><summary>Change the car</summary>' + slider("w", "Weight") + slider("fp", "Front weight") + slider("h", "Center of gravity height") +
       '<p class="hint">Starts as an example car (3,300 lb, 54% front, CG 20 in above the ground) — typical of a V8 coupe, not a measured car. Wheelbase, track widths and suspension are fixed here; the <a href="' + toolHref + '" data-act="tool">Load Transfer Calculator</a> lets you set them.</p></details>' +
       '<div class="gl-cmp"><button type="button" class="btn-small ghost" data-act="pin">Keep this as “before”</button> <span class="gl-cmpnote hint"></span></div>' +
       '<div class="gl-share"><button type="button" class="btn-small primary" data-act="share">Share this setup</button> <span class="gl-sharemsg hint" role="status"></span></div>' +
       '</div></div>' +
       '<div class="table-wrap"><table class="data gl-tab"><caption class="sr-only">Load on each tire</caption><thead><tr><th>Tire</th><th class="n">Parked</th><th class="n">Now</th><th class="n">Change</th><th class="n gl-bcol" hidden>Before</th></tr></thead><tbody></tbody></table></div>' +
       '<p class="gl-warn warn" hidden></p>' +
-      '<details class="gl-why"><summary>Why does this happen?</summary><p>The car’s weight acts at its center of gravity, which sits above the ground, while the tires push on the car at ground level. When the tires slow the car or turn it, that offset tips load toward the front (braking) and toward the outside of the turn (cornering). The car doesn’t get heavier — the same total load is shared differently, and the inside front tire is left with the least.</p>' +
+      '<details class="gl-why"><summary>Why does this happen?</summary><p>The car’s weight acts at its center of gravity, which sits above the ground, while the tires push on the car at ground level. When the tires slow the car or turn it, that offset tips load toward the front (braking) and toward the outside of the turn (cornering). The car doesn’t get heavier — the same total load is shared differently: braking moves it from the rear tires to the front, cornering moves it from the inside tires to the outside. The sentence above follows the inside front because that’s the tire that has to steer the car into the turn; the orange circle marks whichever tire is lightest, which is often the inside rear.</p>' +
       '<p>A lower center of gravity, a wider track or a longer wheelbase all reduce how much load moves. Tires also grip less per pound as their load rises, so evenly shared load usually means more total grip — this page shows the loads, not the grip.</p>' +
       '<p><a href="' + artHref + '">Understanding the traction circle</a> · <a href="' + toolHref + '" data-act="tool">Load Transfer Calculator (all the inputs)</a></p></details>' +
       '<p class="hint gl-limits">Steady-state physics: the loads once the car has settled into the brake and the turn, with the suspension defaults above. It doesn’t predict grip, lap times or what any specific car will do.</p>';
@@ -111,7 +122,6 @@
       TIRES.forEach(function (t) { if (r.now[t[0]] <= 0) lift.push(t[1].toLowerCase()); });
       if (lift.length) warn.push("The " + lift.join(" and ") + " would lift off the ground. Past that point the car no longer behaves as this model assumes, so the other numbers are not valid.");
       if (r.R <= 0) warn.push("This much braking would lift the rear axle.");
-      if (s.ax > 1.6 || s.ay > 1.6) warn.push("More than about 1.6 g needs racing slicks or downforce, which this doesn’t model.");
       var w = q(".gl-warn"); w.hidden = !warn.length; w.style.display = warn.length ? "block" : "none"; w.textContent = warn.join(" ");
       q(".gl-tab tbody").innerHTML = TIRES.map(function (t) { var k = t[0], d = r.now[k] - r.park[k];
         return "<tr><td>" + t[1] + '</td><td class="n">' + f0(r.park[k]) + ' lb</td><td class="n">' + (r.now[k] <= 0 ? "lifting" : f0(r.now[k]) + " lb") + '</td><td class="n">' + (d >= 0 ? "+" : "−") + f0(Math.abs(d)) + ' lb</td><td class="n gl-bcol"' + (rb ? "" : " hidden") + ">" + (rb ? (rb.now[k] <= 0 ? "lifting" : f0(rb.now[k]) + " lb") : "") + "</td></tr>"; }).join("");
@@ -142,7 +152,9 @@
       if (!used && a !== "share") { used = true; ev("lab_use"); }
       if (a === "trail") { s.ax = 0.15; s.ay = Math.max(s.ay, 0.9); }
       else if (a === "hard") { s.ax = 0.9; s.ay = 0; }
-      else if (a === "lower") { if (!before) before = JSON.parse(JSON.stringify(s)); s.h = clamp("h", s.h - 2); }
+      else if (a === "lower") {
+        if (s.h <= LIM.h[0] + 1e-9) { q(".gl-sharemsg").textContent = ""; render(); q(".gl-cmpnote").textContent = "The center of gravity is already as low as this page goes (" + LIM.h[0] + " in). Use “Change the car” to raise it again."; return; }
+        if (!before) before = JSON.parse(JSON.stringify(s)); s.h = clamp("h", s.h - 2); }
       else if (a === "pin") { before = before ? null : JSON.parse(JSON.stringify(s)); }
       else if (a === "example") { KEYS.forEach(function (k) { s[k] = EX[k]; }); before = null; q(".gl-shared").hidden = true; }
       else if (a === "share") { share(); return; }
@@ -154,11 +166,15 @@
       var text = q(".gl-take").textContent + " Try it with your own car:";
       if (navigator.share) {
         navigator.share({ title: "Brake into a corner — watch the tires | Endicott Speed Shop", text: text, url: url })
-          .then(function () { ev("lab_share", { method: "native" }); msg.textContent = "Shared."; }, function () { msg.textContent = ""; });
+          .then(function () { ev("lab_share", { method: "native" }); msg.textContent = "Shared."; },
+            function (err) { if (err && err.name === "AbortError") { msg.textContent = ""; return; } copy(); }); // cancelled vs. failed/unsupported (Q13 #4)
         return;
       }
+      copy();
+      function copy() {
       var done = function () { ev("lab_share", { method: "copy" }); msg.textContent = "Link copied — it opens this exact setup."; };
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, fallback); else fallback();
+      }
       function fallback() { msg.innerHTML = 'Copy this link: <input class="gl-url" readonly aria-label="Link to this setup">'; var i = msg.querySelector("input"); i.value = url; i.focus(); i.select(); ev("lab_share", { method: "manual" }); }
     }
     render();
