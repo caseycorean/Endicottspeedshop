@@ -89,6 +89,10 @@ function quickTune(state, entries) {
       `<label class="slider"><span>${caption} <output id="quick-${key}">${fmt(tuned[key], 2)}</output></span>
       <input type="range" data-quick="${key}" min="${min}" max="${max}" step="${step}" value="${tuned[key] ?? (key === 'grip' ? .9 : 3.08)}"></label>`).join('')}
     </div>
+    <div class="axle-ratio-picks" role="group" aria-label="Try a final-drive ratio">
+      ${[3.08, 3.42, 3.73, 4.10].map(ratio => `<button type="button" class="button secondary small"
+      data-axle-ratio="${ratio}" aria-pressed="${tuned.finalDrive === ratio}">${fmt(ratio,2)}</button>`).join('')}
+    </div>
     <p class="quick-impact" id="quick-impact">${escape(quickImpact(entry, state.event === 'oval'))}</p>
     <p class="quiet small"> <button class="text-button" data-edit="${entry.key}">Edit the full build</button></p>
   </section>`;

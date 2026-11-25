@@ -1,30 +1,52 @@
-import { stock } from './vehicles.mjs';
+// Browser-facing views of the shared engineering component records.
+import { garageComponents, labVehicle } from '../engine/garage-adapter.mjs';
+import { tireClasses } from '../engine/tires.mjs';
+import { engineFamilies } from '../engine/data/engines.mjs';
+import { catalog, sources } from './catalog-data.mjs';
 
-const gmAuto = 'https://news.chevrolet.com/content/dam/company/no_search/heritage-archive-docs/vehicle-information-kits/chevrolet/1999-Chevrolet-Camaro.pdf';
-const fourthGen = 'chevrolet-camaro-4th-gen--2002-ss-ls1-m6-coupe';
-const tkx = 'https://tremec.com/wp-content/uploads/2023/05/TKX-Parts-Manual_04.05.2021-1.pdf';
+const library = garageComponents();
 const engineKeys = ['hp','hpRpm','torque','torqueRpm','redline'];
-const engine = (source, name) => ({
-  name, values: Object.fromEntries(engineKeys.map(key => [key, stock(source)[key]])),
-  note: 'Donor engine ratings from ESS vehicle references. Shift ceiling and modeled torque shape remain editable.',
-});
+const engines = Object.fromEntries(Object.entries(library.engine).flatMap(([id, item]) => {
+  const donor = labVehicle(item.from);
+  if (!donor) return [];
+  const values = Object.fromEntries(engineKeys.flatMap(key => Number.isFinite(donor.vehicle[key]) ? [[key, donor.vehicle[key]]] : []));
+  const estimated = engineKeys.filter(key => donor.provenance[key]?.evidence === 'estimated');
+  const source = sources[catalog[item.from]?.fields.hp?.[2]]?.[1];
+  const mass = engineFamilies[item.family]?.weight ?? null;
+  return [[id, {...item, values, estimated, url: source, mass, evidence: 'published',
+    note: 'Donor ratings and shift ceiling. Installation mass and position depend on the swap.'}]];
+}));
+const transmissions = Object.fromEntries(Object.entries(library.transmission).map(([id, item]) => [id, {
+  ...item, values:{gears:item.gears, transmission:item.type}, mass:item.weight, url:item.sources?.find(source => source.url?.startsWith('https://'))?.url,
+}]));
+
+// Preserve previously shared identifiers and the distinct second-gear ratio from the 1999 Camaro reference.
+const aliases = {t56ss: 't56-fbody', tkx287: 'tkx-287-068', tkx327: 'tkx-327-072', gm4l60: '4l60e'};
+for (const [id, canonical] of Object.entries(aliases)) {
+  const item = transmissions[canonical];
+  transmissions[id] = {...item, hidden:true};
+}
+transmissions.gm4l60 = {...transmissions.gm4l60, name:'GM 4L60E · 1999 Camaro V8 automatic',
+  values:{gears:[3.06,1.63,1,.7], transmission:'automatic'},
+  url:'https://news.chevrolet.com/content/dam/company/no_search/heritage-archive-docs/vehicle-information-kits/chevrolet/1999-Chevrolet-Camaro.pdf'};
+
+export const componentLabels = {engine: 'Engine', transmission: 'Transmission', tireClass: 'Tire grip assumption'};
 export const components = {
-  engine: {
-    ls1gto: engine('gto', 'Pontiac GTO LS1 · 350 hp'),
-    ls6c5: engine('corvette', 'C5 Corvette Z06 LS6'),
-  },
-  transmission: {
-    t56ss: {name:'T56 · 2002 Camaro SS V8', values:{gears:stock(fourthGen).gears, transmission:'manual'},
-      note:'GM published V8 six-speed ratios in the Chevrolet Heritage Archive. Installation mass remains vehicle-specific.'},
-    tkx287: {name:'TREMEC TKX · 2.87 first / 0.68 fifth', values:{gears:[2.87,1.89,1.28,1,.68], transmission:'manual'}, url:tkx,
-      note:'TCET17805 GM ratio set. Installation mass and compatibility need vehicle-specific measurements.'},
-    tkx327: {name:'TREMEC TKX · 3.27 first / 0.72 fifth', values:{gears:[3.27,1.98,1.34,1,.72], transmission:'manual'}, url:tkx,
-      note:'TCET18083 GM ratio set. Numerically higher first gear increases wheel torque until grip limits it.'},
-    gm4l60: {name:'GM 4L60E · 1999 Camaro V8 automatic', values:{gears:[3.06,1.63,1,.70], transmission:'automatic'}, url:gmAuto,
-      note:'GM published the gear ratios. The strip uses an illustrative coupling, converter multiplication and shift delay, not a measured converter or shift map.'},
-  },
+  engine: engines,
+  transmission: transmissions,
+  tireClass: Object.fromEntries(Object.entries(tireClasses).map(([id,item]) => [id, {
+    name: item.label, evidence:'estimated', values:{grip:item.mu}, estimated:['grip'],
+    note:'Scenario grip setting. Actual grip depends on the tire, surface and conditions.',
+  }])),
 };
 
+const selected = setup => Object.entries(setup.components ?? {}).map(([kind,id]) => components[kind]?.[id]).filter(Boolean);
+
 export function componentOverrides(setup) {
-  return Object.assign({}, ...Object.entries(setup.components ?? {}).map(([kind, id]) => components[kind]?.[id]?.values));
+  return Object.assign({}, ...selected(setup).map(spec => spec.values));
+}
+
+export function componentProvenance(setup) {
+  return Object.assign({}, ...selected(setup).map(spec =>
+    Object.fromEntries(Object.keys(spec.values).map(key => [key, spec.estimated?.includes(key) ? 'estimated' : 'component']))));
 }

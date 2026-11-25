@@ -1,5 +1,5 @@
 import { fields, stock, vehicles, customEstimates } from './vehicles.mjs';
-import { components, componentOverrides } from './components.mjs';
+import { components, componentOverrides, componentProvenance } from './components.mjs';
 import { axleWeights as sharedAxles, applyItems, tireLoads as sharedLoads, ride as sharedRide } from '../engine/loads.mjs';
 import { availableDrive, driveAt, resistanceAt, straightLine as sharedStrip, tractionLimit, wheelRpm } from '../engine/acceleration.mjs';
 import { missingFor, missingText } from './readiness.mjs';
@@ -7,13 +7,13 @@ import { missingFor, missingText } from './readiness.mjs';
 export const G = 32.174;
 export const FT_PER_MILE = 5280;
 export const MPH = FT_PER_MILE / 3600;
-export const choices = {drivetrain: ['RWD', 'FWD', 'AWD'], transmission: ['manual', 'automatic']};
+export const choices = {drivetrain: ['RWD', 'FWD', 'AWD'], transmission: ['manual', 'automatic', 'dual-clutch']};
 
 export const limits = {
   weight: [1000, 9000], front: [0.25, 0.75], wheelbase: [75, 160],
   frontTrack: [42, 90], rearTrack: [42, 90], cg: [8, 34],
   hp: [35, 1500], torque: [35, 1350], hpRpm: [2000, 10000], torqueRpm: [1100, 9500],
-  redline: [2600, 11500], finalDrive: [2, 6], diameter: [20, 35], grip: [.35, 1.4], cda: [3, 20],
+  redline: [2600, 11500], finalDrive: [2, 6], diameter: [20, 40], grip: [.35, 1.4], cda: [3, 20],
   frontSpring: [40, 2000], rearSpring: [40, 2000], frontMotion: [.25, 1.5],
   rearMotion: [.25, 1.5], frontUnsprung: [0, 300], rearUnsprung: [0, 300], tireRate: [500, 4000],
 };
@@ -99,7 +99,7 @@ export function resolve(setup, modified = true) {
     }
   }
   const overrides = modified ? {...componentOverrides(setup), ...setup.tune} : {};
-  for (const key of Object.keys(componentOverrides(modified ? setup : {}))) evidence[key] = 'component';
+  if (modified) Object.assign(evidence, componentProvenance(setup));
   for (const key of [...Object.keys(setup.base), ...Object.keys(modified ? setup.tune : {})])
     if (Object.hasOwn(modified ? setup.tune : {}, key) || !Object.hasOwn(overrides, key)) evidence[key] = 'user';
   const tuned = {...original, ...setup.base, ...overrides, evidence};

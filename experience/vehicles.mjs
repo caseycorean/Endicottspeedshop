@@ -1,6 +1,8 @@
 import { reference } from './reference.mjs';
 import { catalog, sources } from './catalog-data.mjs';
 import { tireGrip } from '../engine/acceleration.mjs';
+import { labVehicle } from '../engine/garage-adapter.mjs';
+import { frontArchitectures, rearArchitectures } from '../engine/data/architectures.mjs';
 
 const tireProfiles = {firebird: 'radial70s', mustang: 'perf80s', camaro: 'perf80s', fiero: 'perf80s',
   corvette: 'extreme', miata: 'perf80s', gto: 'uhp'};
@@ -20,6 +22,7 @@ const fieroSpecs = n => field(n, 'Gary Witzenburg, Fiero, 1988 specifications', 
 export const fields = {
   drivetrain: 'Driven wheels', transmission: 'Transmission behavior',
   weight: 'Vehicle weight (lb)', front: 'Static front share (%)', wheelbase: 'Wheelbase (in)',
+  archFront: 'Front suspension architecture', archRear: 'Rear suspension architecture',
   frontTrack: 'Front track (in)', rearTrack: 'Rear track (in)', cg: 'CG height (in)',
   hp: 'Peak power (hp)', hpRpm: 'Peak power RPM', torque: 'Peak torque (lb-ft)',
   torqueRpm: 'Peak torque RPM', redline: 'Shift / redline RPM', gears: 'Gear ratios',
@@ -123,7 +126,7 @@ function sourcedFields(entry) {
   const specs = {};
   for (const [key, [value, kind, source, note]] of Object.entries(entry.fields)) {
     const [title, url] = sources[source] ?? [];
-    specs[key] = [value, kind, title, url, note];
+    specs[key] = [value, kind === 'comparable_estimate' ? 'estimated' : kind, title, url, note];
   }
   for (const key of ['hp','torque']) {
     if (/\bgross\b/i.test(specs[key]?.[4] ?? '')) specs[key] = missing('Archive contains a gross rating. Enter a net rating for this model.');
@@ -131,13 +134,24 @@ function sourcedFields(entry) {
   return specs;
 }
 export const layoutNames = {FF: 'Front engine / FWD', FR: 'Front engine / RWD', MR: 'Mid engine / RWD', RR: 'Rear engine / RWD', AWD: 'All-wheel drive'};
+function resolveReference(ref) {
+  const {vehicle, provenance, choices} = labVehicle(ref);
+  const values = Object.fromEntries(Object.entries(vehicle).filter(([key]) => key !== 'drive').map(([key, value]) => {
+    const {evidence, source, sourceTitle, basis, low, high, sources: publications} = provenance[key];
+    const [title, url] = sources[source] ?? [sourceTitle ?? publications?.[0]?.title, publications?.[0]?.url ?? source];
+    const range = low != null && high != null ? ` Indicative range ${low}–${high}.` : '';
+    return [key, [value, evidence, title || basis, url, (title && basis ? basis : '') + range]];
+  }));
+  return {values, choices};
+}
+
 const provisionVehicle = (entry, ref) => {
-  const data = {...catalogDefaults, ...Object.fromEntries(stockBasics.map(key => [key, missing()])), ...sourcedFields(entry)};
-  const diameter = tireDiameter((entry.layout === 'FF' ? data.frontTire : data.tire)?.[0]);
-  if (diameter !== null) data.diameter = [diameter, 'calculated', 'Nominal driven-tire diameter from sidewall size; loaded radius will differ.'];
+  const fallback = Object.fromEntries([...Object.keys(catalogDefaults), ...stockBasics].map(key => [key, missing()]));
+  const resolved = resolveReference(ref);
+  const data = {...fallback, ...sourcedFields(entry), ...resolved.values};
   data.drivetrain = [entry.layout === 'FF' ? 'FWD' : entry.layout === 'AWD' ? 'AWD' : 'RWD', 'published', layoutNames[entry.layout]];
-  data.transmission = [entry.transmission?.startsWith('A') ? 'automatic' : 'manual', 'published', entry.transmission];
-  return {name: entry.name, trim: entry.body, ref, data, ...Object.fromEntries(['make','generation','category','layout','history'].map(k => [k, entry[k]]))};
+  return {name: entry.name, trim: entry.body, ref, data, choices: resolved.choices,
+    ...Object.fromEntries(['make','generation','category','layout','history','model','year'].map(k => [k, entry[k]]))};
 };
 const full = Object.fromEntries(Object.entries(catalog).filter(([ref]) => !oldAlias[ref])
   .map(([ref, entry]) => [ref, provisionVehicle(entry, ref)]));
@@ -147,6 +161,11 @@ for (const id of vehicleIds) {
     {make:'Pontiac', generation:'First generation', category:'Coupe / performance car', layout:'MR'});
   const {make, generation, category, layout, history} = entry;
   Object.assign(demoVehicles[id], {make, generation, category, layout, history});
+  if (demoVehicles[id].ref && catalog[demoVehicles[id].ref]) {
+    const {values, choices} = resolveReference(demoVehicles[id].ref);
+    for (const key of ['archFront','archRear']) if (values[key]) demoVehicles[id].data[key] = values[key];
+    demoVehicles[id].choices = choices;
+  }
   demoVehicles[id].data.drivetrain = ['RWD', 'published', layoutNames[layout]];
   demoVehicles[id].data.transmission = ['manual', 'published', 'Reference transmission type'];
 }
@@ -154,6 +173,10 @@ export const vehicles = {...demoVehicles, ...full,
   custom: {name: 'My custom car', trim: 'Enter your vehicle measurements and drivetrain specifications.', make:'Custom', category:'Custom',
     data: Object.fromEntries([...Object.keys(customEstimates), ...stockBasics, 'drivetrain','transmission'].map(key => [key, missing()]))},
 };
+export function architectureLabel(key, code) {
+  return (key === 'archFront' ? frontArchitectures : rearArchitectures)[code]?.name ?? code;
+}
+
 export const browseIds = Object.keys(vehicles).filter(id => id !== 'custom')
   .sort((a,b) => vehicles[a].make.localeCompare(vehicles[b].make) || vehicles[a].name.localeCompare(vehicles[b].name));
 

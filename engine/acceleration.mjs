@@ -58,33 +58,46 @@ export const massFactor = overall => 1.04 + .0025 * overall * overall;
 /** Driven-tire limit (lb) from longitudinal load transfer and front-lift cap.
  * AWD assumes that the drivetrain can use the available grip at both axles.
  */
-export function tractionLimit(v, resistance, mu = v.grip) {
+export function tractionLimit(v, resistance, mu = v.grip, drive = v.drive ?? ({FWD:'front', AWD:'all'})[v.drivetrain] ?? 'rear') {
   const front = v.weight * v.front;
   const lever = v.cg / v.wheelbase;
   const lift = front / lever + resistance;
   let grip;
-  if (v.drivetrain === 'FWD') grip = mu * (front + resistance * lever) / (1 + mu * lever);
-  else if (v.drivetrain === 'AWD') grip = mu * v.weight;
+  if (drive === 'front') grip = mu * (front + resistance * lever) / (1 + mu * lever);
+  else if (drive === 'all') grip = mu * v.weight;
   else grip = mu * (v.weight - front - resistance * lever) / (1 - mu * lever);
   return Math.max(0, Math.min(grip, lift));
 }
 
+// Generic converter from the shared component pipeline. Replace these values with measured converter data when available.
+export const converter = {stallRpm: 2200, stallRatio: 2, couplingSpeedRatio: .85, shiftSeconds: .12};
+
 export function launchSettings(v) {
-  return v.transmission === 'automatic' ? {launchRpm: 2200, shiftSeconds: .18, converter: true} :
-    {launchRpm: Math.min(Math.max(3000, v.torqueRpm), v.redline - 500), shiftSeconds: defaults.shiftSeconds};
+  return v.transmission === 'automatic' ?
+    {launchRpm: converter.stallRpm, shiftSeconds: converter.shiftSeconds, converter} :
+    {launchRpm: Math.min(Math.max(3000, v.torqueRpm), v.redline - 500),
+      shiftSeconds: v.transmission === 'dual-clutch' ? .12 : defaults.shiftSeconds};
 }
 
 export function availableDrive(v, speed, gear, options = launchSettings(v)) {
   const coupled = wheelRpm(v, speed, gear);
+  if (options.converter) {
+    const conv = options.converter;
+    const rpm = Math.max(conv.stallRpm, coupled, 1000);
+    const speedRatio = Math.min(1, coupled / rpm / conv.couplingSpeedRatio);
+    const multiplier = conv.stallRatio - (conv.stallRatio - 1) * speedRatio;
+    const slipping = speedRatio < 1;
+    return {slipping, force: multiplier * driveAt(v, slipping ? rpm : Math.max(1000, coupled), gear, options.driveline)};
+  }
   const slipping = gear === 0 && coupled < options.launchRpm;
   const rpm = slipping ? options.launchRpm : Math.max(1000, coupled);
-  const converter = slipping && options.converter ? 1 + .65 * Math.max(0, 1 - coupled / 2400) : 1;
-  return {slipping, force: driveAt(v, rpm, gear, options.driveline) * converter};
+  return {slipping, force: driveAt(v, rpm, gear, options.driveline)};
 }
 
 export function straightLine(v, options = {}) {
-  const o = { ...defaults, ...launchSettings(v), distanceFt: 1320,
+  const o = { ...defaults, ...launchSettings({...v, transmission: options.transmission ?? v.transmission}), distanceFt: 1320,
     maxTime: 45, mu: v.grip, ...options };
+  if (o.converter) o.converter = {...converter, ...o.converter};
   let gear = 0, shift = 0, speed = 0, x = 0, t = 0;
   let t60 = null, tRollout = null, finish = null, stripFinish = null;
   const time = { traction: 0, engine: 0, clutch: 0, shifting: 0 };
@@ -95,9 +108,9 @@ export function straightLine(v, options = {}) {
     const coupled = wheelRpm(v, speed, gear);
     if (shift <= 0 && gear < v.gears.length - 1 && coupled >= v.redline - 50) { gear++; shift = o.shiftSeconds; }
     const resistance = resistanceAt(v, speed, o.rollResistance);
-    const cap = tractionLimit(v, resistance, o.mu);
+    const cap = tractionLimit(v, resistance, o.mu, o.drive);
     const {slipping, force: demand} = availableDrive(v, speed, gear, o);
-    const available = shift > 0 ? 0 : demand;
+    const available = shift > 0 ? (o.converter ? .5 * demand : 0) : demand;
     let limit = shift > 0 ? 'shifting' : available > cap ? 'traction' : slipping ? 'clutch' : 'engine';
     const force = Math.min(available, cap);
     // Engine and driveline inertia only load the tires when the engine is coupled and below the grip limit.

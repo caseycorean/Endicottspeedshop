@@ -46,3 +46,14 @@ heave (both wheels together) for roll centres; tire contact moves with the wheel
 follows the ball-joint-to-top-mount line (strut offset ignored). Leaf springs: reported as a range because a
 leaf winds up rather than pivots. Results describe *trends* (which way and roughly how much), not a specific
 car's measured curve, unless measured hardpoints are entered.
+
+## Shared components in the private review
+
+`garage-adapter.mjs` combines the reference catalog with the source-tagged component records and
+estimation rules. The chooser keeps each year and configuration explicit. The lab shows the evidence
+and optional estimated values for the loaded choice. The UI uses component IDs in Garage and share
+state. Previously issued IDs remain readable. Power ratings, gear ratios and an optional tire-class
+grip estimate are applied through the same resolved vehicle used by the comparison and relevant
+tools. Published component mass is shown with its basis. Use itemized weights and mounting
+positions for an actual installation. The existing measured and published inputs for the original
+lab fixtures are preserved for regression and benchmark comparisons.

@@ -121,8 +121,9 @@ function render(next = view, restoreDetails = false) {
     case 'garage': app.innerHTML = garageView(getGarage(), getActive()); break;
     case 'suspension': {
       const selected = getActive();
-      app.innerHTML = suspensionView(selected && setupName(selected.setup)) + frontGeometry();
-      mountSuspension(app, selected && resolve(selected.setup, selected.mode === 'after'));
+      const vehicle = selected && resolve(selected.setup, selected.mode === 'after');
+      app.innerHTML = suspensionView(selected && setupName(selected.setup), vehicle) + frontGeometry(vehicle?.archFront);
+      mountSuspension(app, vehicle);
       break;
     }
     case 'learn': app.innerHTML = learn(); break;
@@ -370,6 +371,20 @@ function resetProgress() {
   app.querySelector('[data-action="play"]').textContent = 'Run comparison';
 }
 
+function tuneComparison(key, value) {
+  const current = active();
+  if (value === resolve(current, false)[key] && !Object.hasOwn(componentOverrides(current), key)) delete current.tune[key];
+  else current.tune[key] = value;
+  state[state.focus + 'Mode'] = modified(current) ? 'after' : 'before';
+  byId('quick-' + key).value = fmt(value, 2);
+  const mode = app.querySelector(`[data-mode="${state.focus}"]`);
+  mode.options[1].disabled = !modified(current);
+  mode.value = modeOf(state, state.focus);
+  if (key === 'finalDrive') for (const chip of app.querySelectorAll('[data-axle-ratio]'))
+    chip.setAttribute('aria-pressed', String(Number(chip.dataset.axleRatio) === value));
+  refreshComparison();
+}
+
 function refreshComparison() {
   const entries = matchupEntries(state);
   byId('race-live').innerHTML = liveGrid(entries);
@@ -481,6 +496,12 @@ document.addEventListener('click', event => {
     const next = clone(active());
     next.parts.splice(+el.dataset.remove, 1);
     if (!commitExperiment(next, 'Component change undone.')) speak('Undoing this change would exceed the model limits.');
+    return;
+  }
+  if (el.dataset.axleRatio) {
+    const ratio = Number(el.dataset.axleRatio);
+    app.querySelector('[data-quick="finalDrive"]').value = ratio;
+    tuneComparison('finalDrive', ratio);
     return;
   }
   if (el.dataset.studyLane) {
@@ -618,16 +639,7 @@ app.addEventListener('input', event => {
   }
   const quick = target.dataset.quick;
   if (quick) {
-    const current = active();
-    const n = Number(target.value);
-    if (n === resolve(current, false)[quick]) delete current.tune[quick];
-    else current.tune[quick] = n;
-    state[state.focus + 'Mode'] = modified(current) ? 'after' : 'before';
-    byId('quick-' + quick).value = fmt(n, 2);
-    const mode = app.querySelector(`[data-mode="${state.focus}"]`);
-    mode.options[1].disabled = !modified(current);
-    mode.value = modeOf(state, state.focus);
-    refreshComparison();
+    tuneComparison(quick, Number(target.value));
     return;
   }
   const key = target.dataset.slider;

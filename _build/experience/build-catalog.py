@@ -3,6 +3,7 @@ import argparse
 import csv
 import json
 from pathlib import Path
+import re
 
 FIELDS = {
     "weight": ("mass", "curb_weight", "as_tested_weight"),
@@ -32,7 +33,7 @@ FIELDS = {
 
 def field_value(row, group, names):
     for key in names:
-        entry = row.get(group, {}).get(key, {})
+        entry = row.get(group, {}).get(key) or {}
         if entry.get("value") is not None:
             conditions = " ".join(entry.get(k) or "" for k in ("conditions", "note")).strip()
             if key == "peak_torque_rpm_min":
@@ -69,7 +70,8 @@ if __name__ == "__main__":
         else:
             category = "Coupe / performance car"
         records[row["config_id"]] = {
-            "name": row["display_name"], "make": identity["make"], "generation": identity["generation"],
+            "name": row["display_name"], "model": identity["model"], "make": identity["make"], "generation": identity["generation"],
+            "year": int(re.search(r"(?<=--)(?:19|20)\d{2}", row["config_id"])[0]),
             "body": identity["body"], "category": category, "layout": identity["layout"],
             "transmission": identity.get("transmission"), "fields": projected, "history": links.get(row["config_id"], []),
         }

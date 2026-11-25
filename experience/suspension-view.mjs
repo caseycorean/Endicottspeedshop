@@ -1,4 +1,5 @@
 import { linkLayout, layouts, solveRearLinks, stages } from './rear-links.mjs';
+import { architectureLabel } from './vehicles.mjs';
 import { escape, fmt } from './ui.mjs';
 
 const colors = {lower: '#b3a487', upper: '#ffb971', lateral: '#8bcdb7', slider: '#9fc8ed'};
@@ -13,12 +14,16 @@ function dial(id, name, min, max, step, value) {
     <input type="range" data-link-input="${id}" min="${min}" max="${max}" step="${step}" value="${value}"></label>`;
 }
 
-export function suspensionView(activeName) {
+export function suspensionView(activeName, reference) {
+  const activeLayout = {threeLink:'three', fourLinkParallel:'parallel', fourLinkTriangulated:'triangulated', torqueArm:'torque', fiveLink:'parallel'}[reference?.archRear];
+  const dimensions = initialDimensions(reference);
+  const context = reference?.archRear ? `Active vehicle rear: ${architectureLabel('archRear', reference.archRear)}${activeLayout ? '. The starting layout uses example mounts.' : '. Working examples below use linked live axles.'}` : '';
+
   return `<section class="shell workspace suspension-workspace" data-suspension-lab>
     <header class="page-title"><p class="eyebrow">Engineering experiments</p><h1>Rear suspension</h1>
       <p class="lede">Move a mount. Raise or roll the axle. Watch the links and the constraint change together.</p></header>
     <div class="susp-controller panel content-panel">
-      <label><span>Link layout</span><select data-link-layout>${Object.entries(layouts).map(([id, l]) => `<option value="${id}">${l.name}</option>`).join('')}</select></label>
+      <label><span>Link layout</span><select data-link-layout>${Object.entries(layouts).map(([id, l]) => `<option value="${id}" ${activeLayout === id ? 'selected' : ''}>${l.name}</option>`).join('')}</select></label>
       <div class="tool-controls">
         ${stages.map(({id, name, min, max, step}) => dial(id, name, min, max, step, 0)).join('')}
       </div>
@@ -42,14 +47,19 @@ export function suspensionView(activeName) {
       </section>
       <section class="panel content-panel">
         <h2>Vehicle assumptions</h2>
-        <div class="tool-controls">${dial('wheelbase','Wheelbase (in)',75,160,.1,108)}${dial('cg','CG height (in)',8,34,.1,20)}</div>
-        <p class="quiet small" data-link-assumptions>Illustrative live-axle geometry and vehicle dimensions.</p>
+        <div class="tool-controls">${dial('wheelbase','Wheelbase (in)',75,160,.1,dimensions.wheelbase)}${dial('cg','CG height (in)',8,34,.1,dimensions.cg)}</div>
+        <p class="quiet small" data-link-assumptions>${escape(context)} ${dimensions.active ? 'Starting wheelbase and CG use the active setup.' : 'Starting dimensions are illustrative.'}</p>
         ${activeName ? `<button class="button secondary small" data-link-quick="garage">Use dimensions from ${escape(activeName)}</button>` : ''}
         <details class="explain"><summary>Instant center and anti-squat</summary><p>In level, symmetric travel the side-view link lines meet at a virtual pivot. The anti-squat estimate compares the slope from the rear tire contact patch to that pivot against CG height divided by wheelbase. It applies to the idealized rear-drive longitudinal force. For a torque arm, the height-only guide makes a vertical constraint line through the current nose. Roll, nonphysical fits and unresolved intersections suppress the readout.</p></details>
         <details class="explain"><summary>Leaf spring reference and model limits</summary><p>A conventional leaf spring locates and supports the axle through the eyes, spring and shackle. The axle path and windup depend on spring deformation and shackle geometry. This fixed-length solver covers rod-link layouts and a simplified torque-arm guide. Real bushings, joints, springs, dampers, stops, clearances, strength and safety require separate checks. Green reports agreement with these modeled constraints only.</p></details>
       </section>
     </div>
   </section>`;
+}
+
+function initialDimensions(reference) {
+  const active = reference?.wheelbase >= 75 && reference.wheelbase <= 160 && reference.cg >= 8 && reference.cg <= 34;
+  return active ? {wheelbase: reference.wheelbase, cg: reference.cg, active} : {wheelbase: 108, cg: 20, active: false};
 }
 
 function draw(canvas, view, links, result, selected) {
@@ -117,7 +127,7 @@ export function mountSuspension(root, reference) {
   const status = panel.querySelector('[data-link-status]');
   const readout = panel.querySelector('[data-link-readout]');
   let links = linkLayout(layout.value);
-  let state = {heave: 0, roll: 0, wheelbase: 108, cg: 20};
+  let state = {heave: 0, roll: 0, ...initialDimensions(reference)};
   function pickFields(refreshOptions = false) {
     if (refreshOptions) pick.innerHTML = links.map((l, i) => `<option value="${i}">${l.name}</option>`).join('');
     const current = links[Number(pick.value)];
@@ -159,7 +169,7 @@ export function mountSuspension(root, reference) {
     const key = target.closest('[data-link-quick]')?.dataset.linkQuick;
     if (!key) return;
     if (key === 'garage') {
-      if (Number.isFinite(reference?.wheelbase) && Number.isFinite(reference?.cg)) {
+      if (initialDimensions(reference).active) {
         state = {...state, wheelbase: reference.wheelbase, cg: reference.cg};
         panel.querySelector('[data-link-assumptions]').textContent = 'Wheelbase and CG height use the active build. Missing source provenance is shown in My Garage.';
       } else panel.querySelector('[data-link-assumptions]').textContent = 'Add wheelbase and CG height to the active build before applying it.';

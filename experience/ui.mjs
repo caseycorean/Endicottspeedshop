@@ -1,4 +1,4 @@
-import { vehicles, fields, customEstimates } from './vehicles.mjs';
+import { vehicles, fields, customEstimates, architectureLabel } from './vehicles.mjs';
 import { modified } from './configuration.mjs';
 
 export const escape = s => String(s).replace(/[&<>"']/g, c => (
@@ -32,7 +32,7 @@ export function metricTable(rows, labels = ['Original', 'Modified'], compare = f
 
 export const evidenceNames = {
   manufacturer: 'Manufacturer', published: 'Published', independent_test: 'Independent test',
-  missing: 'Missing', estimated: 'Estimated', measured: 'ESS measured', calculated: 'Calculated', user: 'User-entered',
+  missing: 'Missing', estimated: 'Estimated', measured: 'ESS measured', calculated: 'Calculated', user: 'User-entered', historical: 'Historical archive', component: 'Component preset',
 };
 
 export function evidence(setup, custom = true) {
@@ -43,7 +43,7 @@ export function evidence(setup, custom = true) {
     <dl class="evidence">${Object.entries(v.data).map(([key, data]) => {
       const opted = setup.id === 'custom' && (setup.estimates ?? Object.keys(customEstimates)).includes(key);
       const [value, kind, note, link, conditions] = opted ? customEstimates[key] : data;
-      const fieldValue = value === null ? '—' : Array.isArray(value) ? value.join(' / ') : key === 'front' ? fmt(value * 100, 1) : value;
+      const fieldValue = value === null ? '—' : Array.isArray(value) ? value.join(' / ') : key === 'front' ? fmt(value * 100, 1) : key === 'archFront' || key === 'archRear' ? architectureLabel(key, value) : value;
       const original = setup.base[key];
       const override = custom ? setup.tune[key] : undefined;
       const displayOverride = n => escape(key === 'front' ? fmt(n * 100, 1) : n);

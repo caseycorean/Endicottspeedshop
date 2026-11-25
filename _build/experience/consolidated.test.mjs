@@ -69,3 +69,30 @@ test('picker distinguishes the SN95 and S197 Mustang references by requested yea
   assert.deepEqual(m03.exact, []);
   assert.match(m03.nearby[0], /sn95/);
 });
+
+test('new component records flow through Garage state and keep evidence attached', () => {
+  const state = example();
+  state.a.components = {engine:'ls7c6', transmission:'tkx-287-081', tireClass:'uhp'};
+  state.aMode = 'after';
+  const setup = readFragment(shareFragment(state)).state.a;
+  const v = resolve(setup);
+  assert.equal(v.hp, 505);
+  assert.equal(v.gears.at(-1), .81);
+  assert.equal(v.grip, 1.05);
+  assert.equal(v.evidence.hp, 'component');
+  assert.equal(v.evidence.grip, 'estimated');
+  assert.ok(straightLine(v).finish);
+});
+
+test('classic truck coverage preserves specific configuration and a genuinely missing field', () => {
+  const result = matchVehicles({query:'1978 Chevrolet C10', interest:'classic'});
+  assert.equal(result.exact.length, 1);
+  const truck = resolve(newSetup(result.exact[0]));
+  assert.equal(truck.archRear, 'leaf');
+  assert.equal(truck.transmission, 'automatic');
+  const ford = matchVehicles({query:'1967 Ford F-100', interest:'classic'});
+  const f100 = resolve(newSetup(ford.exact[0]));
+  assert.equal(f100.archFront, 'twinIBeam');
+  assert.ok(!missingFor(f100, 'load-transfer').length);
+  assert.ok(missingFor(f100, 'quarter').includes('hpRpm'));
+});

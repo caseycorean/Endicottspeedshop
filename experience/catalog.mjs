@@ -11,11 +11,21 @@ function identity(id) {
   const name = known?.[2] ?? car.name;
   const model = name.startsWith(car.make + ' ') ? name.slice(car.make.length + 1) : name;
   const family = familyNames.find(prefix => model.startsWith(prefix + ' ') || model === prefix) ?? model.split(' ')[0];
-  return {year: Number(known?.[1]), model: family === 'Miata' ? 'MX-5 Miata' : family};
+  return {year: car.year ?? Number(known?.[1]), model: car.model ?? (family === 'Miata' ? 'MX-5 Miata' : family)};
 }
 const identities = Object.fromEntries(browseIds.map(id => [id, identity(id)]));
 
-export function findVehicles({query = '', category = '', layout = '', make = '', generation = '', model = ''} = {}) {
+const interests = {
+  muscle: ['American muscle', car => /mustang|camaro|firebird|gto|amx|chevelle|challenger|charger|grand national|nova/i.test(car.name)],
+  sports: ['Sports cars', car => /corvette|miata|s2000|viper|porsche|supra|fiero|350z|gr86/i.test(car.name)],
+  compact: ['Sport compacts', car => car.category === 'Hot hatch' || /integra|elantra|civic/i.test(car.name)],
+  awd: ['AWD performance', car => car.layout === 'AWD' && car.category !== 'Pickup / truck'],
+  classic: ['Classic trucks', (car, id) => car.category === 'Pickup / truck' && identities[id].year <= 1987],
+  truck: ['All trucks', car => car.category === 'Pickup / truck'],
+  all: ['All vehicles', () => true],
+};
+
+export function findVehicles({query = '', category = '', layout = '', make = '', generation = '', model = '', interest = ''} = {}) {
   const words = normalize(query).split(' ').filter(Boolean);
   return browseIds.filter(id => {
     const car = vehicles[id];
@@ -23,7 +33,7 @@ export function findVehicles({query = '', category = '', layout = '', make = '',
     return words.every(word => text.includes(word)) &&
       (!category || car.category === category) && (!layout || car.layout === layout) &&
       (!make || car.make === make) && (!generation || car.generation === generation) &&
-      (!model || identities[id].model === model);
+      (!model || identities[id].model === model) && (!interest || interests[interest]?.[1](car, id));
   });
 }
 
@@ -84,12 +94,12 @@ export function installCatalog(root = document) {
     el.innerHTML = `<div class="catalog-top"><h2 id="ess-catalog-title">Choose your car</h2><button type="button" data-catalog-close aria-label="Close vehicle catalogue">×</button></div>
       <label><span>Search by make, model or year</span><input type="search" data-catalog-query placeholder="e.g. 2004 Mustang, Civic, AWD"></label>
       <div class="catalog-categories" role="group" aria-label="Browse vehicle types">
-        ${['', ...optionsFor('category')].map(value => `<button type="button" data-catalog-category="${escape(value)}" aria-pressed="${!value}">${escape(value || 'All vehicles')}</button>`).join('')}
+        ${Object.entries(interests).map(([value,[label]]) => `<button type="button" data-catalog-category="${value}" aria-pressed="false">${label}</button>`).join('')}
       </div>
       <div class="catalog-identity">
         <label><span>Make</span><select name="make">${option('', 'Any make')}${optionsFor('make').map(i => option(i)).join('')}</select></label>
         <label><span>Model</span><select name="model">${option('', 'Any model')}</select></label>
-        <label><span>Year</span><input type="text" name="year" inputmode="numeric" maxlength="4" placeholder="Any year"></label>
+        <label><span>Year</span><input type="text" name="year" inputmode="numeric" maxlength="4" placeholder="2004"></label>
       </div>
       <details class="catalog-filters"><summary>Drivetrain and generation</summary><div>
         ${groups.slice(1).map(([key,title]) => `<label><span>${title}</span><select name="${key}">${option('', 'Any ' + title.toLowerCase())}
@@ -101,7 +111,7 @@ export function installCatalog(root = document) {
     const modelSelect = el.querySelector('[name="model"]');
     const yearInput = el.querySelector('[name="year"]');
     const query = el.querySelector('[data-catalog-query]');
-    let category = '';
+    let interest = '';
     const refresh = () => {
       const picks = Object.fromEntries(groups.map(([key]) => [key, el.querySelector(`[name="${key}"]`).value]));
       const model = modelSelect.value;
@@ -109,8 +119,15 @@ export function installCatalog(root = document) {
         .map(id => identities[id].model))].sort();
       modelSelect.innerHTML = option('', 'Any model') + models.map(i => option(i)).join('');
       modelSelect.value = models.includes(model) ? model : '';
-      const {exact, nearby, year} = matchVehicles({...picks, model: modelSelect.value, category,
+      const {exact, nearby, year} = matchVehicles({...picks, model: modelSelect.value, interest,
         query: query.value, year: /^\d{4}$/.test(yearInput.value.trim()) ? yearInput.value.trim() : ''});
+      const isBrowsing = interest || modelSelect.value || query.value.trim() || year || Object.values(picks).some(Boolean);
+      if (!isBrowsing) {
+        el.querySelector('[data-catalog-count]').textContent = '';
+        el.querySelector('[data-catalog-results]').replaceChildren();
+        el.querySelector('[data-catalog-more]').hidden = true;
+        return;
+      }
       const noMatch = '<p>No matches. Try removing a filter, or enter your own vehicle.</p>';
       const summary = year ? `${exact.length} exact year ${exact.length === 1 ? 'reference' : 'references'}` : `${exact.length} references`;
       el.querySelector('[data-catalog-count]').textContent = summary;
@@ -126,9 +143,10 @@ export function installCatalog(root = document) {
       if (!button) return;
       if (button.hasAttribute('data-catalog-close')) el.close();
       if (button.hasAttribute('data-catalog-category')) {
-        category = button.dataset.catalogCategory;
+        const value = button.dataset.catalogCategory;
+        interest = interest === value ? '' : value;
         for (const tab of el.querySelectorAll('[data-catalog-category]'))
-          tab.setAttribute('aria-pressed', String(tab === button));
+          tab.setAttribute('aria-pressed', String(tab.dataset.catalogCategory === interest));
         visible = 12;
         refresh();
       }

@@ -8,15 +8,15 @@ const layouts = {
     wheelCenter: [29, 12], tireRadius: 12, staticCamber: -.5}},
 };
 
-export function frontGeometry() {
+export function frontGeometry(architecture) {
   return `<section class="shell panel content-panel geometry-demo" data-front-geometry>
     <h2>Camber through travel</h2>
-    <p class="quiet">Compare two illustrative front suspensions as the wheel moves up and down.</p>
+    <p class="quiet">Compare two illustrative front suspensions as the wheel moves up and down.${architecture === 'sla' || architecture === 'strut' ? ' Starting layout follows the active vehicle; mounting points are examples.' : ''}</p>
     <div class="geometry-grid">
       <canvas width="338" height="225" role="img" aria-label="Calculated front-view suspension geometry"></canvas>
       <div>
         <label><span>Example layout</span><select data-front-layout>
-          <option value="sla">Short / long arm</option><option value="strut">MacPherson strut</option>
+          <option value="sla">Short / long arm</option><option value="strut" ${architecture === 'strut' ? 'selected' : ''}>MacPherson strut</option>
         </select></label>
         <label class="slider"><span>Wheel travel <output data-travel>0.00 in</output></span>
           <input type="range" min="-3" max="3" step=".1" value="0" data-front-travel></label>
