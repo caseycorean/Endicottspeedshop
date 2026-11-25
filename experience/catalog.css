@@ -46,3 +46,14 @@
   .catalog-result { grid-template-columns: 1fr; }
   .catalog-card-actions { grid-template-columns: minmax(0,.7fr) minmax(0,1.3fr); }
 }
+
+.catalog-dialog label { display: grid; gap: .22rem; color: var(--ess-muted); font-size: .88rem; }
+.catalog-identity { display: grid; grid-template-columns: 1fr 1fr minmax(65px, .55fr); gap: .4rem; }
+.catalog-categories { display: flex; flex-wrap: wrap; gap: .28rem; margin: .6rem 0; }
+.catalog-categories button { font-size: .84rem; min-height: 44px; }
+.catalog-categories button[aria-pressed="true"] { border-color: var(--ess-accent); background: #ede0ce; color: var(--ess-accent); font-weight: 700; }
+.catalog-custom { display: flex; gap: .35rem .65rem; flex-wrap: wrap; align-items: center; margin: .5rem 0; padding: .45rem 0; border-block: 1px solid var(--ess-line); }
+.catalog-custom span, .catalog-nearby { font-size: .9rem; color: var(--ess-muted); }
+.catalog-nearby > summary { cursor: pointer; min-height: 44px; align-content: center; }
+.catalog-nearby article { margin-bottom: .32rem; }
+.catalog-result .reference-difference { color: var(--ess-warning); margin-block: .4rem; }

@@ -16,6 +16,7 @@ if (control) {
     const setup = newSetup(id);
     const carried = useConfig(setup, 'before');
     const root = new URL(control.dataset.labRoot, location.href);
+    if (carried) root.searchParams.set('start', 'vehicle');
     if (template) root.searchParams.set('edit', 'original');
     root.hash = carried ? 'build' : shareFragment({...example(), a: setup}, 'build').slice(1);
     location.assign(root);

@@ -4,6 +4,7 @@ import { newSetup, resolve, ride, tireLoads, straightLine } from '../../experien
 import { missingFor, estimatedFor } from '../../experience/readiness.mjs';
 import { example, shareFragment, readFragment } from '../../experience/configuration.mjs';
 import { straightLine as kernel } from '../../engine/acceleration.mjs';
+import { matchVehicles } from '../../experience/catalog.mjs';
 
 test('a ride-only setup need not have wheelbase, CG height or powertrain data', () => {
   const setup = newSetup('custom');
@@ -55,4 +56,16 @@ test('Z06 published trim benchmark uses the right clock and is marked calibratio
   assert.ok(run.finish.t - run.magazine.et > .25);
   assert.ok(Math.abs(run.magazine.et - 12.48) < .25);
   assert.ok(Math.abs(run.magazine.trap - 114.9) < 2);
+});
+
+test('picker distinguishes the SN95 and S197 Mustang references by requested year', () => {
+  const m04 = matchVehicles({query:'2004 Mustang'});
+  assert.match(m04.exact[0], /sn95/);
+  assert.match(m04.nearby[0], /s197/);
+  const m05 = matchVehicles({query:'', make:'Ford', model:'Mustang', year:'2005'});
+  assert.match(m05.exact[0], /s197/);
+  assert.match(m05.nearby[0], /sn95/);
+  const m03 = matchVehicles({query:'', make:'Ford', model:'Mustang', year:'2003'});
+  assert.deepEqual(m03.exact, []);
+  assert.match(m03.nearby[0], /sn95/);
 });

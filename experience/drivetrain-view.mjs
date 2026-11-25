@@ -25,6 +25,9 @@ export function tractionPanel(v) {
   return `<div data-traction-result class="traction-panel" data-level="${r.color}">
     <strong>${r.color === 'red' ? 'Grip limits launch force' : r.color === 'yellow' ? 'Near the modeled grip limit' : 'Modeled grip reserve'}</strong>
     <p>${fmt(r.demand)} lbf demand · ${fmt(r.limit)} lbf available · ${fmt(r.utilization * 100)}% utilization</p>
+    <p>${r.color === 'red' ? 'A shorter gear adds wheel torque, but the tires already set the launch limit.' :
+      r.color === 'yellow' ? 'A small gearing or grip change can move the launch across the traction limit.' :
+      'A shorter gear may increase launch force. Check how soon it reaches shift RPM.'}</p>
     <p>${fmt(r.rear)} lb dynamic rear load · ${fmt(r.mphInFirst, 1)} mph at shift RPM in first · ${fmt(r.cruiseRpm)} rpm at 70 mph</p>
   </div>`;
 }

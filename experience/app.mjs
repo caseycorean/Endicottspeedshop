@@ -20,11 +20,35 @@ const notice = document.querySelector('#link-notice');
 const status = document.querySelector('#status');
 const defaults = { brake: .4, lateral: .9 };
 let saved = getSaved();
-function initialState() {
+const draftKey = 'ess.lab-session.v1';
+function initialState(useDraft = true) {
   const selected = getActive();
+  const newVehicle = new URLSearchParams(location.search).has('start');
+  if (useDraft && !newVehicle) {
+    try {
+      const draft = JSON.parse(sessionStorage.getItem(draftKey));
+      const saved = draft?.selection === JSON.stringify(selected) && readFragment(draft.fragment).state;
+      if (saved) return saved;
+    } catch {
+      // The standalone lab also works with browser storage disabled.
+    }
+  }
   return selected ? {...example(), a: selected.setup, aMode: selected.mode} : {...example(), a: newSetup('camaro')};
 }
 let state = initialState();
+const entryUrl = new URL(location.href);
+if (entryUrl.searchParams.has('start')) {
+  entryUrl.searchParams.delete('start');
+  history.replaceState(null, '', entryUrl);
+}
+
+function rememberDraft() {
+  try {
+    sessionStorage.setItem(draftKey, JSON.stringify({selection: JSON.stringify(getActive()), fragment: shareFragment(state)}));
+  } catch {
+    // The live experiment still works with browser storage disabled.
+  }
+}
 let view = 'home';
 let replay;
 let pendingPreset;
@@ -60,7 +84,7 @@ function applyLocation() {
     state = route.state;
     sharedLinkNotice = 'Shared experiment. Try a change or run the comparison to see it play out.';
   } else if (route.invalid) {
-    state = initialState();
+    state = initialState(false);
     sharedLinkNotice = 'This experiment link could not be restored. The default matchup is ready to try.';
   } else {
     sharedLinkNotice = '';
@@ -106,6 +130,7 @@ function render(next = view, restoreDetails = false) {
   }
   mountCamber(app);
   mountFrontGeometry(app);
+  rememberDraft();
   notice.textContent = sharedLinkNotice;
   notice.classList.toggle('link-notice', Boolean(sharedLinkNotice));
   for (const nav of document.querySelectorAll('nav a[data-view]')) {
@@ -360,6 +385,7 @@ function refreshComparison() {
   for (const action of ['play', 'share', 'restart']) app.querySelector(`[data-action="${action}"]`).disabled = !playable;
   app.querySelector('[data-action="play"]').textContent = 'Run comparison';
   byId('scrubber').disabled = !playable;
+  rememberDraft();
 }
 
 async function share() {
@@ -629,6 +655,7 @@ app.addEventListener('input', event => {
   const hash = shareFragment(state, 'tools');
   byId('spring-link').hash = hash;
   byId('load-link').hash = hash;
+  rememberDraft();
 });
 
 window.addEventListener('hashchange', () => {
