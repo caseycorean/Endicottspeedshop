@@ -19,11 +19,12 @@
 <meta property="og:image:alt" content="Endicott Speed Shop logo: a second-generation Firebird in a round badge">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="../../assets/site.css">
-
+<link rel="stylesheet" href="../../assets/ess-search.css">
+<script type="module" src="../../experience/search-bridge.mjs"></script>
 </head>
-<body>
+<body class="ess-theme">
 <header class="site-header"><div class="header-inner">
-<div class="brand-wrap"><a href="../.././" class="brand" aria-label="Endicott Speed Shop home"><img src="../../logo-horizontal-tight.png" alt="Endicott Speed Shop — Measure, Test, Improve" width="611" height="192"></a><a class="beta-pill" href="../../about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
+<div class="brand-wrap"><a href="../.././" class="brand" aria-label="Endicott Speed Shop home"><span class="ess-wordmark"><strong>ENDICOTT</strong><span>SPEED SHOP</span></span></a><a class="beta-pill" href="../../about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
 <nav class="topnav"><a href="../../plan/">Plan</a><a href="../../tools/">Tools</a><a href="../../articles/" class=on>Articles</a><a href="../../build/">The Build</a><a href="../../about/">About</a><a href="../../contact/">Contact</a></nav>
 <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
 </div></header>
@@ -31,15 +32,14 @@
 <nav><a href="../.././">Home<small>Start here</small></a><a href="../../plan/">Plan<small>Plan your build, step by step</small></a><a href="../../tools/">Tools<small>Calculators built from measured data</small></a><a href="../../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../../build/">The Build<small>The green car, measured</small></a><a href="../../about/">About<small>Why this exists</small></a><a href="../../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
 <p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="../../contact/">Spot a problem? Tell us.</a></p>
 </aside>
-<main class="page narrow article"><div class="kicker">Engineering foundations</div><h1>Understanding the Traction Circle</h1><div class="meta">Endicott Speed Shop · Engineering foundations</div><p class="lede">Why does a car lose grip when braking into a corner? Why can a heavy modern SUV on good tires out-grip a 1970s sports car that weighs far less? One concept explains both.</p>
+<main class="page narrow article"><div class="kicker">Engineering foundations</div><h1>Understanding the Traction Circle</h1>
+<div class="ess-config" data-ess-vehicle="article" data-lab-root="../../experience/"></div><div class="meta">Endicott Speed Shop · Engineering foundations</div><p class="lede">Why does a car lose grip when braking into a corner? Why can a heavy modern SUV on good tires out-grip a 1970s sports car that weighs far less? One concept explains both.</p>
 <p>Every tire has a limit — not a horsepower limit or a speed limit, a grip limit: the maximum force it can generate against the road before it starts to slide. That limit exists in every direction at once: forward, backward and sideways. The traction circle is a way of picturing that limit and what happens when you ask for more than it has.</p>
 <p>Once you understand it, a surprising number of separate-seeming problems turn out to be the same problem: why classic muscle cars understeer, why trail braking works, why the best drivers are smooth, why weight distribution matters, why modern tires changed everything.</p>
 <h2>The circle itself</h2>
 <p>Draw a circle. Its radius is the maximum grip one tire can produce. The center is zero force; the edge is the limit. Braking pushes the demand toward one side of the circle, accelerating toward the other, cornering left and right toward the sides. You can use the full radius in any one direction — but combine two demands, like braking and cornering at once, and their combined vector has to stay inside the circle or the tire slides.</p>
 <div class="callout">Braking alone: inside the circle. Cornering alone: inside the circle. Hard braking <em>and</em> hard cornering together: outside the circle — grip is lost.</div>
 <p>That's why you lose grip when you brake hard while turning. Both forces draw on the same limited supply. What happens next depends on which end of the car runs out first: understeer if it's the fronts, oversteer if it's the rears.</p>
-<div class="ess-config" data-ess-vehicle="article"></div>
-<script type="module" src="../../experience/search-bridge.mjs"></script>
 <div class="section"><div class="section-label">Try it</div><h2>Brake into a corner and watch the tires.</h2>
 <p>Braking and cornering also move <em>load</em> between the tires — and each tire’s circle grows or shrinks with its load. Slide both and watch which tire is left with the least.</p>
 <div class="glab" data-glab data-rel="../../" data-tools="tools/load-transfer/" data-article="articles/traction-circle/"></div>

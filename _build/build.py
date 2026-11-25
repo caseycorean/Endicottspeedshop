@@ -2,7 +2,7 @@
 Run from the repo root:  python3 _build/build.py
 Pages are defined in _build/pages.py; shared header/footer live here.
 Folders starting with '_' are not published by GitHub Pages (Jekyll default)."""
-import os, sys, importlib.util
+import os, sys, re, importlib.util
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GA = """<script async src="https://www.googletagmanager.com/gtag/js?id=G-GGJVMS8CZD"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.href.split('#')[0]});</script>"""
@@ -34,6 +34,12 @@ def page(path, title, desc, body, active="", extra_head=""):
     rel = "../" * depth
     canon = path[:-len("index.html")] if path.endswith("index.html") else path
     URLS.append(canon)
+    if path.startswith(("articles/", "tools/")):
+        tool = path.split("/")[-2] if path.startswith("tools/") else "article"
+        selector = (f'<div class="ess-config" data-ess-vehicle="{tool}" '
+                    f'data-lab-root="{rel}experience/"></div>')
+        body = re.sub(r"</h1>", "</h1>\n" + selector, body, count=1)
+        extra_head += f'<script type="module" src="{rel}experience/search-bridge.mjs"></script>'
     links = "".join(f'<a href="{rel}{h}"{" class=on" if active==n else ""}>{n}</a>' for n, h, _ in NAV)
     side = "".join(f'<a href="{rel}{h}">{n}<small>{s}</small></a>' for n, h, s in NAV)
     html = f"""<!DOCTYPE html>
@@ -47,11 +53,12 @@ def page(path, title, desc, body, active="", extra_head=""):
 <link rel="canonical" href="{SITE}{canon}">
 {share_tags(title, desc, SITE + canon)}
 <link rel="stylesheet" href="{rel}assets/site.css">
+<link rel="stylesheet" href="{rel}assets/ess-search.css">
 {extra_head}
 </head>
-<body>
+<body class="ess-theme">
 <header class="site-header"><div class="header-inner">
-<div class="brand-wrap"><a href="{rel}./" class="brand" aria-label="Endicott Speed Shop home"><img src="{rel}logo-horizontal-tight.png" alt="Endicott Speed Shop — Measure, Test, Improve" width="611" height="192"></a><a class="beta-pill" href="{rel}about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
+<div class="brand-wrap"><a href="{rel}./" class="brand" aria-label="Endicott Speed Shop home"><span class="ess-wordmark"><strong>ENDICOTT</strong><span>SPEED SHOP</span></span></a><a class="beta-pill" href="{rel}about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
 <nav class="topnav">{links}</nav>
 <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
 </div></header>

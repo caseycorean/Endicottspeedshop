@@ -19,11 +19,12 @@
 <meta property="og:image:alt" content="Endicott Speed Shop logo: a second-generation Firebird in a round badge">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="../../assets/site.css">
-<script src="../../assets/tool-events.js" data-tool="load_transfer" data-result="lx" defer></script>
+<link rel="stylesheet" href="../../assets/ess-search.css">
+<script src="../../assets/tool-events.js" data-tool="load_transfer" data-result="lx" defer></script><script type="module" src="../../experience/search-bridge.mjs"></script>
 </head>
-<body>
+<body class="ess-theme">
 <header class="site-header"><div class="header-inner">
-<div class="brand-wrap"><a href="../.././" class="brand" aria-label="Endicott Speed Shop home"><img src="../../logo-horizontal-tight.png" alt="Endicott Speed Shop — Measure, Test, Improve" width="611" height="192"></a><a class="beta-pill" href="../../about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
+<div class="brand-wrap"><a href="../.././" class="brand" aria-label="Endicott Speed Shop home"><span class="ess-wordmark"><strong>ENDICOTT</strong><span>SPEED SHOP</span></span></a><a class="beta-pill" href="../../about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
 <nav class="topnav"><a href="../../plan/">Plan</a><a href="../../tools/" class=on>Tools</a><a href="../../articles/">Articles</a><a href="../../build/">The Build</a><a href="../../about/">About</a><a href="../../contact/">Contact</a></nav>
 <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
 </div></header>
@@ -34,9 +35,8 @@
 <main class="page">
 <div class="kicker">Tools</div>
 <h1>Load Transfer Calculator</h1>
+<div class="ess-config" data-ess-vehicle="load-transfer" data-lab-root="../../experience/"></div>
 <p class="lede">Braking, accelerating and cornering move load from one set of tires to another. Enter your car's weight, balance and center of gravity height to see how much moves, where it goes, and how the load on each tire changes when you brake into a corner.</p>
-<div class="ess-config" data-ess-vehicle="load-transfer"></div>
-<script type="module" src="../../experience/search-bridge.mjs"></script>
 
 <div class="panel"><h2>The car</h2><div class="fields">
 <div><label for="w">Total weight (lb)</label><input id="w" inputmode="decimal" value="3300"></div>
