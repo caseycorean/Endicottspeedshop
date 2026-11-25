@@ -1,7 +1,7 @@
 # ESS Vehicle Lab · Phase 2 interface and integration
 
 Start a local static server from the website checkout and open `/experience/`.
-The independent private staging project uses the same published file layout.
+The [private staging preview](https://ess-vehicle-lab-preview.rationaldace2.chatgpt.site/experience/) uses the same file layout. It opens with the owner’s ChatGPT account.
 Export only the public candidate files with `python3 _build/experience/stage.py PATH/TO/staging/dist`. The exporter strips analytics tags and adds search exclusion. The staging site's owner-only permissions control access. Shared links restore a lineup for any recipient with access to the corresponding site.
 
 ## Reuse the components
@@ -32,3 +32,7 @@ The prior Phase 1 phone montage and scene were recovered from the screenshots yo
 ## Checks
 
 Run `node --test _build/experience/models.test.mjs` and regenerate search pages with `PYTHONDONTWRITEBYTECODE=1 python3 _build/build.py`. Exercise four-car comparison, add/duplicate, change separate lanes, both event types, pause and scrub, share-reopen, a named active setup from the build page into the outside calculators and articles, and the camber slider. Compare mobile rendering at 320, 390 and 430 px.
+
+The final 23 desktop-browser checks included the three phone widths, independently edited lanes, a fresh-tab share recipient, and active setup transfer through all five calculators. The live staging URL exposed the ChatGPT sign-in gate. Hardware Safari and its native share sheet still need a user pass.
+
+[Actual phone-width review](review/phase2-mobile.webp).
