@@ -1,0 +1,16 @@
+:root {
+  --ess-bg: #101417;
+  --ess-panel: #181e23;
+  --ess-raised: #20272d;
+  --ess-line: #354048;
+  --ess-text: #f2eee7;
+  --ess-muted: #b1bac0;
+  --ess-accent: #ffab58;
+  --ess-mint: #9fcebd;
+  --ess-warning: #ffd19c;
+  --ess-mono: "IBM Plex Mono", ui-monospace, "Liberation Mono", monospace;
+  --ess-display: "Barlow Condensed", "Arial Narrow", "Liberation Sans Narrow", Arial, sans-serif;
+  --ess-body: "Instrument Sans", system-ui, sans-serif;
+  --ess-car-c: #91baff;
+  --ess-car-d: #ebaac7;
+}

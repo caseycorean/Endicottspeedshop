@@ -50,7 +50,8 @@ export function validValue(key, value) {
 export function cleanSetup(raw) {
   if (!isObject(raw) || typeof raw.id !== 'string' || !Object.hasOwn(vehicles, raw.id) ||
       !isObject(raw.base) || !isObject(raw.tune) || !Array.isArray(raw.parts) || raw.parts.length > 8) return null;
-  const setup = { id: raw.id, base: {}, tune: {}, parts: [] };
+  if (raw.name !== undefined && (typeof raw.name !== 'string' || !raw.name.trim() || raw.name.length > 36)) return null;
+  const setup = { id: raw.id, base: {}, tune: {}, parts: [], ...(raw.name ? {name: raw.name.trim()} : {}) };
   for (const section of ['base', 'tune']) {
     for (const [key, value] of Object.entries(raw[section])) {
       if (!validValue(key, value)) return null;
@@ -231,4 +232,10 @@ export function atTime(run, t) {
   const b = trace[high];
   const f = (t - a.t) / (b.t - a.t);
   return { ...a, t, speed: a.speed + f * (b.speed - a.speed), x: a.x + f * (b.x - a.x) };
+}
+
+// Front-view teaching model. The lower joint stays fixed as the top moves horizontally.
+export function camberIllustration(offset, height = 10) {
+  const x = Math.min(1, Math.max(-1, offset));
+  return Math.atan2(x, height) * 180 / Math.PI;
 }

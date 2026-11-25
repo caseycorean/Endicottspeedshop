@@ -1,8 +1,9 @@
 import { cleanSetup, newSetup, usableSetup } from './models.mjs';
 
+const activeKey = 'ess.active-configuration.v1';
 const savedKey = 'ess.vehicle-build.v1';
 export const views = ['home', 'build', 'compare', 'tools', 'learn'];
-const maxFragment = 12000;
+const maxFragment = 32768;
 
 export const getSaved = () => {
   try {
@@ -28,41 +29,87 @@ export const example = () => ({
   a: newSetup('firebird'), b: newSetup('mustang'), aMode: 'before', bMode: 'before', focus: 'a',
 });
 
+export const laneKeys = ['a', 'b', 'c', 'd'];
+export const lanes = state => laneKeys.filter(key => state[key]);
+export const labelLane = key => 'Car ' + key.toUpperCase();
+export const modeOf = (state, key) => state[key + 'Mode'] ?? 'before';
+
+export function getActive() {
+  try {
+    const value = JSON.parse(localStorage.getItem(activeKey));
+    return validateSelection(value?.setup, value?.mode);
+  } catch { return null; }
+}
+
+function validateSelection(setup, mode) {
+  const clean = cleanSetup(setup);
+  return clean && usableSetup(clean) && ['before', 'after'].includes(mode) ? {setup: clean, mode} : null;
+}
+
+export function useConfig(setup, mode) {
+  const active = validateSelection(setup, mode);
+  if (!active) return false;
+  try {
+    localStorage.setItem(activeKey, JSON.stringify(active));
+    return true;
+  } catch { return false; }
+}
+
 export const modified = s => s.parts.length > 0 || Object.keys(s.tune).length > 0;
 export const clone = s => cleanSetup(s);
 
+function encodePayload(payload) {
+  const bytes = new TextEncoder().encode(JSON.stringify(payload));
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function decodePayload(payload) {
+  if (!/^[A-Za-z0-9_-]+$/.test(payload)) throw new Error('Invalid link encoding');
+  const bytes = Uint8Array.from(atob(payload.replace(/-/g, '+').replace(/_/g, '/')), ch => ch.charCodeAt(0));
+  return JSON.parse(new TextDecoder('utf-8', {fatal: true}).decode(bytes));
+}
+
 export function shareFragment(state, view = 'compare') {
-  return '#v1/' + view + '/' + encodeURIComponent(JSON.stringify({
-    a: state.a, b: state.b, aMode: state.aMode, bMode: state.bMode, focus: state.focus,
-    ...(state.event ? { event: state.event } : {}),
-    ...(state.tool ? { tool: state.tool } : {}),
-  }));
+  const configurations = {};
+  for (const key of lanes(state)) {
+    configurations[key] = state[key];
+    configurations[key + 'Mode'] = modeOf(state, key);
+  }
+  return '#v2/' + view + '/' + encodePayload({
+    ...configurations, focus: state.focus,
+    ...(state.event ? {event: state.event} : {}),
+    ...(state.tool ? {tool: state.tool} : {}),
+  });
 }
 
 export function readFragment(hash) {
-  if (hash.length > maxFragment) return { invalid: true, view: 'home' };
-  // 'view' routes preserve the current temporary experiment during ordinary navigation.
+  const invalid = { invalid: true, view: 'home' };
+  if (hash.length > maxFragment) return invalid;
   const view = hash.startsWith('#') ? hash.slice(1) : 'home';
-  if (views.includes(view)) return { view };
-  if (!hash.startsWith('#v')) return { view: 'home' };
-  const matched = /^#v1\/([^/]+)\/(.+)$/.exec(hash);
-  if (!matched || !views.includes(matched[1])) return { invalid: true, view: 'home' };
+  if (views.includes(view)) return {view};
+  if (!hash.startsWith('#v')) return {view: 'home'};
+  const matched = /^#v([12])\/([^/]+)\/(.+)$/.exec(hash);
+  if (!matched || !views.includes(matched[2])) return invalid;
   try {
-    const raw = JSON.parse(decodeURIComponent(matched[2]));
-    const a = cleanSetup(raw.a);
-    const b = cleanSetup(raw.b);
+    const raw = matched[1] === '1' ? JSON.parse(decodeURIComponent(matched[3])) : decodePayload(matched[3]);
+    const keys = matched[1] === '1' ? ['a', 'b'] : lanes(raw);
     const tool = raw.tool;
-    if (tool !== undefined && (!tool || ![tool.brake, tool.lateral].every(n => Number.isFinite(n) && n >= 0 && n <= 1.2))) return { invalid: true, view: 'home' };
-    if (!a || !b || !usableSetup(a) || !usableSetup(b) ||
-        !['a', 'b'].includes(raw.focus) ||
-        !['before', 'after'].includes(raw.aMode) || !['before', 'after'].includes(raw.bMode) ||
-        (raw.event !== undefined && !['strip', 'oval'].includes(raw.event))) {
-      return { invalid: true, view: 'home' };
+    if (!keys.includes('a') || !keys.includes('b') || !keys.includes(raw.focus) ||
+        (raw.event !== undefined && !['strip', 'oval'].includes(raw.event)) ||
+        (tool !== undefined && (!tool || ![tool.brake, tool.lateral].every(n => Number.isFinite(n) && n >= 0 && n <= 1.2)))) return invalid;
+    const state = {focus: raw.focus, ...(raw.event ? {event: raw.event} : {}),
+      ...(tool ? {tool: {brake: tool.brake, lateral: tool.lateral}} : {})};
+    for (const key of keys) {
+      const selected = validateSelection(raw[key], raw[key + 'Mode']);
+      if (!selected) return invalid;
+      state[key] = selected.setup;
+      state[key + 'Mode'] = selected.mode;
     }
-    return { view: matched[1], state: { a, b, aMode: raw.aMode, bMode: raw.bMode, focus: raw.focus,
-      ...(raw.event ? { event: raw.event } : {}), ...(tool ? { tool: { brake: tool.brake, lateral: tool.lateral } } : {}) } };
+    return {view: matched[2], state};
   } catch {
-    return { invalid: true, view: 'home' };
+    return invalid;
   }
 }
 

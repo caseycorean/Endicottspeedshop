@@ -1,16 +1,22 @@
-import { vehicles, stock } from './vehicles.mjs';
-import { resolve, cleanSetup, newSetup, presets, validValue, usableSetup, straightLine, atTime, MPH } from './models.mjs';
-import { example, clone, modified, shareFragment, readFragment, getSaved, saveBuild, shareResult } from './configuration.mjs';
-import { home, build, compare, toolsView, learn, inputGroups, toolResults } from './views.mjs';
+import { vehicles, stock, vehicleIds } from './vehicles.mjs';
+import { resolve, cleanSetup, newSetup, presets, validValue, usableSetup } from './models.mjs';
+import { example, clone, modified, shareFragment, readFragment, getSaved, saveBuild, shareResult, getActive, useConfig, laneKeys, lanes, labelLane, modeOf } from './configuration.mjs';
+import { home, build, toolsView, learn, inputGroups, toolResults } from './views.mjs';
 import { fmt, numberField } from './ui.mjs';
-import { ovalLap, ovalPoint, ovalLength } from './oval.mjs';
+import { compare, matchupEntries, comparisonResults, liveGrid, resultTime, setupName, quickImpact } from './matchup.mjs';
+import { paintReplay, replayFrame } from './replay.mjs';
+import { mountCamber } from './diagrams.mjs';
 
 const app = document.querySelector('#app');
 const notice = document.querySelector('#link-notice');
 const status = document.querySelector('#status');
 const defaults = { brake: .4, lateral: .9 };
 let saved = getSaved();
-let state = example();
+function initialState() {
+  const selected = getActive();
+  return selected ? {...example(), a: selected.setup, aMode: selected.mode} : example();
+}
+let state = initialState();
 let view = 'home';
 let replay;
 let pendingPreset;
@@ -37,7 +43,7 @@ function navigate(next) {
   const heading = app.querySelector('h1');
   heading?.setAttribute('tabindex', '-1');
   heading?.focus({ preventScroll: true });
-  window.scrollTo({ top: 0, behavior: 'instant' });
+  window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 function applyLocation() {
@@ -46,7 +52,7 @@ function applyLocation() {
     state = route.state;
     sharedLinkNotice = 'Shared experiment. Try a change or run the comparison to see it play out.';
   } else if (route.invalid) {
-    state = example();
+    state = initialState();
     sharedLinkNotice = 'This experiment link could not be restored. The default matchup is ready to try.';
   } else {
     sharedLinkNotice = '';
@@ -55,7 +61,7 @@ function applyLocation() {
 }
 
 function render(next = view, restoreDetails = false) {
-  const openSections = restoreDetails ? [...app.querySelectorAll('details[open][data-details]')].map(el => el.dataset.details) : [];
+  const openSections = new Map(restoreDetails ? [...app.querySelectorAll('details[data-details]')].map(el => [el.dataset.details, el.open]) : []);
   const priorFocus = restoreDetails ? app.querySelector(':focus') : null;
   const focusData = priorFocus && Object.entries(priorFocus.dataset)[0];
   stopReplay();
@@ -64,22 +70,20 @@ function render(next = view, restoreDetails = false) {
   switch (view) {
     case 'build': app.innerHTML = build(state, saved); break;
     case 'compare': {
-      const a = resolve(state.a, state.aMode === 'after');
-      const b = resolve(state.b, state.bMode === 'after');
-      const oval = state.event === 'oval';
-      const runModel = oval ? ovalLap : straightLine;
-      const runs = [runModel(a), runModel(b)];
-      app.innerHTML = compare(state, a, b, runs);
-      if (runs.every(r => r.trace)) {
-        replay = { runs, oval, elapsed: 0, duration: Math.max(...runs.map(r => r.trace.at(-1).t)) };
-        updateReplay(0);
-      }
+      const entries = matchupEntries(state);
+      app.innerHTML = compare(state, entries);
+      setReplay(entries);
       break;
     }
     case 'tools': app.innerHTML = toolsView(state, toolSettings(), shareFragment(state, 'tools'), saved); break;
     case 'learn': app.innerHTML = learn(); break;
-    default: app.innerHTML = home(state, saved);
+    default: {
+      app.innerHTML = home(state, saved);
+      const entries = matchupEntries({...state, event: 'strip', c: undefined, d: undefined});
+      paintReplay(byId('home-scene'), 'strip', entries, replayFrame(entries.filter(e => e.run.trace), 0), 0);
+    }
   }
+  mountCamber(app);
   notice.textContent = sharedLinkNotice;
   notice.classList.toggle('link-notice', Boolean(sharedLinkNotice));
   for (const nav of document.querySelectorAll('nav a[data-view]')) {
@@ -87,7 +91,7 @@ function render(next = view, restoreDetails = false) {
     else nav.removeAttribute('aria-current');
   }
   for (const detail of app.querySelectorAll('[data-details]')) {
-    detail.open = openSections.includes(detail.dataset.details);
+    if (openSections.has(detail.dataset.details)) detail.open = openSections.get(detail.dataset.details);
   }
   if (focusData) {
     const [key, value] = focusData;
@@ -184,6 +188,11 @@ app.addEventListener('submit', event => {
     return;
   }
   const section = group === 'original' ? 'base' : 'tune';
+  if (section === 'base') {
+    const name = values.get('setupName').trim();
+    if (name) next.name = name;
+    else delete next.name;
+  }
   const benchmark = section === 'base' ? stock(next.id) : resolve(next, false);
   for (const key of inputGroups[group]) {
     const value = numericValue(key, values.get(key).trim());
@@ -208,7 +217,7 @@ app.addEventListener('change', event => {
     const key = selected === 'focus' ? state.focus : selected;
     if (el.value === state[key].id) return;
     const previous = state[key];
-    if (modified(previous) || Object.keys(previous.base).length) {
+    if (modified(previous) || previous.name || Object.keys(previous.base).length) {
       const replace = window.confirm('Replace the current experiment in this lane? Your saved build stays available.');
       if (!replace) { el.value = previous.id; return; }
     }
@@ -227,63 +236,32 @@ function stopReplay() {
   replay = null;
 }
 
+function setReplay(entries) {
+  stopReplay();
+  const playable = entries.filter(e => e.run.trace);
+  replay = {entries, playable, event: state.event ?? 'strip', elapsed: 0,
+    duration: Math.max(0, ...playable.map(e => e.run.trace.at(-1).t))};
+  updateReplay(0);
+}
+
 function updateReplay(t) {
   if (!replay) return;
   replay.elapsed = t;
   byId('race-time').textContent = t.toFixed(1);
-  byId('scrubber').value = Math.round(t / replay.duration * 1000);
-  const current = replay.runs.map(run => atTime(run, t));
-  if (replay.oval) drawOval(current);
-  current.forEach((sample, i) => {
-    if (!replay.oval) byId('runner-' + i).style.left = Math.min(100, sample.x / 13.2) + '%';
-    byId('speed-' + i).textContent = fmt(sample.speed / MPH);
-    byId('gear-' + i).textContent = sample.gear === 0 ? (replay.oval ? 'braking' : 'shifting') :
-      (sample.limited ? 'grip limited' : 'gear ' + sample.gear);
-  });
-}
-
-function drawOval(samples) {
-  const canvas = byId('oval-map');
-  const ctx = canvas.getContext('2d');
-  const project = position => [148 + position.x * .62, 18 + position.y * .60];
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const route = () => {
-    ctx.beginPath();
-    ctx.moveTo(...project(ovalPoint(0)));
-    for (let i = 1; i <= 128; i++) ctx.lineTo(...project(ovalPoint(i * ovalLength / 128)));
-    ctx.closePath();
-  };
-  route();
-  ctx.strokeStyle = '#77838a';
-  ctx.lineWidth = 26;
-  ctx.stroke();
-  ctx.strokeStyle = '#303a41';
-  ctx.lineWidth = 23;
-  ctx.stroke();
-  ctx.strokeStyle = '#829096';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([6, 7]);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  const [sx, sy] = project(ovalPoint(0));
-  ctx.fillStyle = '#e2e7e6';
-  ctx.fillRect(sx, sy - 11, 2, 22);
-  samples.forEach((sample, i) => {
-    const [x, y] = project(ovalPoint(sample.x));
-    ctx.beginPath();
-    ctx.arc(x, y + (i ? 6 : -6), 8, 0, 2 * Math.PI);
-    ctx.fillStyle = i ? '#9fcebd' : '#ffab58';
-    ctx.fill();
-    ctx.fillStyle = '#101417';
-    ctx.font = 'bold 10px monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(i ? 'B' : 'A', x, y + (i ? 6 : -6));
-  });
+  byId('scrubber').value = replay.duration ? Math.round(t / replay.duration * 1000) : 0;
+  const samples = replayFrame(replay.playable, t);
+  paintReplay(byId('race-scene'), replay.event, replay.entries, samples, t);
+  for (const sample of samples) {
+    const {key, mph, gear, limited, gap, finished} = sample;
+    byId('speed-' + key).textContent = fmt(mph);
+    byId('gear-' + key).textContent = finished ? 'Finished' : gear === 0 ?
+      (replay.event === 'oval' ? 'Braking' : 'Shifting') : (limited ? 'Grip limited' : 'Gear ' + gear);
+    byId('gap-' + key).textContent = t && !finished ? (gap < 1 ? 'Lead' : '−' + fmt(gap) + ' ft') : '';
+  }
 }
 
 function play(button) {
-  if (!replay) return;
+  if (!replay?.duration) return;
   if (replay.frame) {
     cancelAnimationFrame(replay.frame);
     replay.frame = null;
@@ -296,10 +274,12 @@ function play(button) {
     button.textContent = 'Show final result';
     return;
   }
-  const start = performance.now() - replay.elapsed * 1000;
+  let lastFrame = performance.now();
   button.textContent = 'Pause replay';
   const tick = now => {
-    const t = Math.min(replay.duration, (now - start) / 1000);
+    const rate = Number(byId('playback-rate').value);
+    const t = Math.min(replay.duration, replay.elapsed + (now - lastFrame) / 1000 * rate);
+    lastFrame = now;
     updateReplay(t);
     if (t < replay.duration) replay.frame = requestAnimationFrame(tick);
     else { replay.frame = null; button.textContent = 'Replay comparison'; }
@@ -307,12 +287,38 @@ function play(button) {
   replay.frame = requestAnimationFrame(tick);
 }
 
+function resetProgress() {
+  if (!replay) return;
+  if (replay.frame) cancelAnimationFrame(replay.frame);
+  replay.frame = null;
+  updateReplay(0);
+  app.querySelector('[data-action="play"]').textContent = 'Run comparison';
+}
+
+function refreshComparison() {
+  const entries = matchupEntries(state);
+  byId('race-live').innerHTML = liveGrid(entries);
+  const oval = state.event === 'oval';
+  byId('race-results').innerHTML = comparisonResults(entries, oval);
+  byId('quick-impact').textContent = quickImpact(entries.find(entry => entry.key === state.focus), oval);
+  byId('share-feedback').replaceChildren();
+  setReplay(entries);
+  const playable = Boolean(replay.duration);
+  for (const action of ['play', 'share', 'restart']) app.querySelector(`[data-action="${action}"]`).disabled = !playable;
+  app.querySelector('[data-action="play"]').textContent = 'Run comparison';
+  byId('scrubber').disabled = !playable;
+}
+
 async function share() {
   const url = experimentUrl();
   const title = 'ESS Vehicle Lab comparison';
-  const currentEvent = replay.oval ? 'test oval lap' : 'quarter mile';
-  const results = replay.runs.map(r => r.lap ?? r.finish?.t).map(t => t ? fmt(t, 1) + ' s' : 'no finish').join(' vs. ');
-  const summary = `${vehicles[state.a.id].name} vs. ${vehicles[state.b.id].name} · Estimated ${currentEvent} ${results}`;
+  const oval = replay.event === 'oval';
+  const currentEvent = oval ? 'test oval lap' : 'quarter mile';
+  const results = replay.entries.map(({setup, run}) => {
+    const time = resultTime(run, oval);
+    return setupName(setup) + ' ' + (time ? fmt(time, 1) + ' s' : 'no finish');
+  });
+  const summary = 'Estimated ' + currentEvent + ' · ' + results.join(' vs. ');
   const target = byId('share-feedback');
   const result = await shareResult(url, title, summary);
   if (!target.isConnected || result === 'cancelled') return;
@@ -339,7 +345,8 @@ async function share() {
 }
 
 function sameChange() {
-  const drafts = ['a', 'b'].map(key => {
+  const keys = lanes(state);
+  const drafts = keys.map(key => {
     const draft = clone(state[key]);
     if (!draft.parts.some(p => p.preset === 'remove')) addPreset(draft, 'remove');
     return draft;
@@ -348,10 +355,31 @@ function sameChange() {
     speak('At least one car would exceed the model limits or eight component changes.');
     return;
   }
-  [state.a, state.b] = drafts;
-  state.aMode = state.bMode = 'after';
+  keys.forEach((key, index) => {
+    state[key] = drafts[index];
+    state[key + 'Mode'] = 'after';
+  });
   render(view, true);
-  speak('Applied the same 50 lb cabin removal to both cars.');
+  speak('Applied the same 50 lb cabin removal to all cars.');
+}
+
+function addLane(setup, mode = 'before') {
+  const key = laneKeys.find(k => !state[k]);
+  if (!key) return false;
+  state[key] = clone(setup);
+  state[key + 'Mode'] = mode;
+  return true;
+}
+
+function carryLane(key, selection = modeOf(state, key)) {
+  if (!useConfig(state[key], selection)) {
+    speak('The browser could not save an active configuration. Use the experiment link to carry it to another page.');
+    return false;
+  }
+  const message = setupName(state[key]) + ' is the active configuration across ESS.';
+  if (byId('active-feedback')) byId('active-feedback').textContent = message;
+  else speak(message);
+  return true;
 }
 
 document.addEventListener('click', event => {
@@ -373,25 +401,59 @@ document.addEventListener('click', event => {
     return;
   }
   if (el.dataset.event) { state.event = el.dataset.event; render(view, true); return; }
+  if (el.dataset.focusLane) { state.focus = el.dataset.focusLane; render(view, true); return; }
+  if (el.dataset.useLane) { carryLane(el.dataset.useLane); return; }
+  if (el.dataset.dropLane) {
+    const key = el.dataset.dropLane;
+    delete state[key];
+    delete state[key + 'Mode'];
+    if (state.focus === key) state.focus = 'a';
+    render(view, true);
+    speak(labelLane(key) + ' removed.');
+    return;
+  }
   if (el.dataset.edit) { state.focus = el.dataset.edit; navigate('build'); return; }
   const action = el.dataset.action;
   if (!action) return;
   switch (action) {
     case 'compare-build': state[state.focus + 'Mode'] = modified(active()) ? 'after' : 'before'; navigate('compare'); break;
     case 'compare-original': {
-      const opposite = state.focus === 'a' ? 'b' : 'a';
-      const source = state[opposite];
-      if ((modified(source) || Object.keys(source.base).length) && !window.confirm('Replace the other lane with this build’s original configuration?')) break;
       const draft = clone(active());
       draft.tune = {};
       draft.parts = [];
-      state[opposite] = draft;
-      state[opposite + 'Mode'] = 'before';
+      if (!addLane(draft)) {
+        speak('Four cars are already in the comparison. Remove an added lane to include the original.');
+        break;
+      }
       state[state.focus + 'Mode'] = 'after';
       navigate('compare');
       break;
     }
-    case 'use': navigate('tools'); break;
+    case 'use':
+      carryLane(state.focus, modified(active()) ? 'after' : 'before');
+      navigate('tools');
+      break;
+    case 'watch-run':
+      state.event = 'strip';
+      navigate('compare');
+      play(app.querySelector('[data-action="play"]'));
+      break;
+    case 'add-car': {
+      const available = vehicleIds.find(id => lanes(state).every(k => state[k].id !== id)) || vehicleIds[0];
+      if (addLane(newSetup(available))) render(view, true);
+      break;
+    }
+    case 'duplicate':
+      if (addLane(active(), modeOf(state, state.focus))) render(view, true);
+      break;
+    case 'open-lineup': {
+      const lineup = byId('lineup-panel');
+      lineup.open = true;
+      lineup.scrollIntoView({block: 'start'});
+      lineup.querySelector('summary').focus({preventScroll: true});
+      break;
+    }
+    case 'restart': resetProgress(); break;
     case 'save':
       if (saveBuild(active())) { saved = clone(active()); render(view, true); speak('Saved in this browser as my build.'); }
       else speak('This browser could not save the build. The temporary experiment is still open.');
@@ -419,6 +481,20 @@ app.addEventListener('input', event => {
       app.querySelector('[data-action="play"]').textContent = 'Resume comparison';
     }
     updateReplay(replay.duration * +target.value / 1000);
+    return;
+  }
+  const quick = target.dataset.quick;
+  if (quick) {
+    const current = active();
+    const n = Number(target.value);
+    if (n === resolve(current, false)[quick]) delete current.tune[quick];
+    else current.tune[quick] = n;
+    state[state.focus + 'Mode'] = modified(current) ? 'after' : 'before';
+    byId('quick-' + quick).value = fmt(n, 2);
+    const mode = app.querySelector(`[data-mode="${state.focus}"]`);
+    mode.options[1].disabled = !modified(current);
+    mode.value = modeOf(state, state.focus);
+    refreshComparison();
     return;
   }
   const key = target.dataset.slider;

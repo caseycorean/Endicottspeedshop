@@ -1,17 +1,19 @@
+@import url("tokens.css");
+
 :root {
   color-scheme: dark;
-  --bg: #101417;
-  --panel: #181e23;
-  --raised: #20272d;
-  --line: #354048;
-  --text: #f2eee7;
-  --muted: #b1bac0;
-  --accent: #ffab58;
-  --mint: #9fcebd;
-  --warning: #ffd19c;
-  --mono: "IBM Plex Mono", ui-monospace, "Liberation Mono", monospace;
-  --display: "Barlow Condensed", "Arial Narrow", "Liberation Sans Narrow", Arial, sans-serif;
-  --body: "Instrument Sans", system-ui, sans-serif;
+  --bg: var(--ess-bg);
+  --panel: var(--ess-panel);
+  --raised: var(--ess-raised);
+  --line: var(--ess-line);
+  --text: var(--ess-text);
+  --muted: var(--ess-muted);
+  --accent: var(--ess-accent);
+  --mint: var(--ess-mint);
+  --warning: var(--ess-warning);
+  --mono: var(--ess-mono);
+  --display: var(--ess-display);
+  --body: var(--ess-body);
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); font: 1rem/1.5 var(--body); }
@@ -257,3 +259,85 @@ input[type="range"] { width: 100%; height: 28px; margin: 0; accent-color: var(--
 }
 .checkbox-line { display: flex; align-items: flex-start; gap: .45rem; margin: .55rem 0 .2rem; }
 .checkbox-line input[type="checkbox"] { width: auto; min-height: 0; margin-top: .26rem; accent-color: var(--accent); }
+
+/* Phase 2 interaction layout */
+.car-c { --lane: var(--ess-car-c); }
+.car-d { --lane: var(--ess-car-d); }
+.hero-demo {
+  background: #141c22;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: .65rem;
+  padding: clamp(.8rem, 2.2vw, 1.7rem);
+  min-width: 0;
+}
+.hero-demo canvas, .race-scene canvas, .geometry-grid canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+.hero-demo canvas { border-color: #46525b; }
+.compare-workspace .page-title { padding: .8rem 0 .55rem; }
+.compare-workspace .page-title h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
+.phase2-compare-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); align-items: start; gap: .75rem; }
+.lineup-stack { min-width: 0; }
+.lineup-grid { display: grid; gap: .5rem; margin: .5rem 0; }
+.lineup-car { border: 1px solid var(--line); border-left: 3px solid var(--lane); border-radius: 6px; padding: .6rem; }
+.lineup-car p { font-size: .86rem; color: var(--muted); margin: .3rem 0; overflow-wrap: anywhere; }
+.race-scene { margin: .4rem 0 .55rem; }
+.race .race-header h2 { margin: 0; font-size: clamp(1.5rem, 3vw, 2.2rem); }
+.race .race-header, .tune-title { align-items: center; }
+.race .event-switch { margin-top: .4rem; }
+.race-actions { gap: .35rem; }
+.race-actions .button { padding-inline: .64rem; }
+.scrub-grid { display: grid; grid-template-columns: minmax(0, 1fr) 78px; gap: .7rem; align-items: end; margin-top: .4rem; }
+.scrub-grid .scrubber { margin: 0; }
+.scrub-grid select { padding-right: 1.4rem; }
+.race-tuning { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: .65rem 0; padding: .5rem 0; }
+.tune-title { display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+.race .lane-switch { margin: 0; gap: .3rem; }
+.lane-switch button { min-width: 44px; padding: .32rem .62rem; }
+.lane-switch button[aria-pressed="true"] { border-color: var(--lane); color: var(--lane); }
+.text-button { padding: 0; border: 0; background: transparent; color: var(--accent); text-decoration: underline; min-height: 36px; }
+.live-grid strong { overflow-wrap: anywhere; }
+.live-grid > div > small:empty { display: none; }
+.live-grid > div > small { color: var(--muted); }
+.estimate-label { color: var(--muted); font-size: .9rem; font-weight: 700; margin: .4rem 0; }
+.performance-results { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .42rem; }
+.performance-card { min-width: 0; background: var(--raised); border-radius: 6px; border-left: 3px solid var(--lane); padding: .45rem .6rem; }
+.performance-name { display: flex; gap: .35rem; align-items: baseline; font-size: .84rem; overflow-wrap: anywhere; }
+.performance-name b { color: var(--lane); font-family: var(--mono); }
+.performance-main { color: var(--lane); font: 800 clamp(1.02rem, 4vw, 1.45rem) var(--mono); }
+.performance-main small { color: var(--muted); font: .74rem var(--body); }
+.performance-delta { font-size: .82rem; margin-top: .2rem; }
+.performance-card .warning { font-size: .8rem; padding: .35rem; }
+.geometry-demo { margin-block: .8rem; }
+.geometry-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: .6rem; align-items: center; }
+.geometry-readout { display: flex; flex-wrap: wrap; gap: .4rem .75rem; margin: .35rem 0; }
+.geometry-readout dt { color: var(--muted); font-size: .8rem; }
+.geometry-readout dd { margin: 0; color: var(--accent); font-family: var(--mono); }
+.tire-diagram { gap: .35rem; position: relative; }
+.tire-diagram .tire-nose { grid-column: 1/-1; text-align: center; background: transparent; color: var(--muted); font: .8rem var(--mono); }
+.tire-diagram .tire-cell { border-left: 3px solid #768c96; background: linear-gradient(90deg, #344b54 var(--tire-load), #1d282f var(--tire-load)); }
+.tire-diagram .tire-cell.light-tire { border-color: var(--accent); }
+.tire-diagram small { color: var(--muted); font-size: .76rem; display: block; }
+@media (max-width: 740px) {
+  .phase2-compare-grid { grid-template-columns: 1fr; }
+  .compare-workspace .page-title { padding: .48rem 0 .32rem; }
+  .race-actions .button { flex: 1 1 90px; min-width: 0; }
+  .race .tool-controls { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .lineup-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .lineup-grid .pair-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 430px) {
+  .geometry-grid { grid-template-columns: minmax(0,.86fr) minmax(0,1.14fr); gap: .45rem; }
+  .geometry-grid label > span { flex-wrap: wrap; }
+  .race .live-grid > div { min-height: 44px; }
+  .race .button { font-size: .83rem; padding-inline: .45rem; }
+  .performance-card { padding-inline: .4rem; }
+}
+.quick-impact { margin-top: .2rem; color: var(--accent); font: 700 .82rem/1.4 var(--mono); }
+#active-feedback:empty { display: none; }

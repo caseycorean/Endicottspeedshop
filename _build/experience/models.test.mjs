@@ -100,7 +100,7 @@ test('share format preserves two configurations and overrides; malformed and out
   assert.equal(decoded.state.b.tune.grip, 1);
   assert.equal(decoded.state.aMode, 'after');
   assert.equal(readFragment(hash.slice(0, -4)).invalid, true);
-  assert.equal(readFragment('#v2/compare/' + hash.split('/')[2]).invalid, true);
+  assert.equal(readFragment('#v7/compare/' + hash.split('/')[2]).invalid, true);
   assert.equal(cleanSetup({ ...state.a, tune: { hp: '400junk' } }), null);
   assert.equal(cleanSetup({ ...state.a, tune: { gears: [2, 2] } }), null);
   assert.equal(cleanSetup({ ...state.a, id: '__proto__' }), null);
@@ -182,6 +182,78 @@ test('local save is explicit; restoring and editing shared state leaves the save
     assert.equal(resolve(restored.a).weight, 3787);
     assert.equal(saveBuild({ ...restored.a, id: 'missing' }), false);
     assert.equal(resolve(getSaved()).weight, 3807);
+  } finally {
+    if (prior) Object.defineProperty(globalThis, 'localStorage', prior);
+    else delete globalThis.localStorage;
+  }
+});
+
+test('four-lane replay links preserve independent configurations, names, focus and v1 links still reopen', async () => {
+  const { lanes, modeOf } = await import('../../experience/configuration.mjs');
+  const legacy = '#v1/compare/' + encodeURIComponent(JSON.stringify(example()));
+  assert.deepEqual(lanes(readFragment(legacy).state), ['a', 'b']);
+  const state = example();
+  state.c = { ...newSetup('firebird'), name: 'Autocross – rear axle', tune: {grip: 1.20, finalDrive: 3.90} };
+  state.cMode = 'after';
+  state.d = newSetup('camaro');
+  state.dMode = 'before';
+  state.focus = 'c';
+  state.event = 'oval';
+  const roundtrip = readFragment(shareFragment(state)).state;
+  assert.deepEqual(lanes(roundtrip), ['a', 'b', 'c', 'd']);
+  assert.equal(roundtrip.c.name, state.c.name);
+  assert.equal(roundtrip.c.tune.finalDrive, 3.9);
+  assert.equal(roundtrip.focus, 'c');
+  assert.equal(roundtrip.event, 'oval');
+  assert.equal(modeOf(roundtrip, 'c'), 'after');
+  assert.equal(roundtrip.a.tune.finalDrive, undefined);
+  state.focus = 'e';
+  assert.equal(readFragment(shareFragment(state)).invalid, true);
+});
+
+test('live four-car comparison preserves baselines, lap gaps and independent end states', async () => {
+  const { matchupEntries } = await import('../../experience/matchup.mjs');
+  const { replayFrame } = await import('../../experience/replay.mjs');
+  const state = example();
+  state.c = { ...newSetup('firebird'), tune: {grip: 1.2} };
+  state.cMode = 'after';
+  state.d = { ...newSetup('firebird'), tune: {finalDrive: 4.1} };
+  state.dMode = 'after';
+  for (const event of ['strip', 'oval']) {
+    const rows = matchupEntries({...state, event});
+    const testTime = row => event === 'oval' ? row.lap : row.finish.t;
+    assert.equal(testTime(rows[2].baseline), testTime(rows[0].run));
+    assert.notEqual(testTime(rows[2].run), testTime(rows[0].run));
+    const moving = replayFrame(rows, 3);
+    assert.equal(moving.length, 4);
+    assert.ok(moving.some(s => s.gap === 0));
+    assert.ok(moving.every(s => !s.finished && s.mph > 0 && s.gap >= 0));
+    assert.ok(replayFrame(rows, 100).every(s => s.finished));
+  }
+});
+
+test('camber illustration shows signed angle with fixed joint height', async () => {
+  const { camberIllustration } = await import('../../experience/models.mjs');
+  near(camberIllustration(0), 0);
+  near(camberIllustration(1), Math.atan(.1) * 180 / Math.PI);
+  near(camberIllustration(-1), -camberIllustration(1));
+});
+
+test('using an active configuration leaves the saved build and incoming share independent', async () => {
+  const { getActive, useConfig, getSaved, saveBuild } = await import('../../experience/configuration.mjs');
+  const storage = new Map();
+  const prior = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+  Object.defineProperty(globalThis, 'localStorage', {
+    configurable: true, value: {setItem: (key, value) => storage.set(key, value), getItem: key => storage.get(key)},
+  });
+  try {
+    saveBuild(newSetup('firebird'));
+    assert.equal(getActive(), null);
+    assert.equal(useConfig(newSetup('camaro'), 'before'), true);
+    assert.equal(readFragment(shareFragment(example())).state.a.id, 'firebird');
+    assert.equal(getActive().setup.id, 'camaro');
+    assert.equal(getSaved().id, 'firebird');
+    assert.equal(useConfig(newSetup('mustang'), 'unknown'), false);
   } finally {
     if (prior) Object.defineProperty(globalThis, 'localStorage', prior);
     else delete globalThis.localStorage;
