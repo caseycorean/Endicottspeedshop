@@ -1,5 +1,9 @@
 import { reference } from './reference.mjs';
 import { catalog, sources } from './catalog-data.mjs';
+import { tireGrip } from '../engine/acceleration.mjs';
+
+const tireProfiles = {firebird: 'radial70s', mustang: 'perf80s', camaro: 'perf80s', fiero: 'perf80s',
+  corvette: 'extreme', miata: 'perf80s', gto: 'uhp'};
 
 const field = (value, title, url, evidence = 'published') => [value, evidence, title, url];
 const estimate = (value, note) => [value, 'estimated', note];
@@ -87,7 +91,8 @@ const demoVehicles = Object.fromEntries(vehicleIds.map(id => {
     cg: estimate(20, 'Common starting point for comparisons. No matching measured CG height.'),
     frontTrack: track, rearTrack: track,
     redline: estimate(6000, 'Illustrative shift ceiling.'),
-    grip: estimate(.9, 'Common dry-pavement scenario for comparisons; not a measured tire property.'),
+    grip: estimate(tireGrip[tireProfiles[id]].mu, tireGrip[tireProfiles[id]].label +
+      '. Estimated class grip on dry pavement; actual tires and test surface vary.'),
     cda: estimate(7.5, 'Common illustrative drag area.'),
     frontSpring: estimate(350, 'Example spring; measure or enter your own.'),
     rearSpring: estimate(160, 'Example spring; measure or enter your own.'),
@@ -111,6 +116,9 @@ const stockBasics = ['weight', 'front', 'wheelbase', 'hp', 'hpRpm', 'torque', 't
 
 const catalogDefaults = Object.fromEntries(['cg','frontTrack','rearTrack','grip','cda','frontSpring','rearSpring','frontMotion','rearMotion','frontUnsprung','rearUnsprung','tireRate']
   .map(key => [key, demoVehicles.camaro.data[key][1] === 'estimated' ? demoVehicles.camaro.data[key] : estimate(key === 'cda' ? 7.5 : 60, 'Generic modeling assumption; enter one for this vehicle.')]));
+catalogDefaults.grip = estimate(.9, 'Generic dry street-tire scenario; measure or edit for your tires.');
+export const customEstimates = {...catalogDefaults};
+
 function sourcedFields(entry) {
   const specs = {};
   for (const [key, [value, kind, source, note]] of Object.entries(entry.fields)) {
@@ -144,7 +152,7 @@ for (const id of vehicleIds) {
 }
 export const vehicles = {...demoVehicles, ...full,
   custom: {name: 'My custom car', trim: 'Enter your vehicle measurements and drivetrain specifications.', make:'Custom', category:'Custom',
-    data: {...catalogDefaults, ...Object.fromEntries([...stockBasics, 'drivetrain','transmission'].map(key => [key, missing()]))}},
+    data: Object.fromEntries([...Object.keys(customEstimates), ...stockBasics, 'drivetrain','transmission'].map(key => [key, missing()]))},
 };
 export const browseIds = Object.keys(vehicles).filter(id => id !== 'custom')
   .sort((a,b) => vehicles[a].make.localeCompare(vehicles[b].make) || vehicles[a].name.localeCompare(vehicles[b].name));

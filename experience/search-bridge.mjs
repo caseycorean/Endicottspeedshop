@@ -24,7 +24,7 @@ function fillCalculator(tool, setup, mode, settings) {
       sf: v.frontSpring, sr: v.rearSpring, mf: v.frontMotion, mr: v.rearMotion, af: 0, ar: 0},
     'cg-builder': {mode: 'total', wb: v.wheelbase, tf: v.frontTrack, tr: v.rearTrack,
       tot: v.weight, fpct: weight.fp, hcg: v.cg, lpct: 50},
-    'scale-delta': {wb: v.wheelbase, tw: (v.frontTrack + v.rearTrack) / 2},
+    'scale-delta': {wb: v.wheelbase, tw: [v.frontTrack, v.rearTrack].every(Number.isFinite) ? (v.frontTrack + v.rearTrack) / 2 : null},
     'weight-distribution-calculator': {totalWeight: v.weight, frontPct: weight.fp, wheelbase: v.wheelbase},
   };
   const fields = mapping[tool];
@@ -36,7 +36,10 @@ function fillCalculator(tool, setup, mode, settings) {
   // Populate the group before invoking the existing calculator.
   const first = document.getElementById(Object.keys(fields)[0]);
   first?.dispatchEvent(new Event(tool === 'cg-builder' ? 'change' : 'input', {bubbles: true}));
-  return Object.values(fields).some(value => value == null);
+  return Object.entries(fields).filter(([,value]) => value == null).map(([id]) => {
+    const input = document.getElementById(id);
+    return input?.labels?.[0]?.textContent.trim() || id;
+  });
 }
 
 for (const panel of document.querySelectorAll('[data-ess-vehicle]')) {
@@ -47,7 +50,7 @@ for (const panel of document.querySelectorAll('[data-ess-vehicle]')) {
   const state = incoming.state ?? example();
   const selected = incoming.state ? {setup: state[state.focus], mode: modeOf(state, state.focus)} : active;
   const isArticle = !Object.hasOwn(filledMessage, tool);
-  const target = isArticle ? 'tools' : 'build';
+  const target = isArticle && tool !== 'plan' ? 'tools' : 'build';
   const labRoot = panel.dataset.labRoot || '../../experience/';
 
   panel.innerHTML = `<details><summary>Vehicle configuration <span data-active-name></span></summary>
@@ -66,11 +69,12 @@ for (const panel of document.querySelectorAll('[data-ess-vehicle]')) {
     const hasMissing = fillCalculator(tool, setup, mode, settings);
     const linkState = {...state, [state.focus]: setup, [state.focus + 'Mode']: mode};
     lab.hash = shareFragment(linkState, target);
+    if (['load-transfer','spring-rate'].includes(tool)) lab.search = 'study=' + tool;
     const name = setupName(setup);
     activeName.textContent = ' · ' + name;
     picker.textContent = name;
     const qualifier = mode === 'after' ? 'modified' : Object.keys(setup.base).length ? 'original' : 'stock-based';
-    feedback.textContent = `${qualifier[0].toUpperCase() + qualifier.slice(1)} ${indicateActive ? 'active setup' : 'setup from link'}. ${filledMessage[tool] ?? 'Open Vehicle Lab for the interactive tools.'}${hasMissing ? ' Unavailable fields kept their existing inputs.' : ''}`;
+    feedback.textContent = `${qualifier[0].toUpperCase() + qualifier.slice(1)} ${indicateActive ? 'active setup' : 'setup from link'}. ${filledMessage[tool] ?? 'Open Vehicle Lab for the interactive tools.'}${hasMissing?.length ? ' Existing calculator inputs retained for: ' + hasMissing.join(', ') + '.' : ''}`;
   };
 
   panel.addEventListener('click', event => {
@@ -91,16 +95,19 @@ for (const panel of document.querySelectorAll('[data-ess-vehicle]')) {
     setConfig(candidate, 'before', undefined, carried);
     if (template) {
       const linkState = {...state, [state.focus]: candidate, [state.focus + 'Mode']: 'before'};
-      location.href = labRoot + shareFragment(linkState, 'build');
+      location.href = labRoot + '?edit=original' + shareFragment(linkState, 'build');
     }
   });
 
-  if (incoming.state) {
-    const mode = incoming.view === 'tools' && modified(selected.setup) ? 'after' : selected.mode;
-    setConfig(selected.setup, mode, state.tool, false);
-  } else if (incoming.invalid) {
-    feedback.textContent = 'The experiment link could not be read. The original calculator inputs are ready to use.';
-  } else if (active && !location.hash.startsWith('#lab:')) {
-    setConfig(active.setup, active.mode, undefined, true);
+  function loadVehicle() {
+    if (incoming.state) {
+      setConfig(selected.setup, selected.mode, state.tool, false);
+    } else if (incoming.invalid) {
+      feedback.textContent = 'The experiment link could not be read. The original calculator inputs are ready to use.';
+    } else if (active && !location.hash.startsWith('#lab:')) {
+      setConfig(active.setup, active.mode, undefined, true);
+    }
   }
+  if (document.readyState === 'complete') loadVehicle();
+  else window.addEventListener('DOMContentLoaded', loadVehicle, {once:true});
 }

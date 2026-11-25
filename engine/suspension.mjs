@@ -183,7 +183,7 @@ export function rearGeometry(arch, g, { wheelbase, cg }) {
   }
   if (arch === 'torqueArm') {
     const ic = intersect(g.lower[0], g.lower[1], [g.armFrontX, 0], [g.armFrontX, 1]);
-    return pack(ic[1] / ic[0], ic);
+    return ic ? pack(ic[1] / ic[0], ic) : pack(NaN, null, {note: 'No finite side-view intersection.'});
   }
   if (arch === 'leaf') {
     const seg = sub(g.frontEye, g.axleSeat);

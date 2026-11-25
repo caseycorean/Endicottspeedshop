@@ -1,4 +1,4 @@
-import { vehicles, stock, vehicleIds } from './vehicles.mjs';
+import { vehicles, vehicleIds, customEstimates } from './vehicles.mjs';
 import { resolve, massIssue, choices, cleanSetup, newSetup, presets, validValue, usableSetup } from './models.mjs';
 import { example, clone, modified, shareFragment, readFragment, getSaved, saveBuild, getGarage, saveToGarage, removeFromGarage, shareResult, getActive, useConfig, laneKeys, lanes, labelLane, modeOf } from './configuration.mjs';
 import { home, build, toolsView, learn, inputGroups, toolResults } from './views.mjs';
@@ -11,6 +11,8 @@ import { installCatalog } from './catalog.mjs';
 import { tractionPanel } from './drivetrain-view.mjs';
 import { components, componentOverrides } from './components.mjs';
 import { mountCamber } from './diagrams.mjs';
+import { mountFrontGeometry, frontGeometry } from './front-geometry.mjs';
+import { studies, missingFor } from './readiness.mjs';
 
 const app = document.querySelector('#app');
 installCatalog();
@@ -64,6 +66,16 @@ function applyLocation() {
     sharedLinkNotice = '';
   }
   render(route.view);
+  if (route.view === 'build') {
+    const query = new URLSearchParams(location.search);
+    if (query.get('edit') === 'original') app.querySelector('[data-details="original"]').open = true;
+    const study = query.get('study');
+    if (Object.hasOwn(studies, study)) {
+      app.querySelector('[data-study-select]').value = study;
+      app.querySelector('[data-study-select]').dispatchEvent(new Event('change', {bubbles: true}));
+      app.querySelector('#data-readiness').scrollIntoView({block: 'start'});
+    }
+  }
 }
 
 function render(next = view, restoreDetails = false) {
@@ -85,7 +97,7 @@ function render(next = view, restoreDetails = false) {
     case 'garage': app.innerHTML = garageView(getGarage(), getActive()); break;
     case 'suspension': {
       const selected = getActive();
-      app.innerHTML = suspensionView(selected && setupName(selected.setup));
+      app.innerHTML = suspensionView(selected && setupName(selected.setup)) + frontGeometry();
       mountSuspension(app, selected && resolve(selected.setup, selected.mode === 'after'));
       break;
     }
@@ -93,6 +105,7 @@ function render(next = view, restoreDetails = false) {
     default: app.innerHTML = home(state, saved);
   }
   mountCamber(app);
+  mountFrontGeometry(app);
   notice.textContent = sharedLinkNotice;
   notice.classList.toggle('link-notice', Boolean(sharedLinkNotice));
   for (const nav of document.querySelectorAll('nav a[data-view]')) {
@@ -203,7 +216,7 @@ app.addEventListener('submit', event => {
     if (name) next.name = name;
     else delete next.name;
   }
-  const benchmark = section === 'base' ? stock(next.id) : {...resolve(next, false), ...componentOverrides(next)};
+  const benchmark = section === 'base' ? resolve({...next, base: {}}, false) : {...resolve(next, false), ...componentOverrides(next)};
   for (const key of inputGroups[group]) {
     const entered = values.get(key).trim();
     if (!entered) {
@@ -247,7 +260,9 @@ app.addEventListener('ess:vehicle-selected', event => {
 
 app.addEventListener('change', event => {
   const el = event.target;
-  if (el.dataset.component) {
+  if (el.hasAttribute('data-study-select')) {
+    for (const row of app.querySelectorAll('[data-study]')) row.hidden = row.dataset.study !== el.value;
+  } else if (el.dataset.component) {
     const kind = el.dataset.component;
     const next = clone(active());
     const before = next.components?.[kind];
@@ -440,6 +455,32 @@ document.addEventListener('click', event => {
     const next = clone(active());
     next.parts.splice(+el.dataset.remove, 1);
     if (!commitExperiment(next, 'Component change undone.')) speak('Undoing this change would exceed the model limits.');
+    return;
+  }
+  if (el.dataset.studyLane) {
+    state.focus = el.dataset.studyLane;
+    const study = state.event === 'oval' ? 'oval' : 'quarter';
+    navigate('build');
+    const filter = app.querySelector('[data-study-select]');
+    filter.value = study;
+    filter.dispatchEvent(new Event('change', {bubbles: true}));
+    app.querySelector('#data-readiness').scrollIntoView({block: 'start'});
+    app.querySelector('[data-details="original"]').open = true;
+    return;
+  }
+  if (el.dataset.acceptEstimates) {
+    const next = clone(active());
+    const tool = el.dataset.acceptEstimates;
+    if (next.id !== 'custom' || !Object.hasOwn(studies, tool)) return;
+    const value = resolve(next);
+    const missing = [...missingFor(value, tool), ...(studies[tool].optional ?? []).filter(key => value[key] == null)];
+    next.estimates = [...new Set([...(next.estimates ?? []), ...missing.filter(key => Object.hasOwn(customEstimates, key))])];
+    state[state.focus] = next;
+    render(view, true);
+    const filter = app.querySelector('[data-study-select]');
+    filter.value = tool;
+    filter.dispatchEvent(new Event('change', {bubbles: true}));
+    speak('The listed model estimates have been applied to this setup.');
     return;
   }
   if (el.dataset.event) { state.event = el.dataset.event; render(view, true); return; }

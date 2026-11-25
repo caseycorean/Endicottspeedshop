@@ -16,7 +16,7 @@ export function changeFromOriginal(name, original, changed, baseRun, run, oval) 
   if (Math.abs(delta) < .005) headline = `${name}: the modification changes the ${event} by less than 0.01 s.`;
   else headline = `${name}: modified is ${fmt(Math.abs(delta), 2)} s ${delta < 0 ? 'quicker' : 'slower'} than original over the ${event} (${fmt(before, 2)} → ${fmt(after, 2)} s).`;
   let why = '';
-  const launchLimited = !oval && run.trace?.some(s => s.limited);
+  const launchLimited = !oval && changed.drivetrain === 'RWD' && run.trace?.some(s => s.limited && s.gear === 1);
   if (delta > .005 && weightDelta < 0 && rearShareDelta < 0 && launchLimited) {
     why = `Why slower when lighter: the launch is limited by rear-tire grip, and grip-limited acceleration follows the share of weight on the rear tires. This change lowers that share from ${fmt(original.rearLb / original.weight * 100, 1)}% to ${fmt(changed.rearLb / changed.weight * 100, 1)}%.`;
   } else if (oval && weightDelta !== 0) {

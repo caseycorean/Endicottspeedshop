@@ -16,10 +16,12 @@ if __name__ == "__main__":
         parser.error("Use the private staging checkout's dist directory")
     tracked = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT).decode().split("\0")
     static_roots = ("about/", "articles/", "assets/", "build/", "contact/", "experience/",
-                    "plan/", "privacy/", "tools/", "weight-distribution-calculator/")
+                    "engine/", "grip/", "plan/", "privacy/", "tools/", "weight-distribution-calculator/")
     written = set()
     for item in tracked:
         if item not in ("index.html", "logo-round.png", "logo-horizontal-tight.png") and not item.startswith(static_roots):
+            continue
+        if item.startswith("engine/") and ("/test/" in item or not item.endswith(".mjs")):
             continue
         source = ROOT / item
         dest = target / item

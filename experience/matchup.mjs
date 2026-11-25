@@ -4,6 +4,7 @@ import { resolve, straightLine } from './models.mjs';
 import { ovalLap } from './oval.mjs';
 import { vehicles } from './vehicles.mjs';
 import { changeFromOriginal } from './change.mjs';
+import { missingFor, estimatedFor } from './readiness.mjs';
 import { vehicleSelector, configModes, evidence, explanation, fmt, delta, metricTable, escape } from './ui.mjs';
 
 export const setupName = setup => setup.name || vehicles[setup.id].name;
@@ -23,6 +24,16 @@ export function matchupEntries(state) {
 
 export const resultTime = (run, oval) => oval ? run.lap : run.finish?.t;
 
+const calibration = {camaro: 'Camaro test comparison', corvette: 'Z06 test comparison', gto: 'GTO test comparison'};
+const holdout = {miata: 'Miata hold-out, secondary ET source', mustang: 'Earlier Fox model hold-out, different trim'};
+function resultEvidence(setup, value, oval) {
+  const tool = oval ? 'oval' : 'quarter';
+  if (oval) return 'Experimental synthetic course';
+  const own = modified(setup) || Object.keys(setup.base).length || setup.id === 'custom';
+  const check = own ? '' : calibration[setup.id] ? calibration[setup.id] + ' · calibration' : holdout[setup.id];
+  return [check || 'No matched road-test check', estimatedFor(value, tool).length ? 'estimated inputs' : 'modeled result'].join(' · ');
+}
+
 export function comparisonResults(entries, oval) {
   const ranked = entries.map(entry => ({...entry, time: resultTime(entry.run, oval)}))
     .sort((a, b) => (a.time ?? Infinity) - (b.time ?? Infinity));
@@ -31,13 +42,16 @@ export function comparisonResults(entries, oval) {
       const why = baseline !== run ? changeFromOriginal('', original, value, baseline, run, oval)?.why : '';
       const before = resultTime(baseline, oval);
       const change = Number.isFinite(time) && Number.isFinite(before) && baseline !== run ? time - before : null;
+      const missing = missingFor(value, oval ? 'oval' : 'quarter');
       return `<article class="performance-card car-${key}">
         <div class="performance-name"><b>${key.toUpperCase()}</b><strong>${escape(setupName(setup))}</strong></div>
         <div class="performance-main">${Number.isFinite(time) ? fmt(time, 2) + ' s' : '—'}
           <small>${oval ? fmt(run.peakSpeed, 0) + ' mph peak' : fmt(run.finish?.trap, 0) + ' mph finish'}</small></div>
+        ${Number.isFinite(time) ? `<p class="experiment-evidence">${escape(resultEvidence(setup, value, oval))}</p>` : ''}
         ${change === null ? '' : `<p class="performance-delta">Original ${fmt(before, 2)} s · ${delta(change, 2)} s (${delta(100 * change / before, 1)}%)</p>`}
         ${why ? `<p class="performance-why">${escape(why)}</p>` : ''}
-        ${run.issue ? `<p class="warning">${escape(run.issue)}</p>` : Number.isFinite(time) ? '' : '<p class="warning">No finish within the modeled distance or time limit.</p>'}
+        ${run.issue ? `<p class="warning">${missing.length ? `${missing.length} required input${missing.length === 1 ? '' : 's'} missing.` : escape(run.issue)}</p>
+          <button type="button" class="text-button missing-action" data-study-lane="${key}">Review ${labelLane(key)} inputs</button>` : Number.isFinite(time) ? '' : '<p class="warning">No finish within the modeled distance or time limit.</p>'}
       </article>`;
     }).join('')}</div>`;
 }
@@ -56,7 +70,7 @@ function laneEditor(entry) {
 export function quickImpact(entry, oval) {
   const t = resultTime(entry.run, oval);
   const before = resultTime(entry.baseline, oval);
-  if (!Number.isFinite(t)) return entry.run.issue || 'No finish within the model limit.';
+  if (!Number.isFinite(t)) return entry.run.issue ? 'Review the inputs for this car to see a result.' : 'No finish within the model limit.';
   if (!Number.isFinite(before) || entry.baseline === entry.run) return `${labelLane(entry.key)} estimate · ${fmt(t, 2)} s`;
   const diff = t - before;
   return `${labelLane(entry.key)} · ${fmt(before, 2)} s → ${fmt(t, 2)} s · ${delta(diff, 2)} s (${delta(100 * diff / before, 1)}%)`;
@@ -85,7 +99,7 @@ export function racePanel(state, entries) {
   const playable = entries.some(({run}) => run.trace);
   return `<section class="panel race" aria-labelledby="race-title">
     <div class="race-header"><div><h2 id="race-title">${oval ? 'Test oval' : 'Quarter mile'}</h2></div>
-      <div class="clock"><span id="race-time">0.0</span><small> s</small></div></div>
+      <div class="clock"><span id="race-time">0.0</span><small> s replay</small></div></div>
     <div class="event-switch" aria-label="Choose a simulation">
       <button class="button secondary small" data-event="strip" aria-pressed="${!oval}">Quarter mile</button>
       <button class="button secondary small" data-event="oval" aria-pressed="${oval}">Test oval</button>
@@ -138,11 +152,11 @@ export function compare(state, entries) {
           <h2>How to read the results</h2>
           ${explanation('What the simulation assumes',
             oval ? 'The synthetic oval has two 520 ft straights and two 200 ft radius turns. The flying lap starts at speed. The solver limits corner speed by grip and brakes for the next turn. Gears are idealized. Suspension and transient handling are outside this model. Turn speed depends only on the grip coefficient here, so weight changes show up only through acceleration out of the turns, not corner speed or braking.' :
-            'The model combines the estimated torque curve, gear ratios, tire radius, drivetrain loss, driven-axle grip, drag and shift delay. Launch grip and engine output need measurement to predict real times. Use the results to compare the effect of your settings.')}
-          ${oval ? '' : `<details class="explain"><summary>Published test checkpoints for the first two references</summary>
+            'The replay and main results start from standstill. The model estimates launch grip by tire class for selected references, accounts for clutch slip and rotating inertia, and uses a generic converter and shift time for automatics. The estimates are best used to compare changes. Test surface, exact tires and launch technique affect real results.')}
+          ${oval ? '' : `<details class="explain"><summary>Published test checkpoints and timing</summary>
             ${metricTable([['0–60 mph', a.test60, b.test60, 's', 1], ['Quarter mile', a.testEt, b.testEt, 's', 1],
               ['Reported trap', a.testTrap, b.testTrap, 'mph', 1]], ['Car A stock', 'Car B stock'], true)}
-            <p>Published tests apply to their stock test vehicles and conditions. Modeled finish speed is instantaneous.</p></details>`}
+            <p>Road-test times apply to the recorded stock car and conditions. For reference, the current model with one foot of rollout estimates ${entries.slice(0, 2).map(({key,run}) => `${labelLane(key)} ${fmt(run.magazine?.et, 2)} s`).join(' · ')}. Modeled finish speed is instantaneous.</p></details>`}
           ${explanation('Why gearing changes acceleration', 'A shorter gear multiplies torque more, but reaches shift RPM sooner. A shift can use up the time gained from shorter gearing. Tire diameter changes both leverage and speed at each RPM.')}
           <details class="explain" data-details="lineup-inputs"><summary>Inputs and evidence for each car</summary>
             ${entries.map(({key, setup, mode}) => `<h3>${labelLane(key)} · ${escape(setupName(setup))}</h3>${evidence(setup, mode === 'after')}`).join('')}</details>

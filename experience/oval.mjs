@@ -41,7 +41,7 @@ function availableDrive(v, speed, curvature) {
 }
 
 export function ovalLap(v) {
-  const issue = massIssue(v) || powerIssue(v);
+  const issue = powerIssue(v, 'oval') || massIssue(v);
   if (issue) return { issue };
   const n = pieces.length;
   // v². A constant-radius end is capped at 96% of the theoretical lateral limit

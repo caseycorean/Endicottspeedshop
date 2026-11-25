@@ -9,6 +9,7 @@ import { ovalLap } from '../../experience/oval.mjs';
 import { changeFromOriginal } from '../../experience/change.mjs';
 
 // id: [0–60 s, quarter-mile s, trap mph, oval lap s]
+const legacyOptions = { inertia: false, shiftSeconds: .3, launchRpm: 1800, rolloutFt: 0 };
 const independent = {
   firebird: [7.779, 16.172, 88.94, 28.641], mustang: [6.775, 15.296, 96.74, 28.268],
   camaro: [6.599, 15.121, 97.69, 28.227], fiero: [7.767, 16.246, 86.28, 28.816],
@@ -17,11 +18,11 @@ const independent = {
 };
 
 for (const [id, [z60, et, trap, lap]] of Object.entries(independent)) {
-  test(`${id} stock results agree with the independent implementation`, () => {
-    const v = resolve(newSetup(id), false);
-    const run = straightLine(v);
-    assert.ok(Math.abs(run.zeroTo60 - z60) < .02, `0–60 ${run.zeroTo60} vs ${z60}`);
-    assert.ok(Math.abs(run.finish.t - et) < .02, `ET ${run.finish.t} vs ${et}`);
+  test(`${id} legacy effect settings agree with independent physics checkpoints`, () => {
+    const v = {...resolve(newSetup(id), false), grip: .9};
+    const run = straightLine(v, legacyOptions);
+    assert.ok(Math.abs(run.zeroTo60 - z60) < .04, `0–60 ${run.zeroTo60} vs ${z60}`);
+    assert.ok(Math.abs(run.finish.t - et) < .04, `ET ${run.finish.t} vs ${et}`);
     assert.ok(Math.abs(run.finish.trap - trap) < .1, `trap ${run.finish.trap} vs ${trap}`);
     assert.ok(Math.abs(ovalLap(v).lap - lap) < .02, `lap ${ovalLap(v).lap} vs ${lap}`);
   });
@@ -55,8 +56,8 @@ test('lighter-but-slower Corvette is explained by rear weight share', () => {
   const base = newSetup('corvette');
   const x = resolve(base, false).wheelbase * .7;
   const mod = { ...base, parts: [{ label: 'r', oldWeight: 50, oldX: x, newWeight: 0, newX: x }] };
-  const o = resolve(base, false); const m = resolve(mod);
-  const c = changeFromOriginal('Car B', o, m, straightLine(o), straightLine(m), false);
+  const o = {...resolve(base, false), grip: .9}; const m = {...resolve(mod), grip: .9};
+  const c = changeFromOriginal('Car B', o, m, straightLine(o, legacyOptions), straightLine(m, legacyOptions), false);
   assert.ok(c.delta > 0, 'removing rear weight slows a grip-limited launch in this model');
   assert.match(c.headline, /slower/);
   assert.match(c.why, /47\.0% to 46\.6%/);

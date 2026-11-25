@@ -6,14 +6,15 @@ import { vehicleIds } from '../../experience/vehicles.mjs';
 
 const car = id => lab.resolve(lab.newSetup(id), false);
 
-test('with the new effects switched off it reproduces the shipped Vehicle Lab model', () => {
+test('Vehicle Lab uses v2 and keeps the final replay sample on the finish line', () => {
   for (const id of vehicleIds) {
     const v = car(id);
-    const old = lab.straightLine(v);
-    const now = straightLine(v, { inertia: false, shiftSeconds: .3, launchRpm: 1800, rolloutFt: 0 });
-    assert.ok(Math.abs(now.zeroTo60 - old.zeroTo60) < .03, `${id} 0-60 ${now.zeroTo60} vs ${old.zeroTo60}`);
-    assert.ok(Math.abs(now.finish.t - old.finish.t) < .03, `${id} ET`);
-    assert.ok(Math.abs(now.finish.trap - old.finish.trap) < .3, `${id} trap`);
+    const ui = lab.straightLine(v);
+    const core = straightLine(v);
+    assert.deepEqual(ui.finish, core.finish);
+    assert.deepEqual(ui.magazine, core.magazine);
+    assert.equal(ui.trace.at(-1).x, 1320);
+    assert.equal(ui.trace.at(-1).t, ui.finish.t);
   }
 });
 
@@ -40,7 +41,8 @@ for (const r of roadTests) {
 
 test('shipped model misses the Corvette by more than a second; candidate is within 0.3 s', () => {
   const v = car('corvette');
-  assert.ok(lab.straightLine(v).finish.t - 12.48 > 1.0);
+  const old = straightLine(v, {mu: .9, inertia: false, shiftSeconds: .3, launchRpm: 1800, rolloutFt: 0});
+  assert.ok(old.finish.t - 12.48 > 1.0);
   assert.ok(Math.abs(straightLine(v, { mu: tireGrip.extreme.mu }).magazine.et - 12.48) < .3);
 });
 

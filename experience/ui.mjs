@@ -1,4 +1,4 @@
-import { vehicles, fields } from './vehicles.mjs';
+import { vehicles, fields, customEstimates } from './vehicles.mjs';
 import { modified } from './configuration.mjs';
 
 export const escape = s => String(s).replace(/[&<>"']/g, c => (
@@ -40,7 +40,9 @@ export function evidence(setup, custom = true) {
   return `<details class="explain"><summary>Input values and sources</summary>
     <p>${escape(v.trim)}. ${v.ref ? 'Based on an ESS Vehicle Reference record.' : 'Supplemental reference for this prototype.'}
     Stock inputs use published figures where available. Estimates are editable.</p>
-    <dl class="evidence">${Object.entries(v.data).map(([key, [value, kind, note, link, conditions]]) => {
+    <dl class="evidence">${Object.entries(v.data).map(([key, data]) => {
+      const opted = setup.id === 'custom' && (setup.estimates ?? Object.keys(customEstimates)).includes(key);
+      const [value, kind, note, link, conditions] = opted ? customEstimates[key] : data;
       const fieldValue = value === null ? '—' : Array.isArray(value) ? value.join(' / ') : key === 'front' ? fmt(value * 100, 1) : value;
       const original = setup.base[key];
       const override = custom ? setup.tune[key] : undefined;

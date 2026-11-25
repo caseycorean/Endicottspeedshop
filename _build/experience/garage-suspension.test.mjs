@@ -29,6 +29,8 @@ test('a blank garage car remains editable and can never run an invented estimate
   const keys = ['weight','front','wheelbase','hp','hpRpm','torque','torqueRpm','redline','gears','finalDrive','diameter','drivetrain','transmission'];
   draft.base = Object.fromEntries(keys.map(key => [key,donor[key]]));
   assert.ok(cleanSetup(draft));
+  assert.ok(straightLine(resolve(draft)).issue, 'known model assumptions await opt-in');
+  draft.estimates = ['cg', 'grip', 'cda'];
   assert.ok(straightLine(resolve(draft)).finish.t);
 });
 

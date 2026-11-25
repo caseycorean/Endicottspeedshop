@@ -1,3 +1,5 @@
+import { rearGeometry } from '../engine/suspension.mjs';
+
 /* Rear-axle-local frame: x forward, y driver's right, z up from road. Inches. */
 const rad = degrees => degrees * Math.PI / 180;
 const degrees = angle => angle * 180 / Math.PI;
@@ -90,15 +92,6 @@ function lineOf(links) {
   return [average(links.map(l => l.current)), average(links.map(l => l.chassis))];
 }
 
-function intersection(a, b) {
-  const d = [a[1][0] - a[0][0], a[1][1] - a[0][1]];
-  const e = [b[1][0] - b[0][0], b[1][1] - b[0][1]];
-  const determinant = d[0] * e[1] - d[1] * e[0];
-  if (Math.abs(determinant) < 1e-5 * norm(d) * norm(e) || !determinant) return null;
-  const t = ((b[0][0] - a[0][0]) * e[1] - (b[0][1] - a[0][1]) * e[0]) / determinant;
-  return [a[0][0] + t * d[0], a[0][1] + t * d[1]];
-}
-
 export function solveRearLinks(links, {heave = 0, roll = 0, radius = 13, wheelbase = null, cg = null} = {}) {
   const valid = links.every(link => link.group === 'slider' || norm(link.axle.map((v, i) => v - link.chassis[i])) >= 4);
   if (!valid) return {level: 'red', message: 'A modeled rigid link is shorter than 4 in. Move its mounting points apart.'};
@@ -116,9 +109,14 @@ export function solveRearLinks(links, {heave = 0, roll = 0, radius = 13, wheelba
   const slider = current.find(l => l.group === 'slider');
   const upperLine = slider ? [[slider.current[0], 0], [slider.current[0], 1]] :
     lineOf(current.filter(l => l.group === 'upper'));
-  const center = !roll && residual <= .08 ? intersection(lowerLine, upperLine) : null;
-  const antiSquat = center && center[0] > pose[0] + .1 && wheelbase > 0 && cg > 0 ?
-    100 * (center[1] - heave) / (center[0] - pose[0]) * wheelbase / cg : null;
+  const offset = ([x, z]) => [x - pose[0], z - heave];
+  const projection = !roll && residual <= .08 ? rearGeometry(slider ? 'torqueArm' : 'fourLink', {
+    upper: upperLine.map(offset), lower: lowerLine.map(offset), armFrontX: slider && slider.current[0] - pose[0],
+  }, {wheelbase, cg}) : null;
+  const point = projection?.ic;
+  const center = point?.every(Number.isFinite) ? [point[0] + pose[0], point[1] + heave] : null;
+  const antiSquat = (wheelbase > 0 && cg > 0 && Number.isFinite(projection?.antiSquat) && (!point || point[0] > .1))
+    ? projection.antiSquat : null;
   const level = residual > .08 ? 'red' : residual > .02 ? 'yellow' : 'green';
   const message = level === 'red' ? 'Ideal links cannot reach this pose at fixed length.' :
     level === 'yellow' ? 'Approaching geometric constraint. A perfect fit was not found.' :

@@ -47,12 +47,6 @@ def GOALS_HTML(rel):
     return "".join(f'<article class="card goal"><h3>{g}</h3><p>{d}</p><ul class="links">' +
                    "".join(f'<li><a href="{rel}{h}">{n}</a></li>' for n, h in links) + '</ul></article>' for g, d, links in GOALS)
 
-def COMING_SOON(rel):
-    return (f'<section class="section"><div class="section-label">Coming soon</div><h2>Compare options before you buy them.</h2>'
-            f'<p>We are building ways to run two versions of a car through the same model — stock springs against a stiffer set, '
-            f'an iron part against an aluminum one, and eventually whole suspension approaches side by side — and see what each change '
-            f'is likely to do before you spend the money. These arrive after launch, as each one is checked; no dates yet.</p></section>')
-
 def contact(page, address):
     """Contact page. The address is passed in (environment variable ESS_CONTACT_EMAIL) so it lives in one published page only."""
     page("contact/index.html", "Contact | Endicott Speed Shop", "Contact Endicott Speed Shop with corrections, calculator problems, questions or measured part data.",
@@ -74,40 +68,20 @@ def article(page, path, title, kicker, desc, meta, body):
          f'<div class="section"><div class="section-label">Keep going</div><p><a href="{rel}tools/cg-builder/">Try the Balance &amp; CG Builder</a> · <a href="{rel}articles/">All articles</a></p></div></main>',
          active="Articles")
 
+from home import homepage, grip_entrance
+
 def build(page):
-    # HOME — growth candidate (owner launch reset 24 Nov 2026): experience first, then where to go next.
-    page("index.html", "Endicott Speed Shop | See what a change does before you make it",
-         "Brake into a corner and watch the load on each tire move. Free, measured, plain-English performance tools and articles for real builds.",
-         f"""<main class="page">
-<section class="hero-lab">
-<h1>Brake into a corner. Watch your tires.</h1>
-<p class="lede">Every performance change moves load between the four tires. Slide the braking and cornering, lower the car, change its weight — and see what each tire is left with. Then share exactly what you found.</p>
-<div class="glab" data-glab data-tools="tools/load-transfer/" data-article="articles/traction-circle/"></div>
-</section>
-<section class="section"><div class="section-label">Where next</div><h2>Go from “what if” to a plan.</h2>
-<div class="paths">
-<article class="card"><span class="tag cat-found">Available</span><h3><a href="plan/">Plan your build</a></h3><p>Turn a goal — turn-in, grip, ride, weight — into steps you can test, using the tools here along the way.</p><a class="more" href="plan/">Start planning</a></article>
-<article class="card"><span class="tag cat-data">Available</span><h3><a href="tools/">Run the numbers</a></h3><p>Balance and center of gravity, load transfer, spring rates and part weights — on your own car’s numbers.</p><a class="more" href="tools/">Open the calculators</a></article>
-<article class="card"><span class="tag cat-notes">Prototype</span><h3><a href="experience/">Vehicle Lab</a></h3><p>Pick a car, change a part, compare acceleration and share the experiment.</p><a class="more" href="experience/">Open Vehicle Lab</a></article>
-<article class="card"><span class="tag cat-notes">In development</span><h3>Simulate the car</h3><p>The experiment above is step one. Next: straight-line acceleration, braking, a single corner, then linked corners and a representative lap — each checked before it goes up.</p>
-<ul class="roadmap" aria-label="Simulation roadmap"><li class="now">Tire loads</li><li>Acceleration</li><li>Braking</li><li>One corner</li><li>Linked corners</li><li>A lap</li></ul></article>
-</div></section>
-<section class="section"><div class="section-label">Start with your question</div><h2>What are you trying to improve?</h2>
-<p>Pick the closest goal. Each one pairs the idea behind it with a calculator you can run on your own numbers — whatever you drive.</p>
-<div class="grid goals">{GOALS_HTML("")}</div></section>
-<section class="section"><div class="section-label">Articles</div><h2>Know why, not just what.</h2>
-<p>Engineering foundations explained plainly, and build notes with real numbers.</p><div class="grid">{cards(ARTICLES[:3], "")}</div>
-<p style="margin-top:14px"><a href="articles/">All articles →</a></p></section>
-<section class="section"><div class="section-label">The proof car</div><h2>A 1977 Firebird Formula, measured as it's built.</h2>
-<p>The principles here apply to a Mustang, a Miata, a BMW or a Chevelle. Our test car happens to be a budget-conscious LS1 and T5-powered 1977 Firebird Formula: every part weighed, every cost recorded, every decision measured against the car before it.</p>
-<div class="action-row"><a class="btn secondary" href="build/">Follow the build</a></div></section>
-</main>
-<script src="assets/grip-lab.js" defer></script>""", active="")
+    page("index.html", "Endicott Speed Shop | Build it. Then prove it.",
+         "Choose your car, compare builds and use engineering tools to test changes in weight, grip, gearing and suspension.",
+         homepage(), extra_head='<script type="module" src="experience/home.mjs"></script>')
+    page("grip/index.html", "Tire Load Experiment | Endicott Speed Shop",
+         "See how braking and cornering move load between your tires with an interactive experiment.",
+         grip_entrance(), extra_head='<script type="module" src="../assets/grip-lab.js"></script>')
 
     # TOOLS HUB
     page("tools/index.html", "Tools | Endicott Speed Shop", "Free calculators for weight distribution, center of gravity, load transfer, spring rates and part weights.",
          f'<main class="page"><div class="kicker">Tools</div><h1>Model it before you build it.</h1><p class="lede">Free calculators for balance, center of gravity, load transfer, springs and part weights. Results are estimates — the scales have the final word.</p><div class="grid">{cards(TOOLS, "../")}</div>'
-         f'{COMING_SOON("../")}</main>', active="Tools")
+         '<p class="lab-callout">Use one car across experiments. <a href="../experience/#tools">Open Vehicle Lab tools</a>.</p></main>' , active="Tools")
 
     # ARTICLES HUB
     page("articles/index.html", "Articles | Endicott Speed Shop", "Engineering foundations and measured build notes from Endicott Speed Shop.",
@@ -150,7 +124,7 @@ def build(page):
          "A step-by-step way to go from a performance goal to a build plan you can test: goal, baseline, constraints, options, modeling and measurement.",
          f"""<main class="page narrow article"><div class="kicker">Build planning</div><h1>Plan your build.</h1>
 <p class="lede">Most builds go wrong before the first bolt is turned: parts get bought before the goal is clear. This guide walks from what you want the car to do, to a plan you can test — using the articles and calculators on this site along the way.</p>
-<div class="callout">This is the first version of the ESS build-planning guide. Some steps link to working tools today; others point to comparisons and simulations that are still being built and checked.</div>
+<div class="callout">Save a baseline in <a href="../experience/#garage">My Garage</a> as you work through the guide. Use a measured baseline when you have one, and mark the changes you still need to test.</div>
 <h2>1 · Name the goal</h2>
 <p>What should the car do better: turn in, put power down, stop, ride, or simply weigh less? Is it a street car, a track car or both? A clear goal is what lets you say no to parts that don't serve it.</p>
 <ul class="links">{"".join(f'<li>{g}: ' + ' · '.join(f'<a href="../{h}">{n}</a>' for n, h in links) + '</li>' for g, d, links in GOALS)}</ul>
@@ -165,7 +139,7 @@ def build(page):
 <h2>5 · Compare the options on the same terms</h2>
 <p>Put each option side by side: cost, weight and where it sits, fabrication required, what it changes and what it doesn't. For example, a second-gen F-body owner improving the front suspension might compare upgrading the stock parts, a bolt-in aftermarket package such as those from QA1 or Pro Touring F-Body, and a Corvette front suspension conversion. ESS is documenting comparisons like this one; they will be published here as the data is checked. (Brands are examples, not recommendations.)</p>
 <h2>6 · Model before you spend</h2>
-<p>Use the calculators for the questions they answer well: balance, load transfer and spring rates. Simulations that show how a change affects the car through a corner or a lap are in development, and will be added once they have been checked against measurements.</p>
+<p>Use the calculators for the questions they answer well: balance, load transfer and spring rates. The Vehicle Lab lets you <a href="../experience/#compare">compare acceleration</a> and <a href="../experience/#suspension">explore rear link geometry</a> before deciding what to measure next.</p>
 <p><a href="../tools/">All calculators</a></p>
 <h2>7 · Build in stages, and measure each one</h2>
 <p>Make the reversible decisions first. After each stage, weigh, test and compare against your baseline — that is how you find out whether a change did what you expected, and it's how the ESS cars are developed too.</p>

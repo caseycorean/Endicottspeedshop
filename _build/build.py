@@ -6,7 +6,8 @@ import os, sys, re, importlib.util
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GA = """<script async src="https://www.googletagmanager.com/gtag/js?id=G-GGJVMS8CZD"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.href.split('#')[0]});</script>"""
-NAV = [("Plan", "plan/", "Plan your build, step by step"),
+NAV = [("Vehicle Lab", "experience/", "Build, compare and test your car"),
+       ("Plan", "plan/", "Plan your build, step by step"),
        ("Tools", "tools/", "Calculators built from measured data"),
        ("Articles", "articles/", "Engineering foundations and build notes"),
        ("The Build", "build/", "The green car, measured"),
@@ -34,8 +35,8 @@ def page(path, title, desc, body, active="", extra_head=""):
     rel = "../" * depth
     canon = path[:-len("index.html")] if path.endswith("index.html") else path
     URLS.append(canon)
-    if path.startswith(("articles/", "tools/")):
-        tool = path.split("/")[-2] if path.startswith("tools/") else "article"
+    if path.startswith(("articles/", "tools/", "plan/")):
+        tool = path.split("/")[-2] if path.startswith(("tools/", "plan/")) else "article"
         selector = (f'<div class="ess-config" data-ess-vehicle="{tool}" '
                     f'data-lab-root="{rel}experience/"></div>')
         body = re.sub(r"</h1>", "</h1>\n" + selector, body, count=1)
@@ -54,12 +55,13 @@ def page(path, title, desc, body, active="", extra_head=""):
 {share_tags(title, desc, SITE + canon)}
 <link rel="stylesheet" href="{rel}assets/site.css">
 <link rel="stylesheet" href="{rel}assets/ess-search.css">
+<link rel="stylesheet" href="{rel}assets/ess-editorial.css">
 {extra_head}
 </head>
 <body class="ess-theme">
 <header class="site-header"><div class="header-inner">
 <div class="brand-wrap"><a href="{rel}./" class="brand" aria-label="Endicott Speed Shop home"><span class="ess-wordmark"><strong>ENDICOTT</strong><span>SPEED SHOP</span></span></a><a class="beta-pill" href="{rel}about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
-<nav class="topnav">{links}</nav>
+<nav class="topnav" aria-label="Main navigation">{links}</nav>
 <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
 </div></header>
 <aside class="sidebar" id="sidebar"><button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>

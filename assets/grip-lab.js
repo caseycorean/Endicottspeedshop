@@ -1,3 +1,5 @@
+import { tireLoads } from '../engine/loads.mjs';
+
 /* ESS Grip Lab — "Brake into a corner. Watch your tires."
    Same steady-state load-transfer math as the Load Transfer Calculator (tools/load-transfer/), with its suspension
    defaults fixed (wheelbase 108 in, tracks 61/60 in, 60% front roll stiffness, roll centers 2/12 in).
@@ -19,15 +21,19 @@
   function inRange(k, v) { return v >= LIM[k][0] - 1e-9 && v <= LIM[k][1] + 1e-9; }
   function ev(name, p) { try { if (typeof window.gtag === "function") window.gtag("event", name, p || {}); } catch (e) {} }
 
-  // Identical formulas to tools/load-transfer (turning right: load goes to the left tires).
+  // Turning right puts the outside tires on the left.
   function solve(s) {
-    var W = s.w, Wf = W * s.fp / 100, Wr = W - Wf, l = FIX.wb, h = s.h;
-    var dx = W * h * s.ax / l, F = Wf + dx, R = Wr - dx;
-    var a = l * Wr / W, zAxis = FIX.zf + (FIX.zr - FIX.zf) * a / l, H = h - zAxis, kf = FIX.kf / 100;
-    var dF = s.ay * (W * H * kf + Wf * FIX.zf) / FIX.tf, dR = s.ay * (W * H * (1 - kf) + Wr * FIX.zr) / FIX.tr;
-    return { dx: dx, dF: dF, dR: dR, F: F, R: R,
-      now: { lf: F / 2 + dF, rf: F / 2 - dF, lr: R / 2 + dR, rr: R / 2 - dR },
-      park: { lf: Wf / 2, rf: Wf / 2, lr: Wr / 2, rr: Wr / 2 } };
+    var car = { weight:s.w, front:s.fp/100, wheelbase:FIX.wb, cg:s.h, frontTrack:FIX.tf, rearTrack:FIX.tr };
+    var options = {frontRoll:FIX.kf/100, frontCenter:FIX.zf, rearCenter:FIX.zr};
+    var result = tireLoads(car, s.ax, s.ay, options);
+    var parked = carTires(tireLoads(car, 0, 0, options).tires);
+    var now = carTires(result.tires);
+    return {dx:result.longitudinal, dF:result.front, dR:result.rear,
+      F:now.lf+now.rf, R:now.lr+now.rr, now:now, park:parked};
+  }
+
+  function carTires(tires) {
+    return {lf:tires[0], rf:tires[1], lr:tires[2], rr:tires[3]};
   }
 
   function readHash() {

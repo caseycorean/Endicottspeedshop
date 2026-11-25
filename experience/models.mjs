@@ -1,14 +1,12 @@
-import { fields, stock, vehicles } from './vehicles.mjs';
+import { fields, stock, vehicles, customEstimates } from './vehicles.mjs';
 import { components, componentOverrides } from './components.mjs';
+import { axleWeights as sharedAxles, applyItems, tireLoads as sharedLoads, ride as sharedRide } from '../engine/loads.mjs';
+import { availableDrive, driveAt, resistanceAt, straightLine as sharedStrip, tractionLimit, wheelRpm } from '../engine/acceleration.mjs';
+import { missingFor, missingText } from './readiness.mjs';
 
 export const G = 32.174;
 export const FT_PER_MILE = 5280;
 export const MPH = FT_PER_MILE / 3600;
-const G_IN = G * 12;
-const AIR_DENSITY = .002377; // slugs/ft³ at standard sea-level conditions
-const ROLL_RESISTANCE = .015;
-const DRIVELINE = .85;
-const SHIFT_SECONDS = .30;
 export const choices = {drivetrain: ['RWD', 'FWD', 'AWD'], transmission: ['manual', 'automatic']};
 
 export const limits = {
@@ -55,6 +53,11 @@ export function cleanSetup(raw) {
       !isObject(raw.base) || !isObject(raw.tune) || !Array.isArray(raw.parts) || raw.parts.length > 8) return null;
   if (raw.name !== undefined && (typeof raw.name !== 'string' || !raw.name.trim() || raw.name.length > 36)) return null;
   const setup = { id: raw.id, base: {}, tune: {}, parts: [], ...(raw.name ? {name: raw.name.trim()} : {}) };
+  if (raw.estimates !== undefined) {
+    if (!Array.isArray(raw.estimates) || raw.id !== 'custom' || raw.estimates.length > Object.keys(customEstimates).length ||
+        raw.estimates.some(key => typeof key !== 'string' || !Object.hasOwn(customEstimates, key))) return null;
+    setup.estimates = [...new Set(raw.estimates)];
+  }
   if (raw.components !== undefined) {
     if (!isObject(raw.components)) return null;
     setup.components = {};
@@ -82,31 +85,31 @@ export function cleanSetup(raw) {
 }
 
 export function newSetup(id) {
-  return { id, base: {}, tune: {}, parts: [] };
+  return { id, base: {}, tune: {}, parts: [], ...(id === 'custom' ? {estimates: []} : {}) };
 }
 
 export function resolve(setup, modified = true) {
-  const original = { ...stock(setup.id), ...setup.base };
-  if (!modified) return axleWeights(original);
-  const tuned = { ...original, ...componentOverrides(setup), ...setup.tune };
-  // An explicit tuned mass/balance is the starting condition before itemized modifications.
-  const { weight, front, wheelbase } = tuned;
-  if (![weight, front, wheelbase].every(Number.isFinite)) return axleWeights(tuned);
-  const startMoment = weight * (1 - front) * wheelbase;
-  let total = weight;
-  let moment = startMoment;
-  for (const p of setup.parts) {
-    total += p.newWeight - p.oldWeight;
-    moment += p.newWeight * p.newX - p.oldWeight * p.oldX;
+  const estimateKeys = setup.estimates ?? Object.keys(customEstimates);
+  const original = {...stock(setup.id)};
+  const evidence = Object.fromEntries(Object.entries(vehicles[setup.id].data).map(([key, info]) => [key, info[1]]));
+  if (setup.id === 'custom') {
+    for (const key of estimateKeys) {
+      original[key] = customEstimates[key][0];
+      evidence[key] = 'estimated';
+    }
   }
-  const center = moment / total;
-  return axleWeights({ ...tuned, weight: total, front: 1 - center / wheelbase });
-}
-
-function axleWeights(v) {
-  if (![v.weight, v.front, v.wheelbase].every(Number.isFinite)) return {...v, frontLb: null, rearLb: null, cgX: null};
-  const frontLb = v.weight * v.front;
-  return { ...v, frontLb, rearLb: v.weight - frontLb, cgX: (1 - v.front) * v.wheelbase };
+  const overrides = modified ? {...componentOverrides(setup), ...setup.tune} : {};
+  for (const key of Object.keys(componentOverrides(modified ? setup : {}))) evidence[key] = 'component';
+  for (const key of [...Object.keys(setup.base), ...Object.keys(modified ? setup.tune : {})])
+    if (Object.hasOwn(modified ? setup.tune : {}, key) || !Object.hasOwn(overrides, key)) evidence[key] = 'user';
+  const tuned = {...original, ...setup.base, ...overrides, evidence};
+  if (!Number.isFinite(tuned.weight) || !Number.isFinite(tuned.front))
+    return {...tuned, frontLb: null, rearLb: null, cgX: null};
+  if (!Number.isFinite(tuned.wheelbase)) {
+    const frontLb = tuned.weight * tuned.front;
+    return {...tuned, frontLb, rearLb: tuned.weight - frontLb, cgX: null};
+  }
+  return {...tuned, ...(modified && setup.parts.length ? applyItems(tuned, setup.parts) : sharedAxles(tuned))};
 }
 
 export function massIssue(v) {
@@ -125,127 +128,48 @@ export function usableSetup(setup) {
   return !massIssue(result);
 }
 
-// Same longitudinal and elastic + geometric lateral terms as the ESS Load Transfer Calculator.
-export function tireLoads(v, brake, lateral, { frontRoll = .6, frontCenter = 2, rearCenter = 12 } = {}) {
-  if (massIssue(v)) return {tires: [null, null, null, null], invalid: true, missing: true};
-  const longitudinal = v.weight * v.cg * brake / v.wheelbase;
-  const rollAxis = frontCenter + (rearCenter - frontCenter) * (1 - v.front);
-  const elastic = v.cg - rollAxis;
-  const dF = lateral * (v.weight * elastic * frontRoll + v.frontLb * frontCenter) / v.frontTrack;
-  const dR = lateral * (v.weight * elastic * (1 - frontRoll) + v.rearLb * rearCenter) / v.rearTrack;
-  const f = (v.frontLb + longitudinal) / 2;
-  const r = (v.rearLb - longitudinal) / 2;
-  const tires = [f + dF, f - dF, r + dR, r - dR];
-  return { tires, longitudinal, lateral: dF + dR, invalid: tires.some(x => x <= 0) || elastic <= 0 };
+export function tireLoads(v, brake, lateral, options) {
+  const missing = missingFor(v, 'load-transfer');
+  if (missing.length || massIssue(v)) return {tires: [null, null, null, null], invalid: true, missing};
+  return sharedLoads(v, brake, lateral, options);
 }
 
-// Equivalent to the existing ESS Spring Rate & Ride Frequency calculator at zero spring angle.
 export function ride(v, axle) {
-  if (!Number.isFinite(v[axle + 'Lb'])) return {wheel: null, rate: null, sprung: null, hz: null};
-  const sprung = v[axle + 'Lb'] / 2 - v[axle + 'Unsprung'];
-  const wheel = v[axle + 'Spring'] * v[axle + 'Motion'] ** 2;
-  const rate = wheel * v.tireRate / (wheel + v.tireRate);
-  return { wheel, rate, sprung, hz: sprung > 0 ? Math.sqrt(rate * G_IN / sprung) / (2 * Math.PI) : null };
+  const cornerLb = v[axle + 'Lb'] / 2;
+  const unsprung = v[axle + 'Unsprung'];
+  const spring = v[axle + 'Spring'];
+  const motion = v[axle + 'Motion'];
+  if (!Number.isFinite(v[axle + 'Lb']) || ![unsprung, spring, motion].every(Number.isFinite))
+    return {wheel: null, rate: null, sprung: null, hz: null};
+  return sharedRide({cornerLb, unsprung, spring, motion, tireRate: v.tireRate});
 }
 
-export function powerIssue(v) {
-  const required = ['hp','hpRpm','torque','torqueRpm','redline','gears','finalDrive','diameter','drivetrain','transmission'];
-  const absent = required.filter(key => !validValue(key, v[key]));
-  if (absent.length) return 'Add or review these specifications in Build: ' + absent.map(key => fields[key]).join(', ') + '.';
+export function powerIssue(v, tool = 'quarter') {
+  const missing = missingFor(v, tool);
+  if (missing.length) return 'Add ' + missingText(missing) + '.';
+  const required = ['hp','hpRpm','torque','torqueRpm','redline','gears','finalDrive','diameter','drivetrain',
+    ...(tool === 'quarter' ? ['transmission'] : [])];
+  const invalid = required.filter(key => !validValue(key, v[key]));
+  if (invalid.length) return 'Check ' + missingText(invalid) + '.';
   if (v.torqueRpm >= v.hpRpm || v.hpRpm >= v.redline ||
       v.hp * 5252 / v.hpRpm > v.torque * 1.015 || v.torque * v.torqueRpm / 5252 > v.hp * 1.015)
     return 'Check torque, horsepower and RPM. This model needs a torque peak below the power peak, with mutually consistent peak ratings and a higher shift RPM.';
   return '';
 }
 
-function torqueCurve(v, rpm) {
-  const atPower = v.hp * 5252 / v.hpRpm;
-  const anchors = [
-    [1000, v.torque * .68], [v.torqueRpm, v.torque],
-    [v.hpRpm, atPower], [v.redline, .88 * v.hp * 5252 / v.redline],
-  ];
-  for (let i = 1; i < anchors.length; i++) {
-    const [end, high] = anchors[i];
-    if (rpm <= end) {
-      const [start, low] = anchors[i - 1];
-      const t = Math.max(0, (rpm - start) / (end - start));
-      return Math.min(low + (high - low) * t, v.hp * 5252 / rpm);
-    }
-  }
-  return 0;
-}
-
-export function driveResistance(v, speed) {
-  return ROLL_RESISTANCE * v.weight + .5 * AIR_DENSITY * v.cda * speed ** 2;
-}
-
-export function tractiveLimit(v, resistance) {
-  // Nrear = static rear + (Fdrive − resistance) * h / L. Solve Fdrive ≤ μ Nrear.
-  const ratio = v.cg / v.wheelbase;
-  const frontLift = v.frontLb / ratio + resistance;
-  if (v.drivetrain === 'FWD') {
-    const frontGrip = v.grip * (v.frontLb + resistance * ratio) / (1 + v.grip * ratio);
-    return Math.max(0, Math.min(frontGrip, frontLift));
-  }
-  if (v.drivetrain === 'AWD') return Math.max(0, Math.min(v.grip * v.weight, frontLift));
-  const rearGrip = v.grip * (v.rearLb - resistance * ratio) / (1 - v.grip * ratio);
-  return Math.max(0, Math.min(rearGrip, frontLift));
-}
-
-function wheelSpeedRpm(v, speed, gear) {
-  return speed * 60 * v.gears[gear] * v.finalDrive / (Math.PI * v.diameter / 12);
-}
+export const driveResistance = resistanceAt;
+export const tractiveLimit = tractionLimit;
 
 export function driveForce(v, speed, gear, launch = false) {
-  const coupled = wheelSpeedRpm(v, speed, gear);
-  const automaticLaunch = launch && v.transmission === 'automatic';
-  const rpm = Math.max(launch ? (automaticLaunch ? 2200 : 1800) : 1000, coupled);
-  // Simplified launch converter: illustrative stall multiplication fades into coupling.
-  const multiplication = automaticLaunch ? 1 + .65 * Math.max(0, 1 - coupled / 2400) : 1;
-  const radius = v.diameter / 24;
-  return torqueCurve(v, rpm) * v.gears[gear] * v.finalDrive * DRIVELINE * multiplication / radius;
+  return launch ? availableDrive(v, speed, gear).force : driveAt(v, Math.max(1000, wheelRpm(v, speed, gear)), gear);
 }
 
-export function straightLine(v, { dt = .02, distance = 1320, maxTime = 45 } = {}) {
-  const issue = massIssue(v) || powerIssue(v);
+export function straightLine(v, {distance = 1320, ...options} = {}) {
+  const issue = powerIssue(v) || massIssue(v);
   if (issue) return { issue };
-  const initial = { t: 0, speed: 0, x: 0, gear: 1, g: 0, limited: false };
-  const trace = [initial];
-  let gear = 0;
-  let shift = 0;
-  let zeroTo60 = null;
-  let finish = null;
-  let prior = initial;
-  for (let i = 1; i <= maxTime / dt; i++) {
-    const speedRpm = wheelSpeedRpm(v, prior.speed, gear);
-    if (shift <= 0 && gear < v.gears.length - 1 && speedRpm >= v.redline - 50) {
-      gear++;
-      shift = v.transmission === 'automatic' ? .18 : SHIFT_SECONDS;
-    }
-    const resistance = driveResistance(v, prior.speed);
-    const cap = tractiveLimit(v, resistance);
-    const available = shift > 0 ? 0 : driveForce(v, prior.speed, gear, gear === 0);
-    const netG = (Math.min(available, cap) - resistance) / v.weight;
-    const speed = Math.max(0, prior.speed + netG * G * dt);
-    const sample = {
-      t: i * dt, speed, x: prior.x + (prior.speed + speed) * dt / 2,
-      gear: shift > 0 ? 0 : gear + 1, g: netG, limited: available > cap,
-    };
-    if (shift > 0) shift -= dt;
-    if (zeroTo60 === null && speed >= 60 * MPH) {
-      zeroTo60 = prior.t + dt * (60 * MPH - prior.speed) / (speed - prior.speed);
-    }
-    if (sample.x >= distance) {
-      const fraction = (distance - prior.x) / (sample.x - prior.x);
-      const trap = (prior.speed + fraction * (speed - prior.speed)) / MPH;
-      finish = { t: prior.t + fraction * dt, trap };
-      trace.push({ ...sample, t: finish.t, x: distance, speed: trap * MPH });
-      break;
-    }
-    trace.push(sample);
-    prior = sample;
-  }
-  return { trace, zeroTo60, finish, maxSpeed: Math.max(...trace.map(s => s.speed)) / MPH };
+  const result = sharedStrip(v, {...options, distanceFt: distance});
+  const trace = result.trace.map(sample => ({...sample, limited: sample.limit === 'traction'}));
+  return {...result, trace, maxSpeed: Math.max(...trace.map(s => s.speed)) / MPH};
 }
 
 export function atTime(run, t) {
@@ -273,7 +197,7 @@ export function camberIllustration(offset, height = 10) {
 
 
 export function tractionReadout(v) {
-  if (massIssue(v) || powerIssue(v)) return null;
+  if (powerIssue(v) || massIssue(v)) return null;
   const resistance = driveResistance(v, 0);
   const demand = driveForce(v, 0, 0, true);
   const limit = tractiveLimit(v, resistance);
@@ -281,7 +205,7 @@ export function tractionReadout(v) {
   const utilization = demand / limit;
   const net = Math.min(demand, limit) - resistance;
   return {demand, limit, utilization, rear: v.rearLb + net * v.cg / v.wheelbase,
-    mphInFirst: v.redline / wheelSpeedRpm(v, MPH, 0),
-    cruiseRpm: wheelSpeedRpm(v, MPH * 70, v.gears.length - 1),
+    mphInFirst: v.redline / wheelRpm(v, MPH, 0),
+    cruiseRpm: wheelRpm(v, MPH * 70, v.gears.length - 1),
     color: utilization > 1 ? 'red' : utilization > .85 ? 'yellow' : 'green'};
 }

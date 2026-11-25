@@ -42,7 +42,8 @@
 <p><strong>What this tool assumes.</strong> Steady braking and cornering on a flat road; the whole car's mass is treated as one body (wheels and axles are not separated out); no aerodynamic downforce or drag; the front/rear split of cornering transfer uses the static axle loads. Tire grip is not modeled: the tool shows the loads, not whether the tires can hold them. These simplifications are fine for comparing changes on the same car; treat the absolute numbers as estimates.</p>
 <p>Related: <a href="../cg-builder/">Balance &amp; CG Builder</a> · <a href="../spring-rate/">Spring Rate &amp; Ride Frequency</a> · <a href="../../articles/weight-distribution-50-50/">Why 50/50 is not the goal</a> · <a href="../../articles/traction-circle/">The traction circle</a></p></div>
 </main>
-<script>
+<script type="module">
+import { tireLoads } from "../../engine/loads.mjs";
 (function(){
 function num(v){v=(v||'').toString().trim().replace(/,/g,'');if(v==='')return null;if(!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(v))return NaN;return parseFloat(v)}
 function f(v,d){return v.toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d})}
@@ -59,15 +60,14 @@ function calc(){
   if(x===null)blank=true;v[id]=x});
  if(bad)return show('Check the highlighted numbers: weight, CG height, wheelbase and tracks must be positive; front % between 0 and 100; g values from 0 to 3; roll stiffness share from 0 to 100. Plain numbers only.');
  if(blank)return show('Fill in every value.');
- var W=v.w,Wf=W*v.fp/100,Wr=W-Wf,l=v.wb,h=v.h,ay=v.ay;
+ var W=v.w,Wf=W*v.fp/100,Wr=W-Wf,ay=v.ay;
  var sx=$('lm').value==='b'?1:$('lm').value==='a'?-1:0, ax=sx===0?0:v.ax;
- // Longitudinal: dW = W*h*ax/l, onto the front when braking (sx=+1).
- var dx=W*h*ax/l, F=Wf+sx*dx, R=Wr-sx*dx;
- // Lateral: roll axis height under the CG, then elastic (roll-stiffness) + geometric (roll-center) parts.
- var a=l*Wr/W, zAxis=v.zf+(v.zr-v.zf)*a/l, H=h-zAxis, kf=v.kf/100;
- var dF=ay*(W*H*kf+Wf*v.zf)/v.tf, dR=ay*(W*H*(1-kf)+Wr*v.zr)/v.tr;
- var right=$('dirn').value==='r'; // turning right: load goes to the left tires
- var c={lf:F/2+(right?dF:-dF),rf:F/2+(right?-dF:dF),lr:R/2+(right?dR:-dR),rr:R/2+(right?-dR:dR)};
+ var result=tireLoads({weight:W,front:v.fp/100,wheelbase:v.wb,cg:v.h,frontTrack:v.tf,rearTrack:v.tr},sx*ax,ay,
+   {frontRoll:v.kf/100,frontCenter:v.zf,rearCenter:v.zr});
+ var dx=Math.abs(result.longitudinal),F=Wf+result.longitudinal,R=Wr-result.longitudinal;
+ var H=v.h-result.rollAxis,dF=result.front,dR=result.rear,right=$('dirn').value==='r';
+ var order=right?[0,1,2,3]:[1,0,3,2];
+ var c=Object.fromEntries(['lf','rf','lr','rr'].map((key,i)=>[key,result.tires[order[i]]]));
  var st={lf:Wf/2,rf:Wf/2,lr:Wr/2,rr:Wr/2};
  $('lx').textContent=f(dx,0)+' lb';
  $('lxd').textContent=sx===0||ax===0?'no braking or acceleration':(sx>0?'onto the front tires':'onto the rear tires')+' · front now '+f(100*F/W,1)+'%';

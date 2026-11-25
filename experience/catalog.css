@@ -1,42 +1,42 @@
 .vehicle-select { display: grid; min-width: 0; gap: .28rem; }
-.vehicle-select > span { font-size: .88rem; font-weight: 700; color: var(--lane, #ffab58); }
+.vehicle-select > span { font-size: .88rem; font-weight: 700; color: var(--lane, var(--ess-accent)); }
 .vehicle-choose {
   min-height: 44px; min-width: 0; width: 100%; padding: .5rem .7rem; text-align: left;
-  overflow-wrap: anywhere; border: 1px solid #46535d; border-radius: 5px;
-  background: #161d22; color: #f2eee7; font: inherit; cursor: pointer;
+  overflow-wrap: anywhere; border: 1px solid #9a9287; border-radius: 5px;
+  background: var(--ess-panel); color: var(--ess-text); font: inherit; cursor: pointer;
 }
-.vehicle-choose::after { content: '▾'; color: #ffab58; margin-left: .45rem; }
+.vehicle-choose::after { content: '▾'; color: var(--ess-accent); margin-left: .45rem; }
 .catalog-dialog {
   box-sizing: border-box; width: min(94vw, 760px); max-height: min(90dvh, 760px); padding: clamp(.75rem, 3vw, 1.35rem);
-  color-scheme: dark; color: #f5efe4; background: #171d22; border: 1px solid #4c555a;
+  color-scheme: light; color: var(--ess-text); background: var(--ess-panel); border: 1px solid #9a9287;
   border-radius: 11px; font: 1rem/1.45 system-ui, sans-serif; overflow: auto;
 }
 .catalog-dialog::backdrop { background: #0b1015c9; }
 .catalog-dialog * { box-sizing: border-box; }
 .catalog-top { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
 .catalog-top h2 { font: 500 clamp(1.8rem, 4vw, 2.6rem)/1.05 Georgia, serif; margin: 0; }
-.catalog-dialog > p { color: #bbc5c9; margin: .35rem 0 .75rem; }
+.catalog-dialog > p { color: var(--ess-muted); margin: .35rem 0 .75rem; }
 .catalog-dialog button, .catalog-dialog select, .catalog-dialog input {
-  min-height: 44px; padding: .48rem .64rem; border: 1px solid #4c555a; border-radius: 5px;
-  background: #212930; color: #f5efe4; font: inherit;
+  min-height: 44px; padding: .48rem .64rem; border: 1px solid #9a9287; border-radius: 5px;
+  background: var(--ess-raised); color: var(--ess-text); font: inherit;
 }
 .catalog-dialog input, .catalog-dialog select { width: 100%; min-width: 0; }
 .catalog-dialog button { cursor: pointer; }
-.catalog-dialog button:hover { border-color: #ffab58; }
-.catalog-dialog button.catalog-primary { background: #ffab58; border-color: #ffab58; color: #17100b; font-weight: 700; }
+.catalog-dialog button:hover { border-color: var(--ess-accent); }
+.catalog-dialog button.catalog-primary { background: var(--ess-accent); border-color: var(--ess-accent); color: #fffdf8; font-weight: 700; }
 .catalog-top button { min-width: 44px; font-size: 1.2rem; }
 .catalog-filters { margin-block: .55rem; }
-.catalog-filters summary { min-height: 44px; padding-top: .65rem; color: #ffab58; cursor: pointer; }
+.catalog-filters summary { min-height: 44px; padding-top: .65rem; color: var(--ess-accent); cursor: pointer; }
 .catalog-filters > div { display: grid; gap: .4rem; grid-template-columns: repeat(2,minmax(0,1fr)); }
 .catalog-toolbar { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; justify-content: space-between; margin-block: .6rem .4rem; }
-.catalog-toolbar > span { color: #bbc5c9; font-size: .85rem; }
+.catalog-toolbar > span { color: var(--ess-muted); font-size: .85rem; }
 .catalog-results { display: grid; gap: .4rem; }
-.catalog-result { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: .45rem; border: 1px solid #354048; border-radius: 5px; padding: .65rem .7rem; }
+.catalog-result { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: .45rem; border: 1px solid var(--ess-line); border-radius: 5px; padding: .65rem .7rem; }
 .catalog-result h3, .catalog-result p { margin: 0 0 .2rem; }
 .catalog-result h3 { font-size: .98rem; }
-.catalog-result p, .catalog-result small { color: #bbc5c9; font-size: .8rem; }
+.catalog-result p, .catalog-result small { color: var(--ess-muted); font-size: .8rem; }
 .catalog-result details { margin-top: .35rem; font-size: .8rem; }
-.catalog-result a { color: #ffab58; }
+.catalog-result a { color: var(--ess-accent); }
 .catalog-facts { display: flex; flex-wrap: wrap; gap: .6rem; font: .86rem monospace; }
 .catalog-facts small { display: block; font: .75rem system-ui,sans-serif; }
 .catalog-card-actions { display: grid; gap: .25rem; align-content: start; }

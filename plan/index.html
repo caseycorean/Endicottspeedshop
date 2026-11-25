@@ -20,21 +20,23 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="../assets/site.css">
 <link rel="stylesheet" href="../assets/ess-search.css">
-
+<link rel="stylesheet" href="../assets/ess-editorial.css">
+<script type="module" src="../experience/search-bridge.mjs"></script>
 </head>
 <body class="ess-theme">
 <header class="site-header"><div class="header-inner">
 <div class="brand-wrap"><a href=".././" class="brand" aria-label="Endicott Speed Shop home"><span class="ess-wordmark"><strong>ENDICOTT</strong><span>SPEED SHOP</span></span></a><a class="beta-pill" href="../about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
-<nav class="topnav"><a href="../plan/" class=on>Plan</a><a href="../tools/">Tools</a><a href="../articles/">Articles</a><a href="../build/">The Build</a><a href="../about/">About</a><a href="../contact/">Contact</a></nav>
+<nav class="topnav" aria-label="Main navigation"><a href="../experience/">Vehicle Lab</a><a href="../plan/" class=on>Plan</a><a href="../tools/">Tools</a><a href="../articles/">Articles</a><a href="../build/">The Build</a><a href="../about/">About</a><a href="../contact/">Contact</a></nav>
 <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
 </div></header>
 <aside class="sidebar" id="sidebar"><button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
-<nav><a href=".././">Home<small>Start here</small></a><a href="../plan/">Plan<small>Plan your build, step by step</small></a><a href="../tools/">Tools<small>Calculators built from measured data</small></a><a href="../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../build/">The Build<small>The green car, measured</small></a><a href="../about/">About<small>Why this exists</small></a><a href="../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
+<nav><a href=".././">Home<small>Start here</small></a><a href="../experience/">Vehicle Lab<small>Build, compare and test your car</small></a><a href="../plan/">Plan<small>Plan your build, step by step</small></a><a href="../tools/">Tools<small>Calculators built from measured data</small></a><a href="../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../build/">The Build<small>The green car, measured</small></a><a href="../about/">About<small>Why this exists</small></a><a href="../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
 <p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="../contact/">Spot a problem? Tell us.</a></p>
 </aside>
 <main class="page narrow article"><div class="kicker">Build planning</div><h1>Plan your build.</h1>
+<div class="ess-config" data-ess-vehicle="plan" data-lab-root="../experience/"></div>
 <p class="lede">Most builds go wrong before the first bolt is turned: parts get bought before the goal is clear. This guide walks from what you want the car to do, to a plan you can test — using the articles and calculators on this site along the way.</p>
-<div class="callout">This is the first version of the ESS build-planning guide. Some steps link to working tools today; others point to comparisons and simulations that are still being built and checked.</div>
+<div class="callout">Save a baseline in <a href="../experience/#garage">My Garage</a> as you work through the guide. Use a measured baseline when you have one, and mark the changes you still need to test.</div>
 <h2>1 · Name the goal</h2>
 <p>What should the car do better: turn in, put power down, stop, ride, or simply weigh less? Is it a street car, a track car or both? A clear goal is what lets you say no to parts that don't serve it.</p>
 <ul class="links"><li>Balance and weight placement: <a href="../articles/weight-distribution-50-50/">What 50/50 really means</a> · <a href="../tools/cg-builder/">Balance &amp; CG Builder</a></li><li>Grip in corners and under braking: <a href="../articles/traction-circle/">Understanding the traction circle</a> · <a href="../tools/load-transfer/">Load Transfer Calculator</a></li><li>Springs and ride: <a href="../tools/spring-rate/">Spring Rate &amp; Ride Frequency</a></li><li>Know what your parts weigh: <a href="../articles/measured-firebird-weights/">Measured Firebird part weights</a> · <a href="../tools/scale-delta/">Part Weight from Corner Scales</a></li></ul>
@@ -49,7 +51,7 @@
 <h2>5 · Compare the options on the same terms</h2>
 <p>Put each option side by side: cost, weight and where it sits, fabrication required, what it changes and what it doesn't. For example, a second-gen F-body owner improving the front suspension might compare upgrading the stock parts, a bolt-in aftermarket package such as those from QA1 or Pro Touring F-Body, and a Corvette front suspension conversion. ESS is documenting comparisons like this one; they will be published here as the data is checked. (Brands are examples, not recommendations.)</p>
 <h2>6 · Model before you spend</h2>
-<p>Use the calculators for the questions they answer well: balance, load transfer and spring rates. Simulations that show how a change affects the car through a corner or a lap are in development, and will be added once they have been checked against measurements.</p>
+<p>Use the calculators for the questions they answer well: balance, load transfer and spring rates. The Vehicle Lab lets you <a href="../experience/#compare">compare acceleration</a> and <a href="../experience/#suspension">explore rear link geometry</a> before deciding what to measure next.</p>
 <p><a href="../tools/">All calculators</a></p>
 <h2>7 · Build in stages, and measure each one</h2>
 <p>Make the reversible decisions first. After each stage, weigh, test and compare against your baseline — that is how you find out whether a change did what you expected, and it's how the ESS cars are developed too.</p>

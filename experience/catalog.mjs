@@ -34,7 +34,7 @@ function cards(ids) {
     const setup = resolve(newSetup(id));
     const ready = !massIssue(setup) && !powerIssue(setup);
     return `<article class="catalog-result"><div>
-      <h3>${escape(car.name)}</h3><p>${escape(car.generation)} · ${escape(layoutNames[car.layout])} · ${ready ? 'Can run a model' : 'More inputs needed to run'}</p>
+      <h3>${escape(car.name)}</h3><p>${escape(car.generation)} · ${escape(layoutNames[car.layout])} · ${ready ? 'Quarter-mile inputs available' : Number.isFinite(setup.weight) && Number.isFinite(setup.front) ? 'Weight data available' : 'Partial reference'}</p>
       <div class="catalog-facts">${fact(car,'weight','lb')}${fact(car,'hp','hp')}</div>
       ${car.history?.length ? `<details><summary>Related Supercar X archive</summary>
         <ul>${car.history.map(([name,url,match]) => `<li><a href="${escape(url)}" target="_blank" rel="noreferrer">${escape(name)}</a> · ${escape(match)}</li>`).join('')}</ul></details>` : ''}

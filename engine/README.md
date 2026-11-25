@@ -5,24 +5,17 @@ Pure ES modules: no DOM, no network, browser and Node alike. Tests: `node --test
 
 | Module | What it does | Status |
 |---|---|---|
-| `loads.mjs` | axle weights, add/remove/move items, longitudinal and lateral load transfer, four-tire loads, ride rate and frequency, spring for a target frequency | **Equivalent to the live calculators and the Vehicle Lab**: tests read the formulas straight out of `tools/load-transfer` and `tools/spring-rate` and compare all 7 Vehicle Lab cars |
-| `acceleration.mjs` | straight-line run (0–60, quarter mile, trap), traction limit with load transfer, tire-type grip defaults, rotating inertia, clutch-slip launch, magazine-style rollout timing, time split by what limited the car | **Candidate v2**, not wired into the Vehicle Lab yet. With the new effects switched off it reproduces the shipped model (test) |
-| `suspension.mjs` | front view: short/long-arm and MacPherson camber change, instant centre, roll-centre height, swing-arm length, track change through travel; side view: anti-squat for four-link, three-link, torque arm, leaf (range), independent; anti-dive, anti-lift; live-axle roll centre for Panhard, Watts, leaf | **New.** SLA agrees with the ESS 3-D solver (`ess-knowledge/archive/2026-11-24_fbody-front-suspension/kinematics.py`) to 0.001° and 0.001 in on a planar test corner |
+| `loads.mjs` | axle weights, add/remove/move items, longitudinal and lateral load transfer, four-tire loads, ride rate and frequency, spring for a target frequency | **Shared by the full load-transfer and spring-rate calculators, the tire-load entrance and Vehicle Lab.** Tests check the page input and output mapping on all seven fixture cars |
+| `acceleration.mjs` | straight-line run (0–60, quarter mile, trap), traction limit with load transfer, tire-type grip defaults, rotating inertia, clutch-slip launch, magazine-style rollout timing, time split by what limited the car | **Private review v2.** Standstill replay with separate 1-ft rollout checkpoints. Disabling the new effects reproduces the independent V3 physics fixtures |
+| `suspension.mjs` | front view: short/long-arm and MacPherson camber change, instant centre, roll-centre height, swing-arm length, track change through travel; side view: anti-squat for four-link, three-link, torque arm, leaf (range), independent; anti-dive, anti-lift; live-axle roll centre for Panhard, Watts, leaf | **Connected to the front-travel and rear-link studies.** SLA agrees with the ESS 3-D solver (`ess-knowledge/archive/2026-11-24_fbody-front-suspension/kinematics.py`) to 0.001° and 0.001 in on a planar test corner |
 
 Units: lb, in, ft (distance in the acceleration model), s, mph, g, degrees.
 
-## Where the same math currently lives (duplication map, 25 Nov)
-| Formula | Copies today | Agree? |
-|---|---|---|
-| Four-tire load transfer | `tools/load-transfer` (inline), `assets/grip-lab.js` (fixed suspension defaults), `experience/models.mjs` `tireLoads` | Yes, to 1e-9 lb (tested) |
-| Ride frequency | `tools/spring-rate` (with spring angle), `experience/models.mjs` `ride` (no spring angle) | Yes at 0°; the Vehicle Lab copy cannot represent an angled spring |
-| Mass / balance / item moves | `tools/cg-builder`, `weight-distribution-calculator`, `tools/scale-delta`, `experience/models.mjs` `resolve` | Same moment balance (Vehicle Lab tested) |
-| Straight-line acceleration | `experience/models.mjs` only | n/a |
-| Camber illustration | `experience/models.mjs` `camberIllustration` (teaching sketch: lower joint fixed) | Superseded by `suspension.mjs` for real geometry |
+## Browser consumers
 
-Recommended path (no behaviour change for visitors): pages and the Vehicle Lab import from `engine/` one at a
-time, each step guarded by the equivalence tests above. Calculators are classic scripts but every page already
-loads a module (`experience/search-bridge.mjs`), so a small module bridge can expose `engine` functions to them.
+- Use `loads.mjs` for load transfer, ride and Vehicle Lab balance. The advanced scale-delta and legacy mass pages still have their own presentations and legacy balance paths.
+- `experience/models.mjs` validates a resolved vehicle and adapts the acceleration trace for replay. The test oval shares force and resistance functions and retains its own periodic speed solver.
+- The front suspension study calls `slaAt` or `strutAt`. The rear articulation study retains its 3-D fixed-length solver and calls `rearGeometry` for the side projection.
 
 ## Acceleration model: what was wrong and the validation strategy
 Findings (25 Nov, details in ess-knowledge `inbox/2026-11-25_claude_engineering-foundation.md`):

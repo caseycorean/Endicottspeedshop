@@ -1,9 +1,11 @@
-import { vehicles, fields, firebirdEvidence } from './vehicles.mjs';
+import { vehicles, fields, firebirdEvidence, customEstimates } from './vehicles.mjs';
 import { presets, limits, choices, resolve, massIssue, powerIssue, tireLoads, ride } from './models.mjs';
 import { modified } from './configuration.mjs';
 import { setupName } from './matchup.mjs';
 import { drivetrainPanel } from './drivetrain-view.mjs';
 import { camberDemo } from './diagrams.mjs';
+import { frontGeometry } from './front-geometry.mjs';
+import { missingFor, missingText, estimatedFor, studies } from './readiness.mjs';
 import { vehicleSelector, evidence, explanation, fmt, delta, metricTable, numberField, escape } from './ui.mjs';
 
 export const concepts = {
@@ -23,36 +25,19 @@ function pageTitle(eyebrow, title, copy) {
 }
 
 export function home(state, saved) {
-  const a = resolve(state.a, state.aMode === 'after');
-  const b = resolve(state.b, state.bMode === 'after');
-  return `<section class="hero shell" aria-labelledby="hero-title">
-    <div class="hero-copy">
-      <p class="eyebrow"><span></span> Vehicle Lab</p>
-      <h1 id="hero-title">Build it.<br><em>Then prove it.</em></h1>
-      <p>Pick a project car, change a part and see what it does to balance and acceleration.</p>
-      <div class="actions"><a class="button primary" href="#compare">Compare performance</a>
-      <a class="button secondary" href="#suspension">Explore rear suspension</a></div>
+  const setup = state[state.focus];
+  return `<section class="shell workspace lab-entry">
+    ${pageTitle('Vehicle Lab', 'Build, compare, test.', 'Carry one car from a part change to a comparison or a calculator.')}
+    ${setupPicker(setup, 'Starting vehicle')}
+    <div class="intent-grid" aria-label="Choose a starting point">
+      ${choice('build', 'Improve my car', 'Change parts, gearing or balance.')}
+      ${choice('compare', 'Compare vehicles', 'Run a stock or modified matchup.')}
+      <a class="route-card" href="../plan/"><strong>Plan my next build</strong><span>Turn a goal into a practical sequence.</span></a>
+      ${choice('learn', 'Understand the engineering', 'Try the relationships behind the results.')}
     </div>
-    <figure class="hero-editorial"><img src="strip.webp" alt="" width="1200" height="675"><figcaption>Illustrative test strip</figcaption></figure>
-  </section>
-  <section class="shell home-bay" aria-labelledby="starter-title">
-    <div class="section-heading"><div><p class="eyebrow">Head to head</p><h2 id="starter-title">Pick your matchup</h2></div>
-      <button class="button secondary small" data-action="watch-run">Watch the quarter mile</button></div>
-    <div class="starter">
-      <div class="starter-vehicle car-a">${vehicleSelector('Car A', state.a.id, { key: 'a' })}
-        <p>${escape(vehicles[state.a.id].trim)}</p><strong>${fmt(a.weight)} lb <i></i> ${fmt(a.hp)} hp</strong></div>
-      <div class="match-mark" aria-hidden="true">VS</div>
-      <div class="starter-vehicle car-b">${vehicleSelector('Car B', state.b.id, { key: 'b' })}
-        <p>${escape(vehicles[state.b.id].trim)}</p><strong>${fmt(b.weight)} lb <i></i> ${fmt(b.hp)} hp</strong></div>
-      <a class="button primary" href="#compare" aria-label="Open the acceleration matchup">Run matchup</a>
-    </div>
-    ${saved ? `<p><button class="button secondary" data-action="load-saved">Open my saved build</button></p>` : ''}
-  </section>
-  <section class="shell intent-grid" aria-label="Choose an experiment">
-    ${choice('build', 'Improve my car', 'Explore lighter parts, engine swaps, gearing and balance.')}
-    ${choice('compare', 'Compare project cars', 'Put stock and modified builds side by side.')}
-    ${choice('tools', 'Test an idea', 'Explore tire loads and ride frequency with your build.')}
-    ${choice('learn', 'Learn the engineering', 'Try the relationships behind the results.')}
+    <div class="actions"><a class="button secondary" href="#tools">Explore tire loads and ride</a>
+    <a class="button secondary" href="#suspension">Explore rear suspension</a>
+    ${saved ? '<button class="button secondary" data-action="load-saved">Open my saved build</button>' : ''}</div>
   </section>`;
 }
 
@@ -123,6 +108,33 @@ function axleGraphic(before, after) {
     <p><i class="legend-dot original"></i> Original CG <i class="legend-dot"></i> Modified CG</p></div>`;
 }
 
+function dataReadiness(setup, current) {
+  return `<section class="data-readiness" id="data-readiness">
+    <h3>Inputs by experiment</h3>
+    <label><span>Check the inputs for</span><select data-study-select>
+      ${Object.entries(studies).map(([id, study]) => `<option value="${id}">${study.name}</option>`).join('')}
+    </select></label>
+    ${Object.entries(studies).map(([id], index) => {
+      const missing = missingFor(current, id);
+      const assumed = estimatedFor(current, id);
+      const optional = (studies[id].optional ?? []).filter(key => current[key] == null);
+      const suggested = [...missing, ...optional].filter(key => setup.id === 'custom' && Object.hasOwn(customEstimates, key));
+      const other = missing.filter(key => !suggested.includes(key));
+      const format = key => `${fields[key]} ${key === 'front' ? current[key] * 100 : (current[key] ?? customEstimates[key][0])}`;
+      const issue = !missing.length && ['quarter', 'oval'].includes(id) ? powerIssue(current, id) : '';
+      return `<div class="study-readiness" data-study="${id}" ${index ? 'hidden' : ''}>
+        ${other.length ? `<p>Enter ${escape(missingText(other))}.</p>` : ''}
+        ${issue ? `<p>${escape(issue)}</p>` : ''}
+        ${!missing.length && !issue ? '<p>Required inputs are present.</p>' : ''}
+        ${assumed.length ? `<p><strong>Estimates in use:</strong> ${escape(assumed.map(format).join(' · '))}.</p>` : ''}
+        ${optional.includes('tireRate') ? '<p>Tire stiffness is optional. Without it, the model treats the tires as rigid.</p>' : ''}
+        ${suggested.length ? `<p><strong>Optional starting estimates:</strong> ${escape(suggested.map(format).join(' · '))}.</p>
+          <button type="button" class="button secondary" data-accept-estimates="${id}">Use these estimates</button>` : ''}
+      </div>`;
+    }).join('')}
+  </section>`;
+}
+
 export function build(state, saved) {
   const setup = state[state.focus];
   const before = resolve(setup, false);
@@ -168,12 +180,12 @@ export function build(state, saved) {
         </section>
         <section class="panel content-panel build-specs">
           <h2>Change the specifications</h2>
+          ${dataReadiness(setup, after)}
           ${drivetrainPanel(setup)}
           ${overrideForm('original', before, 'Original specifications', 'Enter your real readings to replace the reference inputs used for both original and modified.', inputGroups.original, setup.name)}
           ${overrideForm('power', after, 'Engine, transmission and tires', 'Enter your replacement power figures, gear ratios, or tire changes. Component weights are changed separately above.', powerKeys)}
           ${overrideForm('ride', after, 'Springs and tire stiffness', 'These settings affect ride frequency.', rideKeys)}
           ${overrideForm('geometry', after, 'Center of gravity height', 'Enter a different CG height to explore load transfer. Part movements above compute only longitudinal CG.', inputGroups.geometry)}
-          ${powerIssue(after) ? `<p class="warning" role="alert">${powerIssue(after)}</p>` : ''}
           ${evidence(setup)}
         </section>
     </div>
@@ -181,8 +193,8 @@ export function build(state, saved) {
 }
 
 function slider(name, label, value, unit, min, max, step) {
-  return `<label class="slider"><span>${label} <output id="out-${name}">${value} ${unit}</output></span>
-    <input type="range" data-slider="${name}" id="slider-${name}" min="${min}" max="${max}" step="${step}" value="${value}"></label>`;
+  return `<label class="slider"><span>${label} <output id="out-${name}">${value ?? '—'} ${unit}</output></span>
+    <input type="range" data-slider="${name}" id="slider-${name}" min="${min}" max="${max}" step="${step}" value="${value ?? min}"></label>`;
 }
 
 export function toolResults(before, after, settings) {
@@ -190,12 +202,13 @@ export function toolResults(before, after, settings) {
   const now = tireLoads(after, settings.brake, settings.lateral);
   const parked = tireLoads(after, 0, 0);
   const invalid = now.invalid;
-  const overGrip = Math.hypot(settings.brake, settings.lateral) > after.grip;
+  const overGrip = Number.isFinite(after.grip) && Math.hypot(settings.brake, settings.lateral) > after.grip;
   const tires = ['Left front', 'Right front', 'Left rear', 'Right rear'];
   const rideBefore = ['front', 'rear'].map(axle => ride(before, axle));
   const rideNow = ['front', 'rear'].map(axle => ride(after, axle));
+  const rideMissing = missingFor(after, 'spring-rate');
   const lightest = now.tires.indexOf(Math.min(...now.tires));
-  const first = now.missing ? 'Add weight, front share and wheelbase to calculate tire loads.' : invalid ? 'The simplified model reaches a wheel-lift or roll-axis limit.' :
+  const first = now.missing?.length ? 'Add ' + missingText(now.missing) + ' to calculate tire loads.' : invalid ? 'The simplified model reaches a wheel-lift or roll-axis limit.' :
     `${tires[lightest]} carries ${fmt(now.tires[lightest])} lb in this turn.${prior.invalid ?
       ' The original setup reaches a model limit at these settings.' : ''}`;
   return {
@@ -205,7 +218,7 @@ export function toolResults(before, after, settings) {
         <span>${tires[i]} <b>${invalid ? '—' : fmt(v) + ' lb'}</b></span>
         <small>${invalid ? '' : delta(v - parked.tires[i], 0) + ' lb vs parked'}</small></div>`).join('')}</div>
       <p class="${invalid || overGrip ? 'warning' : 'takeaway'}">${first}
-        ${overGrip ? ' Combined demand exceeds the selected grip in the simple friction circle.' : ''}</p>
+        ${overGrip ? ' Combined demand exceeds the selected grip in the simple friction circle.' : !invalid && !Number.isFinite(after.grip) ? ' Enter a grip estimate to compare combined demand with traction.' : ''}</p>
       <details class="explain"><summary>Original, modified and percentage changes</summary>
       ${metricTable(tires.map((t, i) => [t, prior.invalid ? null : prior.tires[i], now.invalid ? null : now.tires[i], 'lb']))}</details>`,
     ride: `${metricTable(['Front', 'Rear'].flatMap((name, i) => [
@@ -213,8 +226,8 @@ export function toolResults(before, after, settings) {
       [name + ' wheel rate', rideBefore[i].wheel, rideNow[i].wheel, 'lb/in'],
     ]))}
     <p class="${rideNow.some(r => r.hz === null) || rideBefore.some(r => r.hz === null) ? 'warning' : 'takeaway'}">${rideNow.some(r => r.hz === null) || rideBefore.some(r => r.hz === null) ?
-      'A corner has no sprung weight. Check the unsprung-weight inputs.' :
-      `The modified front rides at ${fmt(rideNow[0].hz, 2)} Hz. A higher value means quicker body bounce in this simplified model.`}</p>`,
+      rideMissing.length ? 'Add ' + escape(missingText(rideMissing)) + ' to calculate ride frequency.' : 'Check the original and modified sprung weight and spring inputs.' :
+      `The modified front rides at ${fmt(rideNow[0].hz, 2)} Hz. A higher value means quicker body bounce in this simplified model.${after.tireRate == null ? ' The tires are treated as rigid.' : ''}`}</p>`,
   };
 }
 
@@ -238,11 +251,12 @@ export function toolsView(state, settings, bridgeHash, saved) {
         ${slider('lateral','Cornering', settings.lateral, 'g', 0, 1.2, .01)}</div>
         <div id="load-result">${result.loads}</div>
         ${concept('transfer')}${concept('grip')}
+        <p><a href="../articles/traction-circle/">Read about combined braking and cornering</a></p>
         <p><a id="load-link" href="${calculatorLink(bridgeHash, 'load-transfer')}">Open full load transfer calculator</a></p>
       </section>
       <section class="panel content-panel">
         <h2>Spring rate &amp; ride frequency</h2>
-        <p class="quiet small">Move the spring rate to test a change. Starting spring and tire rates are illustrative.</p>
+        <p class="quiet small">Move the spring rate to test a change. See input values and their sources below.</p>
         <div class="tool-controls">${slider('frontSpring', 'Front spring', after.frontSpring, 'lb/in', 40, 2000, 1)}
         ${slider('rearSpring', 'Rear spring', after.rearSpring, 'lb/in', 40, 2000, 1)}</div>
         <div id="ride-result">${result.ride}</div>
@@ -258,7 +272,11 @@ export function toolsView(state, settings, bridgeHash, saved) {
 export function learn() {
   return `<section class="shell workspace">
     ${pageTitle('Engineering notes', 'Try the physics', 'Explore how weight, force and grip affect a car. Your experiment stays open in the Lab.')}
+    <div class="actions"><a class="button secondary" href="../articles/">Browse all articles</a>
+    <a class="button secondary" href="#tools">Try tire loads</a>
+    <a class="button secondary" href="#suspension">Explore rear suspension</a></div>
     ${camberDemo()}
+    ${frontGeometry()}
     <div class="tool-grid">
       <section class="panel content-panel"><h2>Balance and response</h2>
       ${concept('moments')}${concept('inertia', `
