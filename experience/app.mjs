@@ -513,6 +513,7 @@ function perfCommit(message) {
 }
 
 let perfFrame = 0;
+let perfPendingRef = null;
 function perfFinalDrive(value, final) {
   const current = active();
   if (!Number.isFinite(value) || value < 2 || value > 6) return;
@@ -540,10 +541,22 @@ function perfFinalDrive(value, final) {
 function perfClick(el) {
   const d = el.dataset;
   if (d.perfRef) {
-    if (d.perfRef === active().id) return true;
-    el.dispatchEvent(new CustomEvent('ess:vehicle-selected', {bubbles: true, detail: {id: d.perfRef}}));
+    const current = active();
+    if (d.perfRef === current.id) return true;
+    // In-page confirmation (embedded previews refuse window.confirm): a second tap replaces a modified car.
+    if ((modified(current) || current.name || Object.keys(current.base).length) && perfPendingRef !== d.perfRef) {
+      perfPendingRef = d.perfRef;
+      speak('This replaces your changed ' + setupName(current) + '. Tap ' + el.textContent.trim() + ' again to switch, or Save to My Garage first.');
+      return true;
+    }
+    perfPendingRef = null;
+    state[state.focus] = newSetup(d.perfRef);
+    state[state.focus + 'Mode'] = 'before';
+    render(view, true);
+    speak('Selected ' + vehicles[d.perfRef].name + '.');
     return true;
   }
+  perfPendingRef = null;
   if (d.axleRatio) { perfFinalDrive(Number(d.axleRatio), true); return true; }
   if (d.perfGear !== undefined) { perf = {...perf, gear: Number(d.perfGear)}; perfCommit('Traction check in gear ' + (perf.gear + 1) + '.'); return true; }
   if (d.perfPickTire) { perf = {...perf, tire: d.perfPickTire}; perfCommit('Tire class changed.'); return true; }
