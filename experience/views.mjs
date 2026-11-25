@@ -132,7 +132,7 @@ export function build(state, saved) {
     <div class="workspace-grid">
       <aside class="panel sticky-result">
         <div class="result-caption"><span>Modified weight</span><strong>${fmt(after.weight)} <small>lb</small></strong>
-        <span>${delta(after.weight - before.weight)} lb vs original</span></div>
+        <span>${delta(after.weight - before.weight)} lb vs original · ${fmt(after.front * 100, 1)}% front</span></div>
         <div class="result-body">
         ${massMetrics(before, after)}
         <p class="takeaway">${massMessage}</p>
@@ -140,8 +140,7 @@ export function build(state, saved) {
         ${concept('moments')}
         </div>
       </aside>
-      <div class="stack">
-        <section class="panel content-panel">
+      <section class="panel content-panel mod-controls">
           <h2>Try a modification</h2>
           <div class="quick-grid">${Object.entries(presets).filter(([, p]) => !p.firebird || setup.id === 'firebird').map(([key, p]) =>
             `<button class="preset" data-preset="${key}" ${setup.parts.some(x => x.preset === key) ? 'disabled' : ''}>
@@ -152,13 +151,14 @@ export function build(state, saved) {
             <small>${fmt(p.oldWeight, 1)} lb at ${fmt(p.oldX, 1)} in → ${fmt(p.newWeight, 1)} lb at ${fmt(p.newX, 1)} in</small></span>
             <button class="button secondary small" data-remove="${i}" aria-label="Undo ${escape(p.label)}">Undo</button></div>`).join('')}</div>
           <div class="actions"><button class="button primary" data-action="compare-build">Compare performance</button>
-            <button class="button secondary" data-action="use">Use this configuration</button></div>
+            <button class="button secondary" data-action="use">Use this configuration</button>
+            ${modified(setup) ? '<button class="button secondary" data-action="compare-original">Compare with original</button>' : ''}</div>
           <div class="actions save-row"><button class="button secondary" data-action="save">Apply to my build</button>
             ${saved ? '<button class="button secondary" data-action="load-saved">Open my saved build</button>' : ''}
             ${modified(setup) ? '<button class="button plain" data-action="reset">Reset modifications</button>' : ''}</div>
           <p class="quiet small">Experiments stay temporary. Apply to my build saves this configuration in this browser.</p>
         </section>
-        <section class="panel content-panel">
+        <section class="panel content-panel build-specs">
           <h2>Change the specifications</h2>
           ${overrideForm('original', before, 'Original specifications', 'Enter your real readings to replace the reference inputs used for both original and modified.', inputGroups.original)}
           ${overrideForm('power', after, 'Engine, transmission and tires', 'Enter your replacement power figures, gear ratios, or tire changes. Component weights are changed separately above.', powerKeys)}
@@ -167,7 +167,6 @@ export function build(state, saved) {
           ${powerIssue(after) ? `<p class="warning" role="alert">${powerIssue(after)}</p>` : ''}
           ${evidence(setup)}
         </section>
-      </div>
     </div>
   </section>`;
 }
@@ -185,13 +184,18 @@ function compareCard(setup, key, mode) {
 export function racePanel(runs, state) {
   const labels = ['a', 'b'].map(k => vehicles[state[k].id].name);
   const hasRun = runs.every(r => r.trace);
+  const oval = state.event === 'oval';
   return `<section class="panel race" aria-labelledby="race-title">
-    <div class="race-header"><div><p class="eyebrow">Acceleration replay</p><h2 id="race-title">Quarter mile</h2></div>
+    <div class="race-header"><div><p class="eyebrow">${oval ? 'Circuit replay' : 'Acceleration replay'}</p><h2 id="race-title">${oval ? 'Test oval' : 'Quarter mile'}</h2></div>
       <div class="clock"><span id="race-time">0.0</span><small> s</small></div></div>
-    <div class="track" aria-hidden="true">
+    <div class="event-switch" aria-label="Choose a simulation">
+      <button class="button secondary small" data-event="strip" aria-pressed="${!oval}">Quarter mile</button>
+      <button class="button secondary small" data-event="oval" aria-pressed="${oval}">Test oval</button>
+    </div>
+    ${oval ? `<div class="oval-map"><canvas id="oval-map" width="620" height="280" role="img" aria-label="Two cars on a closed test oval with two straights and two constant-radius turns."></canvas></div>` : `<div class="track" aria-hidden="true">
       ${labels.map((name, i) => `<div class="lane car-${i ? 'b' : 'a'}"><div class="runner" id="runner-${i}"><span>${i ? 'B' : 'A'}</span></div></div>`).join('')}
       <div class="track-scale"><span>0 ft</span><span>330</span><span>660</span><span>990</span><span>1,320 ft</span></div>
-    </div>
+    </div>`}
     <div class="live-grid">${labels.map((name, i) => `<div class="car-${i ? 'b' : 'a'}"><strong>${escape(name)}</strong>
       <span><b id="speed-${i}">0</b> mph <small id="gear-${i}">gear 1</small></span></div>`).join('')}</div>
     <div class="actions race-actions">
@@ -201,15 +205,22 @@ export function racePanel(runs, state) {
     <label class="scrubber">Replay position <input id="scrubber" type="range" min="0" max="1000" value="0" ${hasRun ? '' : 'disabled'}></label>
     <div id="share-feedback" role="status"></div>
     ${runs.map((r, i) => r.issue ? `<p class="warning">${i ? 'Car B' : 'Car A'} · ${escape(r.issue)}</p>` :
-      !r.finish ? `<p class="warning">${i ? 'Car B' : 'Car A'} did not reach 1,320 ft within the 45 s model limit.</p>` : '').join('')}
+      !oval && !r.finish ? `<p class="warning">${i ? 'Car B' : 'Car A'} did not reach 1,320 ft within the 45 s model limit.</p>` : '').join('')}
   </section>`;
 }
 
 export function compare(state, a, b, runs) {
   const [ra, rb] = runs;
-  const gap = ra.finish && rb.finish ? Math.abs(ra.finish.t - rb.finish.t) : null;
-  const faster = gap === null ? '' : gap < .05 ? 'The quarter-mile estimates are within 0.05 s.' :
-    `Car ${ra.finish.t < rb.finish.t ? 'A' : 'B'} reaches 1,320 ft ${fmt(gap, 1)} s sooner in this model.`;
+  const oval = state.event === 'oval';
+  const times = oval ? [ra.lap, rb.lap] : [ra.finish?.t, rb.finish?.t];
+  const gap = times.every(Number.isFinite) ? Math.abs(times[0] - times[1]) : null;
+  const faster = gap === null ? '' : gap < .05 ? 'The times are within 0.05 s.' :
+    `Car ${times[0] < times[1] ? 'A' : 'B'} ${oval ? 'finishes the flying lap' : 'reaches 1,320 ft'} ${fmt(gap, 1)} s sooner in this model.`;
+  const metrics = oval ? [['Flying lap', ra.lap, rb.lap, 's', 1], ['Top speed', ra.peakSpeed, rb.peakSpeed, 'mph', 1],
+    ['Slowest turn speed', ra.turnSpeed, rb.turnSpeed, 'mph', 1]] :
+    [['0–60 mph', ra.zeroTo60, rb.zeroTo60, 's', 1], ['Quarter mile', ra.finish?.t, rb.finish?.t, 's', 1],
+      ['Speed at finish', ra.finish?.trap, rb.finish?.trap, 'mph', 0]];
+  metrics.push(['Weight per horsepower', a.weight / a.hp, b.weight / b.hp, 'lb/hp', 1]);
   return `<section class="shell workspace">
     ${pageTitle('Performance', 'Compare project cars', 'Choose a car in each lane. Compare stock setups or bring in your own modifications.')}
     <div class="compare-grid">
@@ -225,22 +236,20 @@ export function compare(state, a, b, runs) {
         ${racePanel(runs, state)}
         <section class="panel content-panel">
           <div class="section-heading"><h2>Estimated results</h2><span class="quiet small">Equal grip starts at 0.90</span></div>
-          ${metricTable([['0–60 mph', ra.zeroTo60, rb.zeroTo60, 's', 1],
-          ['Quarter mile', ra.finish?.t, rb.finish?.t, 's', 1],
-          ['Speed at finish', ra.finish?.trap, rb.finish?.trap, 'mph', 0],
-          ['Weight per horsepower', a.weight / a.hp, b.weight / b.hp, 'lb/hp', 1]], ['Car A', 'Car B'], true)}
+          ${metricTable(metrics, ['Car A', 'Car B'], true)}
           <p class="takeaway">${faster || 'Check the input warnings before interpreting the comparison.'}</p>
           ${explanation('What the simulation assumes',
+            oval ? 'The synthetic oval is 2,297 ft long with two 520 ft straights and two 200 ft radius turns. The flying lap starts at speed. The solver limits corner speed by grip, brakes for the next turn and accelerates with the available engine and traction. Gear choice is idealized with no shift delay. Suspension and transient handling are outside this model.' :
             'The model calculates drive force from an estimated torque curve, gear ratios, tire radius and drivetrain loss. A rear-axle grip limit, drag, rolling resistance and a shift delay affect every step. Results show comparative sensitivity on a level strip. Launch grip, dyno curves, actual shift points and vehicle drag need independent validation.')}
-          <details class="explain"><summary>Published test checkpoints</summary>
+          ${oval ? '' : `<details class="explain"><summary>Published test checkpoints</summary>
             ${metricTable([['0–60 mph', a.test60, b.test60, 's', 1],
               ['Quarter mile', a.testEt, b.testEt, 's', 1], ['Reported trap', a.testTrap, b.testTrap, 'mph', 1]], ['Car A stock', 'Car B stock'], true)}
-            <p>Tests describe the stock references and their reported conditions. A modified result has no paired road test. Modeled finish speed is instantaneous, while a published trap may be averaged over a timing interval.</p></details>
+            <p>Tests describe the stock references and their reported conditions. A modified result has no paired road test. Modeled finish speed is instantaneous, while a published trap may be averaged over a timing interval.</p></details>`}
           <details class="explain"><summary>Weight and balance comparison</summary>${massMetrics(a, b, true)}</details>
           ${explanation('Why gearing changes acceleration', 'A shorter gear multiplies torque more, but reaches shift RPM at a lower speed. A shift can use up the time gained from shorter gearing. Tire diameter changes both leverage and speed at each RPM.')}
           <details class="explain"><summary>Inputs for both cars</summary><h3>Car A</h3>
-            ${evidence(state.a, state.aMode === 'after' || Object.keys(state.a.base).length > 0)}
-            <h3>Car B</h3>${evidence(state.b, state.bMode === 'after' || Object.keys(state.b.base).length > 0)}</details>
+            ${evidence(state.a, state.aMode === 'after')}
+            <h3>Car B</h3>${evidence(state.b, state.bMode === 'after')}</details>
         </section>
       </div>
     </div></section>`;
@@ -320,7 +329,9 @@ export function learn() {
     ${pageTitle('Engineering notes', 'Try the physics', 'Explore how weight, force and grip affect a car. Your experiment stays open in the Lab.')}
     <div class="tool-grid">
       <section class="panel content-panel"><h2>Balance and response</h2>
-      ${concept('moments')}${concept('inertia')}${concept('torque', `
+      ${concept('moments')}${concept('inertia', `
+        ${slider('radius', 'Distance from axis', 2, 'ft', .5, 5, .1)}
+        <p class="takeaway" id="inertia-demo">A 40 lb mass contributes 160.0 lbm·ft² about this axis.</p>`)}${concept('torque', `
         ${slider('lever', 'Lever arm', 1, 'ft', .25, 4, .05)}
         <p class="takeaway" id="torque-demo">50 lb of force makes 50.0 lb-ft of torque.</p>`)}
       <p><a href="../articles/weight-distribution-50-50/">Read about weight distribution</a></p></section>

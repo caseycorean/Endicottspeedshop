@@ -43,9 +43,12 @@ export function evidence(setup, custom = true) {
     Stock inputs use published figures where available. Estimates are editable.</p>
     <dl class="evidence">${Object.entries(v.data).map(([key, [value, kind, note, link, conditions]]) => {
       const fieldValue = Array.isArray(value) ? value.join(' / ') : key === 'front' ? fmt(value * 100, 1) : value;
-      const override = custom ? setup.tune[key] ?? setup.base[key] : undefined;
+      const original = setup.base[key];
+      const override = custom ? setup.tune[key] : undefined;
+      const displayOverride = n => escape(key === 'front' ? fmt(n * 100, 1) : n);
       return `<div><dt>${fields[key] ?? key}</dt><dd>${escape(fieldValue)} <b>${evidenceNames[kind] ?? escape(kind)}</b>
-      ${override !== undefined ? `<br><strong>${escape(key === 'front' ? fmt(override * 100, 1) : override)}</strong> <b>User-entered</b>` : ''}
+      ${original !== undefined ? `<br><strong>${displayOverride(original)}</strong> <b>Original override</b>` : ''}
+      ${override !== undefined ? `<br><strong>${displayOverride(override)}</strong> <b>Experiment override</b>` : ''}
       <small>${escape(note ?? '')}${conditions ? ' ' + escape(conditions) : ''}
         ${link?.startsWith('https://') ? ` <a href="${escape(link)}" target="_blank" rel="noreferrer">Source</a>` : ''}</small></dd></div>`;
     }).join('')}</dl></details>`;

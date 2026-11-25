@@ -220,9 +220,15 @@ export function atTime(run, t) {
   const trace = run.trace;
   if (t <= 0) return trace[0];
   if (t >= trace.at(-1).t) return trace.at(-1);
-  const i = Math.min(trace.length - 2, Math.floor(t / trace[1].t));
-  const a = trace[i];
-  const b = trace[i + 1];
+  let low = 0;
+  let high = trace.length - 1;
+  while (high - low > 1) {
+    const middle = Math.floor((low + high) / 2);
+    if (trace[middle].t <= t) low = middle;
+    else high = middle;
+  }
+  const a = trace[low];
+  const b = trace[high];
   const f = (t - a.t) / (b.t - a.t);
   return { ...a, t, speed: a.speed + f * (b.speed - a.speed), x: a.x + f * (b.x - a.x) };
 }

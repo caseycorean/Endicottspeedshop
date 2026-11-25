@@ -2,7 +2,8 @@ import { vehicles, stock } from './vehicles.mjs';
 import { resolve, newSetup, presets, validValue, usableSetup, straightLine, atTime, MPH } from './models.mjs';
 import { example, clone, modified, shareFragment, readFragment, getSaved, saveBuild, shareResult } from './configuration.mjs';
 import { home, build, compare, toolsView, learn, inputGroups, toolResults } from './views.mjs';
-import { fmt, escape, numberField } from './ui.mjs';
+import { fmt, numberField } from './ui.mjs';
+import { ovalLap, ovalPoint, ovalLength } from './oval.mjs';
 
 const app = document.querySelector('#app');
 const notice = document.querySelector('#link-notice');
@@ -65,10 +66,12 @@ function render(next = view, restoreDetails = false) {
     case 'compare': {
       const a = resolve(state.a, state.aMode === 'after');
       const b = resolve(state.b, state.bMode === 'after');
-      const runs = [straightLine(a), straightLine(b)];
+      const oval = state.event === 'oval';
+      const runModel = oval ? ovalLap : straightLine;
+      const runs = [runModel(a), runModel(b)];
       app.innerHTML = compare(state, a, b, runs);
       if (runs.every(r => r.trace)) {
-        replay = { runs, elapsed: 0, duration: Math.max(...runs.map(r => r.trace.at(-1).t)) };
+        replay = { runs, oval, elapsed: 0, duration: Math.max(...runs.map(r => r.trace.at(-1).t)) };
         updateReplay(0);
       }
       break;
@@ -132,7 +135,9 @@ function choosePreset(key) {
       ${numberField('oldWeight', 'Removed package (lb)', '', { min: 1, max: 1800, required: true })}
       ${numberField('oldX', 'Removed package position (in)', preset.oldX, { min: -75, max: 220, required: true })}
       ${numberField('newX', 'Installed package position (in)', preset.newX, { min: -75, max: 220, required: true })}
-      </div><button class="button secondary">Add LS1/T5 swap</button><p class="form-issue" role="alert"></p></form>`;
+      </div><label class="checkbox-line"><input type="checkbox" name="donor">
+      <span>Use the donor GTO’s published 350 hp and 365 lb-ft engine ratings in simulation.</span></label>
+      <button class="button secondary">Add LS1/T5 swap</button><p class="form-issue" role="alert"></p></form>`;
     byId('preset-form').querySelector('input').focus();
     return;
   }
@@ -168,6 +173,11 @@ app.addEventListener('submit', event => {
     } else if (pendingPreset) {
       const part = addPreset(next, pendingPreset);
       Object.assign(part, { oldWeight: +values.get('oldWeight'), oldX: +values.get('oldX'), newX: +values.get('newX') });
+      if (values.has('donor')) {
+        const donor = stock('gto');
+        for (const field of ['hp', 'hpRpm', 'torque', 'torqueRpm']) next.tune[field] = donor[field];
+        next.tune.redline = donor.redline; // Illustrative shift ceiling, not a measured installed limit.
+      }
     }
     if (!cleanSetup(next) || !commitExperiment(next, 'Component change applied to the experiment.'))
       issue.textContent = 'Check the part name and values. The result must stay within the mass and axle-balance limits.';
@@ -222,11 +232,53 @@ function updateReplay(t) {
   replay.elapsed = t;
   byId('race-time').textContent = t.toFixed(1);
   byId('scrubber').value = Math.round(t / replay.duration * 1000);
-  replay.runs.forEach((run, i) => {
-    const sample = atTime(run, t);
-    byId('runner-' + i).style.left = Math.min(100, sample.x / 13.2) + '%';
+  const current = replay.runs.map(run => atTime(run, t));
+  if (replay.oval) drawOval(current);
+  current.forEach((sample, i) => {
+    if (!replay.oval) byId('runner-' + i).style.left = Math.min(100, sample.x / 13.2) + '%';
     byId('speed-' + i).textContent = fmt(sample.speed / MPH);
-    byId('gear-' + i).textContent = sample.gear === 0 ? 'shifting' : (sample.limited ? 'grip limited' : 'gear ' + sample.gear);
+    byId('gear-' + i).textContent = sample.gear === 0 ? (replay.oval ? 'braking' : 'shifting') :
+      (sample.limited ? 'grip limited' : 'gear ' + sample.gear);
+  });
+}
+
+function drawOval(samples) {
+  const canvas = byId('oval-map');
+  const ctx = canvas.getContext('2d');
+  const project = position => [140 + position.x * .65, 18 + position.y * .60];
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const route = () => {
+    ctx.beginPath();
+    ctx.moveTo(...project(ovalPoint(0)));
+    for (let i = 1; i <= 128; i++) ctx.lineTo(...project(ovalPoint(i * ovalLength / 128)));
+    ctx.closePath();
+  };
+  route();
+  ctx.strokeStyle = '#77838a';
+  ctx.lineWidth = 26;
+  ctx.stroke();
+  ctx.strokeStyle = '#303a41';
+  ctx.lineWidth = 23;
+  ctx.stroke();
+  ctx.strokeStyle = '#829096';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([6, 7]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  const [sx, sy] = project(ovalPoint(0));
+  ctx.fillStyle = '#e2e7e6';
+  ctx.fillRect(sx, sy - 11, 2, 22);
+  samples.forEach((sample, i) => {
+    const [x, y] = project(ovalPoint(sample.x));
+    ctx.beginPath();
+    ctx.arc(x, y + (i ? 6 : -6), 8, 0, 2 * Math.PI);
+    ctx.fillStyle = i ? '#9fcebd' : '#ffab58';
+    ctx.fill();
+    ctx.fillStyle = '#101417';
+    ctx.font = 'bold 10px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(i ? 'B' : 'A', x, y + (i ? 6 : -6));
   });
 }
 
@@ -258,8 +310,9 @@ function play(button) {
 async function share() {
   const url = experimentUrl();
   const title = 'ESS Vehicle Lab comparison';
-  const quarter = replay.runs.map(r => r.finish ? fmt(r.finish.t, 1) + ' s' : 'no finish').join(' vs. ');
-  const summary = `${vehicles[state.a.id].name} vs. ${vehicles[state.b.id].name} · Estimated quarter mile ${quarter}`;
+  const currentEvent = replay.oval ? 'test oval lap' : 'quarter mile';
+  const results = replay.runs.map(r => r.lap ?? r.finish?.t).map(t => t ? fmt(t, 1) + ' s' : 'no finish').join(' vs. ');
+  const summary = `${vehicles[state.a.id].name} vs. ${vehicles[state.b.id].name} · Estimated ${currentEvent} ${results}`;
   const target = byId('share-feedback');
   const result = await shareResult(url, title, summary);
   if (!target.isConnected || result === 'cancelled') return;
@@ -319,11 +372,25 @@ document.addEventListener('click', event => {
     if (!commitExperiment(next, 'Component change undone.')) speak('Undoing this change would exceed the model limits.');
     return;
   }
+  if (el.dataset.event) { state.event = el.dataset.event; render(view, true); return; }
   if (el.dataset.edit) { state.focus = el.dataset.edit; navigate('build'); return; }
   const action = el.dataset.action;
   if (!action) return;
   switch (action) {
     case 'compare-build': state[state.focus + 'Mode'] = modified(active()) ? 'after' : 'before'; navigate('compare'); break;
+    case 'compare-original': {
+      const opposite = state.focus === 'a' ? 'b' : 'a';
+      const source = state[opposite];
+      if ((modified(source) || Object.keys(source.base).length) && !window.confirm('Replace the other lane with this build’s original configuration?')) break;
+      const draft = clone(active());
+      draft.tune = {};
+      draft.parts = [];
+      state[opposite] = draft;
+      state[opposite + 'Mode'] = 'before';
+      state[state.focus + 'Mode'] = 'after';
+      navigate('compare');
+      break;
+    }
     case 'use': navigate('tools'); break;
     case 'save':
       if (saveBuild(active())) { saved = clone(active()); render(view, true); speak('Saved in this browser as my build.'); }
@@ -357,8 +424,12 @@ app.addEventListener('input', event => {
   const key = target.dataset.slider;
   if (!key) return;
   const value = +target.value;
-  const unit = key === 'lever' ? 'ft' : key.endsWith('Spring') ? 'lb/in' : 'g';
+  const unit = key === 'lever' || key === 'radius' ? 'ft' : key.endsWith('Spring') ? 'lb/in' : 'g';
   byId('out-' + key).value = value + ' ' + unit;
+  if (key === 'radius') {
+    byId('inertia-demo').textContent = 'A 40 lb mass contributes ' + fmt(40 * value ** 2, 1) + ' lbm·ft² about this axis.';
+    return;
+  }
   if (key === 'lever') {
     byId('torque-demo').textContent = '50 lb of force makes ' + fmt(50 * value, 1) + ' lb-ft of torque.';
     return;

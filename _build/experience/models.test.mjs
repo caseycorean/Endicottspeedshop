@@ -116,3 +116,48 @@ test('non-cancelled native share failure falls back to clipboard then manual sha
     share: async () => { throw { name: 'AbortError' }; }, clipboard: { writeText: assert.fail },
   }), 'cancelled');
 });
+
+test('oval closes and solves physically ordered flying laps without exceeding the turn speed cap', async () => {
+  const { ovalLap, ovalLength, ovalPoint } = await import('../../experience/oval.mjs');
+  const { G } = await import('../../experience/models.mjs');
+  near(ovalLength, 1040 + 400 * Math.PI);
+  assert.deepEqual(ovalPoint(0), ovalPoint(ovalLength));
+  assert.deepEqual(ovalPoint(520), { x: 520, y: 0 });
+  for (const id of Object.keys(vehicles)) {
+    const v = resolve(newSetup(id));
+    const r = ovalLap(v);
+    near(r.trace[0].speed, r.trace.at(-1).speed);
+    near(r.trace.at(-1).x, ovalLength);
+    assert.ok(r.peakSpeed > r.turnSpeed && r.lap > 0, id);
+    assert.ok(r.trace.some(s => s.gear === 0), id);
+    for (let i = 1; i < r.trace.length; i++) {
+      const a = r.trace[i - 1];
+      const b = r.trace[i];
+      assert.ok(b.t > a.t && b.x > a.x, id);
+      const halfway = atTime(r, (a.t + b.t) / 2);
+      near(halfway.x, (a.x + b.x) / 2, 1e-6);
+      if ((i > 52 && i <= 116) || i > 168) {
+        assert.ok(b.speed ** 2 <= v.grip * G * 200, id);
+      }
+    }
+    assert.ok(ovalLap({ ...v, grip: v.grip + .2 }).lap < r.lap, id);
+  }
+});
+
+test('sharing restores the selected event and tool settings', () => {
+  const state = { ...example(), event: 'oval', tool: { brake: 0.5, lateral: 0.6 } };
+  const decoded = readFragment(shareFragment(state, 'tools'));
+  assert.equal(decoded.view, 'tools');
+  assert.equal(decoded.state.event, 'oval');
+  assert.deepEqual(decoded.state.tool, state.tool);
+  assert.equal(readFragment(shareFragment({ ...state, tool: { brake: 4, lateral: 0 } })).invalid, true);
+});
+
+test('compare reports published checkpoints without treating them as model matches', () => {
+  for (const id of ['firebird', 'camaro', 'corvette', 'gto']) {
+    const v = resolve(newSetup(id));
+    const run = straightLine(v);
+    assert.ok(Number.isFinite(v.test60) && Number.isFinite(v.testEt));
+    assert.ok(Math.abs(run.zeroTo60 - v.test60) > 0.03);
+  }
+});
