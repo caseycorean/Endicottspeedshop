@@ -79,8 +79,9 @@ export function resolveVehicle(record, { configId, components = {}, owner = {}, 
 
   // architecture
   const arch = architectureFor(configId, typeFront, typeRear);
-  set('archFront', arch.front, arch.evidence === 'record' ? 'manufacturer' : arch.evidence, arch.basis);
-  set('archRear', arch.rear, arch.evidence === 'record' ? 'manufacturer' : arch.evidence, arch.basis);
+  const archEv = arch.evidence === 'record' ? (record.archive ? 'historical' : 'manufacturer') : arch.evidence;
+  set('archFront', arch.front, archEv, arch.basis);
+  set('archRear', arch.rear, archEv, arch.basis);
 
   // 6. estimates
   const ctx = { layout: record.layout, category: record.category, year, torque: out.torque ?? 0, name: record.name, hpRpm: out.hpRpm, wheelbase: out.wheelbase, tire: tireSize };

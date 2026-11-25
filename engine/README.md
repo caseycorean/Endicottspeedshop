@@ -57,3 +57,22 @@ grip estimate are applied through the same resolved vehicle used by the comparis
 tools. Published component mass is shown with its basis. Use itemized weights and mounting
 positions for an actual installation. The existing measured and published inputs for the original
 lab fixtures are preserved for regression and benchmark comparisons.
+
+## Supercar X archive as selectable vehicles (`archive.mjs`, Claude 25 Nov)
+
+All 75 recovered Supercar X specification pages are catalog-shaped records with ids `sx-<slug>`. `labVehicle('sx-…')`,
+`labRun('sx-…')`, `searchVehicles(query)` and `vehicleCoverage()` in `garage-adapter.mjs` work for them exactly as for
+curated ids. Every value keeps evidence `historical` with its Wayback capture as the source (UI label "Supercar X archive").
+
+- **Deduplication:** the five crosswalk exact matches carry `mergedInto` (the curated record already uses their values), so 70 are listed.
+- **Tiers:** 56 `simulation-ready` (acceleration + tire loads run), 8 `partial` (the missing facts are listed per tool),
+  6 `historical-reference` (competition cars: racing tires/aero are outside the street models). Search puts curated first, then archive by tier.
+- **Suspension:** the published front/rear suspension text (`data/supercarx-suspension.mjs`) maps to architecture codes;
+  `codeFromText` now reads the archive's link-count wording. "Rigid axle; coil springs" is not guessed (4-link and torque-arm cars both used it).
+- **Data fixes:** pages with no gear table had left one ratio (e.g. `[1]`, `[0.74]`) in the parsed data. Those cars now show "missing: gears".
+  Implausible test values are dropped (C55 AMG 0–60 "54.7"), see VERIFY-BACKLOG.
+- **Hold-out validation (59 road tests):** quarter-mile mean error +0.17 s, MAE 0.30 s; 0–60 MAE 0.30 s.
+  With the extreme-tire default (47 cars) the ET MAE is 0.26 s. The model is slow on 1960s–70s cars (+0.7 s, 4 cars).
+  Trap speed MAE is 2.4 mph.
+- **Tire rule change:** 1990–99 ZR tires at 40-series or 300 mm+ are now `uhp`, not `perf80s`. Before the change, the F40, McLaren F1 and Viper ACR
+  were 0.4–0.6 s slow, and the all-car ET MAE was 0.33 s (now 0.30 s). No curated vehicle changes class.

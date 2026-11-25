@@ -37,6 +37,9 @@ export function tireClassFor({ year, tire, category = '' }) {
   if (t?.lt || /pickup|truck/i.test(category) && t && t.aspect >= 60) return why('allTerrain');
   if (t && !t.radial && year && year < 1980) return why('bias');
   if (!year || year < 1985) return why('radial70s');
+  // 1990s supercar ZR sizes (≥ 40-series or ≥ 300 mm) were the era's ultra-high-performance tires; 'perf80s' made
+  // F40 / McLaren F1 / Viper ACR 0.4–0.6 s slow in the Supercar X hold-out (Claude, 25 Nov; see engine/README).
+  if (year >= 1990 && year < 2000 && t?.zRated && ((t.aspect ?? 99) <= 40 || t.width >= 300)) return why('uhp');
   if (year < 2000) return why('perf80s');
   if (t && (t.zRated || (t.aspect ?? 99) <= 40)) return why(year >= 2010 ? 'extreme' : 'extreme');
   return why('uhp');
