@@ -383,3 +383,9 @@ input[type="range"] { width: 100%; height: 28px; margin: 0; accent-color: var(--
 .force-meter { position: relative; height: .56rem; border-radius: 4px; margin: .7rem .28rem; background: linear-gradient(90deg, #54846c 0 53.125%, #b08d38 53.125% 62.5%, #b96c56 62.5%); }
 .force-meter span { position: absolute; left: var(--force-mark); height: 1.18rem; top: -.31rem; border-left: 3px solid #242823; }
 .force-caption { font-size: .81rem; color: var(--muted); }
+/* Claude 25 Nov: roll-steer explanation spans the readout; stand-alone paragraph links get full tap height. */
+.link-readout > .link-readout-wide { grid-column: 1 / -1; }
+.link-readout-wide dd { font: 500 .9rem/1.4 var(--sans, inherit); }
+.content-panel p > a:only-child, .panel p > a:only-child { display: inline-flex; align-items: center; min-height: 44px; }
+/* Claude 25 Nov: axle-ratio chips reach 44 px width on phones. */
+.axle-ratio-picks .button { min-width: 44px; }
