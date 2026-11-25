@@ -11,6 +11,7 @@ export function drivetrainPanel(setup, {open = false} = {}) {
       </select></label>`).join('')}
     </div>
     ${tractionPanel(resolve(setup))}
+    <p class="small"><a href="#performance">Compare tire classes and check every gear</a></p>
     <details class="explain"><summary>How gearing changes grip</summary>
       <p>Wheel force equals engine torque multiplied by gear ratio, final drive and efficiency, divided by tire radius.
       The launch calculation compares that demand with the grip available at the driven tires after load transfer.</p>

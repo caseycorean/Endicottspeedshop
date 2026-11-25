@@ -13,6 +13,7 @@ import { components, componentOverrides } from './components.mjs';
 import { mountCamber } from './diagrams.mjs';
 import { mountFrontGeometry, frontGeometry } from './front-geometry.mjs';
 import { studies, missingFor } from './readiness.mjs';
+import { performanceView, performanceExplain, loadPerf, savePerf, perfDefaults, summaryHtml, tractionHtml, gearTableHtml, tireTableHtml, perfModel } from './performance-view.mjs';
 
 const app = document.querySelector('#app');
 installCatalog();
@@ -50,6 +51,8 @@ function rememberDraft() {
   }
 }
 let view = 'home';
+let perf = loadPerf();
+const perfViews = ['performance', 'performance-why', 'performance-math'];
 let replay;
 let pendingPreset;
 let sharedLinkNotice = '';
@@ -127,6 +130,15 @@ function render(next = view, restoreDetails = false) {
       break;
     }
     case 'learn': app.innerHTML = learn(); break;
+    case 'performance':
+    case 'performance-why':
+    case 'performance-math': {
+      const setup = active();
+      if (perf.vehicle !== setup.id) { perf = {...perfDefaults(), surface: perf.surface, vehicle: setup.id}; savePerf(perf); }
+      app.innerHTML = view === 'performance' ? performanceView(state, perf, perfLinks()) :
+        performanceExplain(state, perf, view === 'performance-why' ? 'why' : 'math');
+      break;
+    }
     default: app.innerHTML = home(state, saved);
   }
   mountCamber(app);
@@ -300,6 +312,14 @@ app.addEventListener('change', event => {
     next.components = config;
     for (const key of Object.keys(specs?.values ?? {})) delete next.tune[key];
     commitExperiment(next, specs ? specs.name + (el.value ? ' applied.' : ' removed.') : '');
+  } else if (el.hasAttribute('data-perf-tire')) {
+    perf = {...perf, tire: el.value};
+    perfCommit('Tire class: ' + el.selectedOptions[0].textContent.trim() + '.');
+  } else if (el.hasAttribute('data-perf-surface')) {
+    perf = {...perf, surface: el.value};
+    perfCommit('Surface: ' + el.selectedOptions[0].textContent.trim() + '.');
+  } else if (el.hasAttribute('data-perf-fd')) {
+    perfFinalDrive(Number(el.value), true);
   } else if (el.dataset.mode) {
     state[el.dataset.mode + 'Mode'] = el.value;
     render(view, true);
@@ -480,17 +500,90 @@ function carryLane(key, selection = modeOf(state, key)) {
   return true;
 }
 
+
+// ---- Performance page (gearing and traction) ----
+function perfLinks() {
+  return {loadTransfer: '../tools/load-transfer/' + shareFragment(state, 'tools')};
+}
+
+function perfCommit(message) {
+  savePerf(perf);
+  render(view, true);
+  if (message) speak(message);
+}
+
+let perfFrame = 0;
+function perfFinalDrive(value, final) {
+  const current = active();
+  if (!Number.isFinite(value) || value < 2 || value > 6) return;
+  const original = resolve(current, false).finalDrive;
+  if (value === original && !Object.hasOwn(componentOverrides(current), 'finalDrive')) delete current.tune.finalDrive;
+  else current.tune.finalDrive = value;
+  state[state.focus + 'Mode'] = modified(current) ? 'after' : 'before';
+  if (final) { perfCommit('Final drive ' + fmt(value, 2) + '.'); return; }
+  byId('perf-fd').textContent = fmt(value, 2);
+  cancelAnimationFrame(perfFrame);
+  perfFrame = requestAnimationFrame(() => {
+    // Live update while dragging: recompute only the result regions so the slider keeps focus.
+    const m = perfModel(active(), perf);
+    byId('perf-summary').outerHTML = summaryHtml(m, state.focus);
+    byId('perf-traction').outerHTML = tractionHtml(m, state.focus);
+    byId('perf-gearing').outerHTML = gearTableHtml(m);
+    const tires = byId('perf-tires');
+    if (tires) tires.outerHTML = tireTableHtml(m) || '<span id="perf-tires"></span>';
+    for (const chip of app.querySelectorAll('#perf-controls [data-axle-ratio]'))
+      chip.setAttribute('aria-pressed', String(Number(chip.dataset.axleRatio) === value));
+    rememberDraft();
+  });
+}
+
+function perfClick(el) {
+  const d = el.dataset;
+  if (d.perfRef) {
+    if (d.perfRef === active().id) return true;
+    el.dispatchEvent(new CustomEvent('ess:vehicle-selected', {bubbles: true, detail: {id: d.perfRef}}));
+    return true;
+  }
+  if (d.axleRatio) { perfFinalDrive(Number(d.axleRatio), true); return true; }
+  if (d.perfGear !== undefined) { perf = {...perf, gear: Number(d.perfGear)}; perfCommit('Traction check in gear ' + (perf.gear + 1) + '.'); return true; }
+  if (d.perfPickTire) { perf = {...perf, tire: d.perfPickTire}; perfCommit('Tire class changed.'); return true; }
+  if (el.hasAttribute('data-perf-tire-reset')) { perf = {...perf, tire: null}; perfCommit('Back to tire classes.'); return true; }
+  if (el.hasAttribute('data-perf-reset')) {
+    const current = active();
+    delete current.tune.finalDrive;
+    delete current.tune.gears;
+    if (current.components) { delete current.components.transmission; if (!Object.keys(current.components).length) delete current.components; }
+    state[state.focus + 'Mode'] = modified(current) ? 'after' : 'before';
+    perf = {...perfDefaults(), vehicle: current.id};
+    perfCommit('Gearing and tires reset to the original car.');
+    return true;
+  }
+  if (el.hasAttribute('data-perf-use')) { carryLane(state.focus, modified(active()) ? 'after' : 'before'); return true; }
+  return false;
+}
+
+app.addEventListener('submit', event => {
+  const form = event.target;
+  if (!form.hasAttribute('data-perf-mu')) return;
+  event.preventDefault();
+  const mu = Number(form.elements.mu.value);
+  if (!Number.isFinite(mu) || mu < .1 || mu > 3) return;
+  perf = {...perf, tire: 'custom', customMu: mu};
+  perfCommit('Using your friction value μ ' + fmt(mu, 2) + '.');
+});
+
 document.addEventListener('click', event => {
   const el = event.target.closest('a,button');
   if (!el) return;
   const href = el.getAttribute('href');
-  if (href && ['#home', '#build', '#compare', '#tools', '#learn', '#garage', '#suspension'].includes(href) &&
+  if (href && ['#home', '#build', '#compare', '#tools', '#learn', '#garage', '#suspension', '#performance', '#performance-why', '#performance-math'].includes(href) &&
       !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
     event.preventDefault();
     speak();
     navigate(href.slice(1));
     return;
   }
+  if (perfViews.includes(view) && perfClick(el)) return;
   if (el.dataset.preset) { choosePreset(el.dataset.preset); return; }
   if (el.dataset.remove !== undefined) {
     const next = clone(active());
@@ -637,6 +730,7 @@ app.addEventListener('input', event => {
     updateReplay(replay.duration * +target.value / 1000);
     return;
   }
+  if (target.hasAttribute('data-perf-fd')) { perfFinalDrive(Number(target.value), false); return; }
   const quick = target.dataset.quick;
   if (quick) {
     tuneComparison(quick, Number(target.value));

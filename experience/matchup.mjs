@@ -94,7 +94,7 @@ function quickTune(state, entries) {
       data-axle-ratio="${ratio}" aria-pressed="${tuned.finalDrive === ratio}">${fmt(ratio,2)}</button>`).join('')}
     </div>
     <p class="quick-impact" id="quick-impact">${escape(quickImpact(entry, state.event === 'oval'))}</p>
-    <p class="quiet small"> <button class="text-button" data-edit="${entry.key}">Edit the full build</button></p>
+    <p class="quiet small"> <button class="text-button" data-edit="${entry.key}">Edit the full build</button> · <a href="#performance">Gear-by-gear traction check</a></p>
   </section>`;
 }
 

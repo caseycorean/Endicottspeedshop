@@ -3,7 +3,7 @@ import { cleanSetup, newSetup, usableSetup } from './models.mjs';
 const activeKey = 'ess.active-configuration.v1';
 const garageKey = 'ess.garage.v1';
 const savedKey = 'ess.vehicle-build.v1';
-export const views = ['home', 'build', 'compare', 'tools', 'learn', 'suspension', 'garage'];
+export const views = ['home', 'build', 'compare', 'tools', 'learn', 'suspension', 'garage', 'performance', 'performance-why', 'performance-math'];
 const maxFragment = 32768;
 
 export const getSaved = () => {

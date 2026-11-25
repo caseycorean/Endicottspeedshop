@@ -35,7 +35,8 @@ export function home(state, saved) {
       <a class="route-card" href="../plan/"><strong>Plan my next build</strong><span>Turn a goal into a practical sequence.</span></a>
       ${choice('learn', 'Understand the engineering', 'Try the relationships behind the results.')}
     </div>
-    <div class="actions"><a class="button secondary" href="#tools">Explore tire loads and ride</a>
+    <div class="actions"><a class="button secondary" href="#performance">Test gearing and traction</a>
+    <a class="button secondary" href="#tools">Explore tire loads and ride</a>
     <a class="button secondary" href="#suspension">Explore rear suspension</a>
     ${saved ? '<button class="button secondary" data-action="load-saved">Open my saved build</button>' : ''}</div>
   </section>`;
