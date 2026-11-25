@@ -130,3 +130,40 @@ table.compare th[scope=row]{text-transform:none;letter-spacing:0;font-size:.95re
 .legend .mk.after{background:var(--after);transform:rotate(45deg) scale(.8)}
 .yaw-row{display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:start}
 @media (max-width:860px){.gfields,.grp-n .gfields{grid-template-columns:repeat(3,minmax(0,1fr))}.gfields .f-name{grid-column:1/-1}.diagrams,.yaw-row{grid-template-columns:1fr}.opbar .btn-small{flex:1 1 45%}.opbar-gap{display:none}}
+/* Grip lab (growth candidate, 25 Nov 2026): home-page experiment, also embedded in the traction-circle article */
+.glab{margin-top:18px}
+.gl-wrap{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:28px;align-items:start}
+.gl-fig{margin:0}.gl-fig svg{display:block;width:100%;height:auto;max-height:460px}
+.gl-fig figcaption{font-size:.85rem;color:var(--muted)}
+.gl-body{fill:#f4f7fa;stroke:#9fb3c8;stroke-width:2}.gl-glass{fill:#dbe4ee}
+.gl-tire{fill:#2c2c2c}.gl-tire.lift{fill:#c9c9c9}
+.gl-park{fill:none;stroke:#5b5b59;stroke-width:1.5;stroke-dasharray:4 4}
+.gl-load{fill:rgba(47,85,127,.28);stroke:var(--accent);stroke-width:2}
+.gl-load.light{fill:rgba(178,107,0,.22);stroke:var(--before)}
+.gl-arr{stroke:var(--before);stroke-width:4;fill:none;stroke-linecap:round}.gl-arrh{fill:none;stroke:var(--before);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.gl-cg{fill:#fff;stroke:var(--text);stroke-width:2.5}
+.gl-num{font:600 15px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;fill:var(--text)}
+.gl-small,.gl-lab{font:12px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;fill:var(--muted)}.gl-lab{letter-spacing:.18em}
+.gl-take{font-size:1.15rem;line-height:1.5;margin:0 0 16px;min-height:3em}
+.gl-s{display:block;margin:0 0 14px}
+.gl-sl{display:flex;justify-content:space-between;gap:10px;font-weight:600}.gl-sl output{font-weight:400;font-variant-numeric:tabular-nums}
+.gl-s input[type=range]{width:100%;height:32px;margin:4px 0 0;padding:0;border:0;accent-color:var(--accent)}
+.gl-try{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 14px;font-size:.92rem}
+.gl-try button,.gl-link{appearance:none;border:1px solid var(--line-strong);background:#fff;color:var(--accent);border-radius:999px;padding:8px 14px;min-height:40px;font:inherit;cursor:pointer}
+.gl-link{padding:2px 10px;min-height:0}
+.gl-car{margin:0 0 14px;border:1px solid var(--line);border-radius:12px;padding:10px 14px}.gl-car summary{cursor:pointer;font-weight:600;min-height:28px}.gl-car[open] summary{margin-bottom:10px}
+.gl-cmp,.gl-share{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 10px}
+.gl-url{width:100%;max-width:520px;margin-top:6px}
+.gl-shared{background:var(--warn);border:1px solid var(--warn-line);border-radius:12px;padding:10px 14px;margin:0 0 14px}
+.gl-tab{margin-top:16px}.gl-warn{margin-top:12px}
+.gl-why{margin-top:14px}.gl-why summary{cursor:pointer;font-weight:600}
+.gl-limits{margin-top:10px}
+.paths{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.paths .card .tag{margin-bottom:8px}
+.roadmap{list-style:none;padding:0;margin:12px 0 0;display:flex;flex-wrap:wrap;gap:8px}
+.roadmap li{border:1px solid var(--line-strong);border-radius:999px;padding:6px 12px;font-size:.9rem;color:var(--muted)}
+.roadmap li.now{background:var(--accent);border-color:var(--accent);color:#fff}
+@media (max-width:980px){.paths{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.gl-wrap{grid-template-columns:minmax(0,1fr);gap:8px}.gl-fig svg{max-height:380px}.gl-take{font-size:1.05rem}}
+@media (max-width:520px){.paths{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:860px){table.data.gl-tab{min-width:0}}

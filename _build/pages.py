@@ -75,27 +75,34 @@ def article(page, path, title, kicker, desc, meta, body):
          active="Articles")
 
 def build(page):
-    # HOME
-    page("index.html", "Endicott Speed Shop | Measured tools for real performance decisions",
-         "Calculators, measured part weights and engineering articles for builders making real performance decisions on classic cars.",
+    # HOME — growth candidate (owner launch reset 24 Nov 2026): experience first, then where to go next.
+    page("index.html", "Endicott Speed Shop | See what a change does before you make it",
+         "Brake into a corner and watch the load on each tire move. Free, measured, plain-English performance tools and articles for real builds.",
          f"""<main class="page">
-<section>
-<h1>Measured answers for real performance builds.</h1>
-<p class="lede">Endicott Speed Shop builds second-generation Firebirds and publishes what the scales, the receipts and the engineering actually say — so you can make better decisions on your own car before you spend the money or cut the metal.</p>
-<div class="action-row"><a class="btn primary" href="plan/">Start planning your build</a><a class="btn secondary" href="tools/">Browse the calculators</a></div></section>
+<section class="hero-lab">
+<h1>Brake into a corner. Watch your tires.</h1>
+<p class="lede">Every performance change moves load between the four tires. Slide the braking and cornering, lower the car, change its weight — and see what each tire is left with. Then share exactly what you found.</p>
+<div class="glab" data-glab data-tools="tools/load-transfer/" data-article="articles/traction-circle/"></div>
+</section>
+<section class="section"><div class="section-label">Where next</div><h2>Go from “what if” to a plan.</h2>
+<div class="paths">
+<article class="card"><span class="tag cat-found">Available</span><h3><a href="plan/">Plan your build</a></h3><p>Turn a goal — turn-in, grip, ride, weight — into steps you can test, using the tools here along the way.</p><a class="more" href="plan/">Start planning</a></article>
+<article class="card"><span class="tag cat-data">Available</span><h3><a href="tools/">Run the numbers</a></h3><p>Balance and center of gravity, load transfer, spring rates and part weights — on your own car’s numbers.</p><a class="more" href="tools/">Open the calculators</a></article>
+<article class="card"><span class="tag cat-notes">In development</span><h3>Compare upgrades</h3><p>Two versions of a car through the same model: stock springs against stiffer ones, an iron part against aluminum, whole suspension approaches side by side. Published as each comparison is checked.</p></article>
+<article class="card"><span class="tag cat-notes">In development</span><h3>Simulate the car</h3><p>The experiment above is step one. Next: straight-line acceleration, braking, a single corner, then linked corners and a representative lap — each checked before it goes up.</p>
+<ul class="roadmap" aria-label="Simulation roadmap"><li class="now">Tire loads</li><li>Acceleration</li><li>Braking</li><li>One corner</li><li>Linked corners</li><li>A lap</li></ul></article>
+</div></section>
 <section class="section"><div class="section-label">Start with your question</div><h2>What are you trying to improve?</h2>
-<p>Pick the closest goal. Each one pairs the idea behind it with a calculator you can run on your own numbers.</p>
+<p>Pick the closest goal. Each one pairs the idea behind it with a calculator you can run on your own numbers — whatever you drive.</p>
 <div class="grid goals">{GOALS_HTML("")}</div></section>
-<section class="section"><div class="section-label">Tools</div><h2>Calculators built around measured data.</h2>
-<p>Model a change before you make it. Every tool shows its assumptions.</p><div class="grid">{cards(TOOLS, "")}</div></section>
 <section class="section"><div class="section-label">Articles</div><h2>Know why, not just what.</h2>
 <p>Engineering foundations explained plainly, and build notes with real numbers.</p><div class="grid">{cards(ARTICLES[:3], "")}</div>
 <p style="margin-top:14px"><a href="articles/">All articles →</a></p></section>
-<section class="section"><div class="section-label">The build</div><h2>A 1977 Firebird Formula, measured as it's built.</h2>
-<p>A budget-conscious LS1 and T5-powered 1977 Firebird Formula serving as our real-world development and testing platform. Follow the build as we document component weights, costs, engineering decisions and measured performance.</p>
+<section class="section"><div class="section-label">The proof car</div><h2>A 1977 Firebird Formula, measured as it's built.</h2>
+<p>The principles here apply to a Mustang, a Miata, a BMW or a Chevelle. Our test car happens to be a budget-conscious LS1 and T5-powered 1977 Firebird Formula: every part weighed, every cost recorded, every decision measured against the car before it.</p>
 <div class="action-row"><a class="btn secondary" href="build/">Follow the build</a></div></section>
-{COMING_SOON("")}
-</main>""", active="")
+</main>
+<script src="assets/grip-lab.js" defer></script>""", active="")
 
     # TOOLS HUB
     page("tools/index.html", "Tools | Endicott Speed Shop", "Free calculators for weight distribution, center of gravity, load transfer, spring rates and part weights.",
@@ -163,7 +170,7 @@ def build(page):
 <h2>7 · Build in stages, and measure each one</h2>
 <p>Make the reversible decisions first. After each stage, weigh, test and compare against your baseline — that is how you find out whether a change did what you expected, and it's how the ESS cars are developed too.</p>
 <p><a href="../build/">Follow the green car</a> · <a href="../contact/">Questions or suggestions for this guide</a></p>
-</main>""", active="")
+</main>""", active="Plan")
 
     # PRIVACY (launch blocker fix, 23 Nov 2026)
     page("privacy/index.html", "Privacy | Endicott Speed Shop", "What Endicott Speed Shop collects when you visit, why, and how to opt out.",

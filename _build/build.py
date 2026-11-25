@@ -5,8 +5,9 @@ Folders starting with '_' are not published by GitHub Pages (Jekyll default)."""
 import os, sys, importlib.util
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GA = """<script async src="https://www.googletagmanager.com/gtag/js?id=G-GGJVMS8CZD"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD');</script>"""
-NAV = [("Tools", "tools/", "Calculators built from measured data"),
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.href.split('#')[0]});</script>"""
+NAV = [("Plan", "plan/", "Plan your build, step by step"),
+       ("Tools", "tools/", "Calculators built from measured data"),
        ("Articles", "articles/", "Engineering foundations and build notes"),
        ("The Build", "build/", "The green car, measured"),
        ("About", "about/", "Why this exists"),
