@@ -11,13 +11,14 @@ import { vehicles } from './vehicles.mjs';
 import { modified } from './configuration.mjs';
 import { setupName } from './matchup.mjs';
 import { vehicleSelector, escape, fmt, delta } from './ui.mjs';
+import { lights, tree, lamp, useBar, slip, ordinal, secs as slipSecs } from './identity.mjs';
 
 /** Public reference cars offered as one-tap choices (all are in the shared vehicle reference). */
 export const quickReferences = [
   ['corvette', '2002 Corvette Z06'], ['camaro', '1991 Camaro Z28'], ['gto', '2004 Pontiac GTO'], ['firebird', '1977 Trans Am'],
 ];
 export const axleRatios = [3.08, 3.42, 3.73, 4.10];
-const statusWord = { green: 'Grip to spare', yellow: 'Near the grip limit', red: 'More force than grip', missing: 'Needs data' };
+const statusWord = Object.fromEntries(Object.entries(lights).map(([k, v]) => [k, v.word]));
 const SESSION_KEY = 'ess.performance-page.v1';
 
 export const perfDefaults = () => ({ vehicle: null, tire: null, surface: 'dryAsphalt', customMu: null, gear: 0 });
@@ -102,49 +103,98 @@ export function perfModel(setup, perf) {
     modified: modified(setup) };
 }
 
+// ---------- Next experiment: real runs of the shared model for a few one-step changes ----------
+/** Typical-grip quarter mile for a setup and page settings: same call perfModel uses for its main result. */
+export function quickEt(setup, perf) {
+  const v = resolve(setup, true);
+  const { opts } = frictionOptions(v, perf);
+  if (blockedRun(v) || opts.customMu === null) return null;
+  return straightLine(v, { mu: frictionFor(opts).typical }).finish?.t ?? null;
+}
+
+const streetOrder = ['allSeason', 'maxSummer', 'extremeSummer', 'track200'];
+/** Up to three one-step experiments ranked by modeled quarter-mile change. Every number is a model run. */
+export function nextSteps(m, perf) {
+  if (!m.accel || !Number.isFinite(m.accel.et)) return [];
+  const now = m.accel.et;
+  const out = [];
+  const typical = id => tireClasses[id].longitudinal.typical;
+  const currentMu = m.mu?.typical ?? 0;
+  // Tires: the next street class with more grip on the same surface, and drag radials at a prepped strip.
+  const nextTire = streetOrder.find(id => typical(id) * (surfaces[perf.surface]?.factor.typical ?? 1) > currentMu + .005);
+  if (nextTire) out.push({ kind: 'tire', tire: nextTire, surface: perf.surface, title: tireClasses[nextTire].label,
+    detail: 'Same gearing, ' + surfaces[perf.surface].label.toLowerCase() });
+  if (m.check.status !== 'green' && !(m.tire === 'dragRadial' && perf.surface === 'preppedStrip'))
+    out.push({ kind: 'tire', tire: 'dragRadial', surface: 'preppedStrip', title: 'Drag radials at a prepped strip', detail: 'Same gearing, launch-focused tire and surface' });
+  // Gearing: the neighbouring common axle ratios.
+  const fd = m.v.finalDrive;
+  const shorter = axleRatios.find(r => r > fd + .005), taller = [...axleRatios].reverse().find(r => r < fd - .005);
+  for (const r of [shorter, taller].filter(Boolean))
+    out.push({ kind: 'axle', ratio: r, title: `${fmt(r, 2)} final drive`, detail: r > fd ? 'Shorter gear: more force, earlier shifts' : 'Taller gear: less force, fewer shifts' });
+  for (const step of out) {
+    const setup = { ...m.setup, tune: { ...m.setup.tune }, parts: [...m.setup.parts] };
+    let p = perf;
+    if (step.kind === 'axle') setup.tune.finalDrive = step.ratio;
+    else p = { ...perf, tire: step.tire, surface: step.surface };
+    step.et = quickEt(setup, p);
+    step.change = Number.isFinite(step.et) ? step.et - now : null;
+  }
+  return out.filter(s => s.change !== null).sort((a, b) => a.change - b.change).slice(0, 3);
+}
+
 // ---------- HTML ----------
 const secs = (n, p = 2) => Number.isFinite(n) ? fmt(n, p) + ' s' : '—';
 const pct = n => fmt(n * 100) + '%';
 
-function meter(check) {
-  const a = check.availableLb;
-  const top = Math.max(check.demandLb, a.high) * 1.15;
-  const at = x => (100 * x / top).toFixed(1) + '%';
-  return `<div class="perf-meter" role="img" aria-label="Drive force ${fmt(check.demandLb)} lb against available grip ${fmt(a.low)} to ${fmt(a.high)} lb.">
-    <span class="perf-band" style="left:${at(a.low)};width:calc(${at(a.high)} - ${at(a.low)})"></span>
-    <span class="perf-typical" style="left:${at(a.typical)}"></span>
-    <span class="perf-demand" style="left:${at(check.demandLb)}"></span>
-  </div>
-  <div class="perf-meter-key"><span><i class="key-demand"></i>Drive force ${fmt(check.demandLb)} lb</span><span><i class="key-band"></i>Grip ${fmt(a.low)}–${fmt(a.high)} lb</span></div>`;
+function missingBlock(text, laneKey) {
+  return `<p class="warning">${escape(text)}</p>
+    <button type="button" class="text-button missing-action" data-study-lane="${laneKey}">Add the missing values in Build</button>`;
 }
 
-function missingBlock(text, laneKey, study = 'quarter') {
-  return `<p class="warning">${escape(text)}</p>
-    <button type="button" class="text-button missing-action" data-study-lane="${laneKey}" data-study-tool="${study}">Add the missing values in Build</button>`;
+function stickyBar(m) {
+  const a = m.accel;
+  return `<div class="perf-sticky" aria-hidden="true"><span>¼ mile</span><strong>${a ? secs(a.et) : '—'}</strong>${tree(m.check.status, { label: false })}</div>`;
 }
 
 export function summaryHtml(m, laneKey) {
   if (!m.accel) {
     const keys = m.quarterMissing;
-    return `<div class="perf-summary" id="perf-summary">
-      <div class="perf-sticky"><span>Quarter mile</span><strong>—</strong><span class="perf-chip" data-level="${m.check.status}">${statusWord[m.check.status]}</span></div>
+    return `<div class="perf-summary" id="perf-summary">${stickyBar(m)}
+      <div class="ig-run">${slip(escape(setupName(m.setup)), [['Quarter mile', '—', 'big'], ['Status', 'No run yet']], 'Measure. Test. Improve.')}
+        <div class="ig-run-side">${tree(m.check.status)}</div></div>
       ${missingBlock(keys.length ? 'The acceleration run needs: ' + missingText(keys) + '. Results that do not depend on these still show below.' : (m.runIssue || 'Choose a tire grip value to run.'), laneKey)}
     </div>`;
   }
   const a = m.accel, b = m.base;
   const d = b && Number.isFinite(a.et) && Number.isFinite(b.et) ? a.et - b.et : null;
   const d60 = b && Number.isFinite(a.zeroTo60) && Number.isFinite(b.zeroTo60) ? a.zeroTo60 - b.zeroTo60 : null;
+  const changed = d !== null && (Math.abs(d) >= .005 || Math.abs(d60 ?? 0) >= .005);
   const gripSecs = a.time.traction;
-  return `<div class="perf-summary" id="perf-summary">
-    <div class="perf-sticky" aria-live="polite"><span>Quarter mile</span><strong>${secs(a.et)}</strong>
-      <span class="perf-chip" data-level="${m.check.status}">${statusWord[m.check.status]}</span></div>
-    <div class="perf-figures">
-      <div><small>Quarter mile</small><b>${secs(a.et)}</b><span>${fmt(a.trap)} mph finish</span></div>
-      <div><small>0–60 mph</small><b>${secs(a.zeroTo60, 1)}</b><span>${Number.isFinite(a.sixtyRange[0]) ? fmt(a.sixtyRange[0], 1) + '–' + fmt(a.sixtyRange[1], 1) + ' s range' : ''}</span></div>
+  const surface = m.opts.surface ? surfaces[m.opts.surface].label : 'your friction value';
+  return `<div class="perf-summary" id="perf-summary">${stickyBar(m)}
+    <div class="ig-run" aria-live="polite">
+      ${slip(escape(setupName(m.setup)), [
+        ['Quarter mile', slipSecs(a.et), 'big'],
+        ['Finish speed', fmt(a.trap) + '<small> mph</small>'],
+        ['0–60 mph', slipSecs(a.zeroTo60, 1)],
+        ['Grip range', `${fmt(a.etRange[0], 2)}–${fmt(a.etRange[1], 2)}<small> s</small>`],
+        b ? ['vs original', changed ? `${delta(d, 2)}<small> s</small>` : 'same'] : null,
+      ], `${escape(m.tire === 'setup' ? 'Vehicle grip input' : m.tire === 'custom' ? 'Your friction value' : tireClasses[m.tire].label)} · ${escape(surface)}`)}
+      <div class="ig-run-side">${tree(m.check.status)}<span>Launch, ${ordinal(m.gear + 1)} gear</span></div>
+      <p class="ig-run-note">${gripSecs < .05 ? '<b>Engine-limited:</b> the tires never ran out of grip, so stickier tires will not change this time.'
+        : `<b>Grip-limited for ${fmt(gripSecs, 1)} s</b> of the run. Only that part responds to tire grip.`}
+        ${b ? ` Original: ${secs(b.et)}, 0–60 ${secs(b.zeroTo60, 1)} (μ ${fmt(b.mu, 2)}, dry).` : ''}</p>
     </div>
-    <p class="perf-range">Grip range on this tire and surface: ${secs(a.etRange[0])} to ${secs(a.etRange[1])} (μ ${fmt(m.mu.high, 2)} to ${fmt(m.mu.low, 2)}).</p>
-    ${b ? `<p class="perf-delta">Original ${secs(b.et)} · 0–60 ${secs(b.zeroTo60, 1)} (μ ${fmt(b.mu, 2)}, dry)${d !== null && (Math.abs(d) >= .005 || Math.abs(d60 ?? 0) >= .005) ? ` → this experiment <b>${delta(d, 2)} s</b> quarter, ${delta(d60, 2)} s 0–60` : ' · this experiment matches it so far'}</p>` : ''}
-    <p class="perf-limit">Grip-limited for ${fmt(gripSecs, 1)} s of the run${gripSecs < .05 ? ': the engine, not the tires, sets the pace, so a grippier tire will not change this result.' : '. Only that part of the run responds to tire grip.'}</p>
+  </div>`;
+}
+
+function forceRows(c) {
+  const a = c.availableLb;
+  const top = Math.max(c.demandLb, a.high) * 1.08;
+  const at = x => (100 * x / top).toFixed(1) + '%';
+  return `<div class="ig-force" role="img" aria-label="Drivetrain sends ${fmt(c.demandLb)} pounds; tires can take ${fmt(a.low)} to ${fmt(a.high)} pounds, typical ${fmt(a.typical)}.">
+    <div class="ig-force-row"><span>Drivetrain sends</span><span class="ig-force-track"><span class="ig-force-fill" style="width:${at(c.demandLb)}"></span></span><b>${fmt(c.demandLb)} lb</b></div>
+    <div class="ig-force-row" data-level="green"><span>Tires can take</span><span class="ig-force-track"><span class="ig-force-band" style="left:${at(a.low)};width:calc(${at(a.high)} - ${at(a.low)})"></span><span class="ig-force-tick" style="left:${at(a.typical)}"></span></span><b>${fmt(a.low)}–${fmt(a.high)} lb</b></div>
   </div>`;
 }
 
@@ -152,19 +202,20 @@ export function tractionHtml(m, laneKey) {
   const c = m.check;
   const gears = m.v.gears ?? [];
   const chips = gears.length ? `<div class="event-switch perf-gears" role="group" aria-label="Gear for the traction check">${gears.map((r, i) =>
-    `<button type="button" class="button secondary small" data-perf-gear="${i}" aria-pressed="${i === m.gear}">${i + 1}${i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'}</button>`).join('')}</div>` : '';
+    `<button type="button" class="button secondary small" data-perf-gear="${i}" aria-pressed="${i === m.gear}">${ordinal(i + 1)}</button>`).join('')}</div>` : '';
   if (c.status === 'missing') {
     return `<section class="panel content-panel perf-traction" id="perf-traction" data-level="missing" aria-labelledby="perf-traction-title">
-      <h2 id="perf-traction-title">Drive force vs. grip</h2>${chips}
+      <h2 id="perf-traction-title">Force vs. grip</h2>${chips}
       ${missingBlock('This check needs: ' + c.missing.join(', ') + '.', laneKey)}</section>`;
   }
   const i = c.inputs;
   return `<section class="panel content-panel perf-traction" id="perf-traction" data-level="${c.status}" aria-labelledby="perf-traction-title">
-    <h2 id="perf-traction-title">Drive force vs. grip</h2>${chips}
-    <p class="perf-status"><strong>${statusWord[c.status]}</strong> · ${pct(c.utilization)} of typical grip</p>
-    ${meter(c)}
+    <h2 id="perf-traction-title">Force vs. grip</h2>${chips}
+    <div class="ig-verdict perf-status">${tree(c.status, { label: false })}<strong>${statusWord[c.status]}</strong><span>${pct(c.utilization)} of typical grip</span></div>
+    ${forceRows(c)}
+    <p class="perf-meter-key quiet small">Drive force ${fmt(c.demandLb)} lb · Grip ${fmt(c.availableLb.low)}–${fmt(c.availableLb.high)} lb (green tick: typical)</p>
     <p>${escape(c.text)}</p>
-    <p class="quiet small">Gear ${i.gear} · ${fmt(i.torqueLbFt)} lb-ft at ${fmt(i.rpm)} rpm${i.converterRatio > 1 ? ` · converter ×${i.converterRatio}` : ''} · overall ${fmt(i.overallRatio, 2)}:1 · ${({ rear: 'rear-wheel', front: 'front-wheel', all: 'all-wheel' })[i.drive]} drive</p>
+    <p class="quiet small">${ordinal(i.gear)} gear · ${fmt(i.torqueLbFt)} lb-ft at ${fmt(i.rpm)} rpm${i.converterRatio > 1 ? ` · converter ×${i.converterRatio}` : ''} · overall ${fmt(i.overallRatio, 2)}:1 · ${({ rear: 'rear-wheel', front: 'front-wheel', all: 'all-wheel' })[i.drive]} drive</p>
   </section>`;
 }
 
@@ -191,13 +242,20 @@ function tireSelect(m) {
   </select></label>`;
 }
 
+/** One line of feedback right under the controls: the result the last change produced. */
+export function feedbackHtml(m) {
+  if (!m.accel) return `<p class="ig-feedback" id="perf-feedback" role="status">${tree(m.check.status, { label: false })}<span>No quarter-mile run yet: ${escape(missingText(m.quarterMissing) || 'grip value needed')}.</span></p>`;
+  const d = m.base && Number.isFinite(m.base.et) ? m.accel.et - m.base.et : null;
+  return `<p class="ig-feedback" id="perf-feedback" role="status">${tree(m.check.status, { label: false })}<span>Now <b>${secs(m.accel.et)}</b>${d !== null && Math.abs(d) >= .005 ? ` (${delta(d, 2)} s vs original)` : ''} · ${ordinal(m.gear + 1)} gear ${escape(statusWord[m.check.status].toLowerCase())}${m.check.utilization ? `, ${pct(m.check.utilization)} of grip` : ''}</span></p>`;
+}
+
 export function controlsHtml(m, perf) {
   const ownMu = m.tire === 'setup' || m.tire === 'custom';
   return `<section class="panel content-panel perf-controls" id="perf-controls" aria-labelledby="perf-controls-title" tabindex="-1">
-    <h2 id="perf-controls-title">Try a change</h2>
-    <h3>Gearing</h3>
+    <h2 id="perf-controls-title">Change the gear or the tire</h2>
+    <h3>Final drive</h3>
     <div class="axle-ratio-picks" role="group" aria-label="Final-drive ratio">${gearChoices(m)}</div>
-    <label class="slider"><span>Final drive <output id="perf-fd">${Number.isFinite(m.v.finalDrive) ? fmt(m.v.finalDrive, 2) : 'missing'}</output></span>
+    <label class="slider"><span>Fine-tune <output id="perf-fd">${Number.isFinite(m.v.finalDrive) ? fmt(m.v.finalDrive, 2) : 'missing'}</output></span>
       <input type="range" data-perf-fd min="2" max="6" step=".01" value="${Number.isFinite(m.v.finalDrive) ? m.v.finalDrive : 3.42}" aria-label="Final drive ratio"></label>
     ${transmissionSelect(m.setup)}
     <p class="quiet small">Gears ${Array.isArray(m.v.gears) && m.v.gears.length ? m.v.gears.map(g => fmt(g, 2)).join(' · ') : 'missing'} · ${escape(m.v.transmission ?? 'transmission type missing')}</p>
@@ -206,6 +264,7 @@ export function controlsHtml(m, perf) {
       <label><span>Surface</span><select data-perf-surface ${ownMu ? 'disabled' : ''}>${Object.entries(surfaces).map(([id, s]) =>
         `<option value="${id}" ${perf.surface === id ? 'selected' : ''}>${escape(s.label)}</option>`).join('')}</select></label></div>
     ${ownMu ? '<p class="quiet small">A single friction value is used as entered; surface factors and ranges do not apply to it.</p>' : ''}
+    ${feedbackHtml(m)}
     <details class="explain" data-details="perf-own-mu"><summary>Use my own friction value</summary>
       <form data-perf-mu class="edit-form"><label class="number-field"><span>Peak longitudinal friction (μ)</span>
       <input type="number" name="mu" min="0.1" max="3" step="0.01" inputmode="decimal" value="${perf.customMu ?? ''}" required></label>
@@ -214,26 +273,40 @@ export function controlsHtml(m, perf) {
   </section>`;
 }
 
+export function nextStepsHtml(m, perf) {
+  const steps = nextSteps(m, perf);
+  if (!steps.length) return '<span id="perf-next"></span>';
+  const why = m.check.status === 'red' ? 'The tires are the limit at launch, so grip changes tend to pay off first.'
+    : m.check.status === 'green' ? 'The tires have grip to spare, so gearing is where time is.'
+    : 'The launch is on the edge: small grip or gearing changes can tip it either way.';
+  return `<section class="panel content-panel" id="perf-next" aria-labelledby="perf-next-title"><h2 id="perf-next-title">Next experiment</h2>
+    <p class="ig-step-why">${why} Each option below is a model run of this car.</p>
+    <div class="ig-steps">${steps.map(s => `<button type="button" class="ig-step" ${s.kind === 'axle' ? `data-axle-ratio="${s.ratio}"` : `data-perf-apply-tire="${s.tire}" data-perf-apply-surface="${s.surface}"`}>
+      <strong>${escape(s.title)}</strong><span>${escape(s.detail)}</span>
+      <b class="${s.change > .004 ? 'worse' : ''}">${Math.abs(s.change) < .005 ? '±0.00' : delta(s.change, 2)} s</b></button>`).join('')}</div></section>`;
+}
+
 export function gearTableHtml(m) {
   if (!m.gearing) return `<section class="panel content-panel" id="perf-gearing"><h2>Gear by gear</h2>
     <p class="warning">Gear speeds need: ${escape(missingText(m.gearingMissing))}.</p></section>`;
   const rows = new Map(m.gearRows.map(r => [r.gear, r]));
   return `<section class="panel content-panel" id="perf-gearing" aria-labelledby="perf-gear-title"><h2 id="perf-gear-title">Gear by gear</h2>
-    <table class="metric-table perf-table"><thead><tr><th scope="col">Gear</th><th scope="col">Speed at shift rpm</th><th scope="col">Force at torque peak</th></tr></thead>
-    <tbody>${m.gearing.map(g => { const r = rows.get(g.gear); return `<tr><th scope="row">${g.gear} <span>${fmt(g.ratio, 2)}</span></th>
-      <td>${fmt(g.shiftMph)} <span>mph</span></td>
-      <td>${r ? `<span class="perf-dot" data-level="${r.status}"></span>${fmt(r.demandLb)} <span>lb · ${pct(r.utilization)}</span>` : '—'}</td></tr>`; }).join('')}</tbody></table>
-    <p class="quiet small">Speeds at ${fmt(m.v.redline)} rpm, gearing only (air drag can cap top gear lower) · ${fmt(m.cruiseRpm)} rpm at 70 mph in top gear.${m.gearRows.length ? ' Force uses peak torque in each gear against the selected tire.' : ''}</p></section>`;
+    <p class="quiet small">Bar: drive force at peak torque as a share of typical grip. The black line is 100%: all the grip the tires have.</p>
+    ${m.gearRows.length ? '<div class="ig-scale" aria-hidden="true"><span></span><span><span>0</span><span>100%</span><span>200%</span></span><span></span></div>' : ''}
+    <ol class="ig-gear-list">${m.gearing.map(g => { const r = rows.get(g.gear);
+      return `<li class="perf-gear-row" ${r ? `data-level="${r.status}"` : ''}><b>${ordinal(g.gear)}<small>${fmt(g.ratio, 2)}</small></b>
+      ${r ? `${useBar(r.utilization, r.status, [r.demandLb / r.availableLb.high, r.demandLb / r.availableLb.low])}<span class="ig-pct">${lamp(r.status)} ${pct(r.utilization)}</span>` : '<span class="quiet small">Force needs the missing data</span><span></span>'}
+      <span class="ig-sub">${fmt(g.shiftMph)} mph at ${fmt(m.v.redline)} rpm${r ? ` · ${fmt(r.demandLb)} lb · ${escape(statusWord[r.status].toLowerCase())}` : ''}</span></li>`; }).join('')}</ol>
+    <p class="quiet small">${fmt(m.cruiseRpm)} rpm at 70 mph in top gear. Speeds are gearing only; air drag can cap top gear lower. Grey band: range from the tire's low–high grip.</p></section>`;
 }
 
 export function tireTableHtml(m) {
-  if (!m.tireRows.length) return '';
-  const gearLabel = `gear ${m.gear + 1}`;
-  return `<section class="panel content-panel" id="perf-tires" aria-labelledby="perf-tires-title"><h2 id="perf-tires-title">Compare tire classes</h2>
-    <p class="quiet small">Same car, gearing and ${gearLabel} on ${escape(surfaces[m.opts.surface ?? 'dryAsphalt'].label.toLowerCase())}. Tap one to use it.</p>
-    <ul class="perf-tire-list">${m.tireRows.map(r => `<li><button type="button" data-perf-pick-tire="${r.id}" aria-pressed="${r.id === m.tire}">
-      <span class="perf-dot" data-level="${r.status}"></span><span>${escape(r.label)}</span>
-      <b>${fmt(r.availableLb.typical)} lb</b><small>${pct(r.utilization)} used</small></button></li>`).join('')}</ul></section>`;
+  if (!m.tireRows.length) return '<span id="perf-tires"></span>';
+  return `<section class="panel content-panel" id="perf-tires" aria-labelledby="perf-tires-title"><h2 id="perf-tires-title">Every tire, same car</h2>
+    <p class="quiet small">${ordinal(m.gear + 1)} gear on ${escape(surfaces[m.opts.surface ?? 'dryAsphalt'].label.toLowerCase())}. Tap one to use it.</p>
+    <ul class="ig-tire-list perf-tire-list">${m.tireRows.map(r => `<li><button type="button" data-perf-pick-tire="${r.id}" aria-pressed="${r.id === m.tire}" data-level="${r.status}">
+      <span>${lamp(r.status)}${escape(r.label)}</span>${useBar(r.utilization, r.status)}
+      <span class="ig-pct">${pct(r.utilization)}</span></button></li>`).join('')}</ul></section>`;
 }
 
 function assumptionsHtml(m) {
@@ -253,7 +326,7 @@ export function performanceView(state, perf, links) {
   const m = perfModel(setup, perf);
   const laneKey = state.focus;
   return `<section class="shell workspace perf-workspace">
-    <div class="page-title"><p class="eyebrow">Measure. Test. Improve.</p><h1>Gearing and traction</h1>
+    <div class="page-title"><p class="eyebrow">Gearing and traction</p><h1>Where does the grip run out?</h1>
       <p class="lede">Your car. Your experiment. Change the gear or the tire and see how much of the engine’s force the tires can use.</p></div>
     <div class="configuration-bar">${vehicleSelector('Vehicle', setup.id, { key: 'focus', name: setup.name })}
       <span>${escape(m.modified ? 'Modified · ' + setupName(setup) : vehicles[setup.id].trim ?? '')}</span></div>
@@ -262,6 +335,7 @@ export function performanceView(state, perf, links) {
     <div class="perf-grid">
       <div class="perf-results">${summaryHtml(m, laneKey)}${tractionHtml(m, laneKey)}</div>
       ${controlsHtml(m, perf)}
+      ${nextStepsHtml(m, perf)}
       ${gearTableHtml(m)}
       ${tireTableHtml(m)}
       <section class="panel content-panel perf-learn">

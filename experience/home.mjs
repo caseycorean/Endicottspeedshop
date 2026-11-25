@@ -24,3 +24,18 @@ if (control) {
   // Existing Grip Lab share URLs at the old homepage keep opening the same experiment.
   if (location.hash.startsWith('#lab:')) location.replace('grip/' + location.hash);
 }
+
+// Proving Ground identity: live timeslip for the visitor's car (or the public Z06 reference) and the tire-circle figure.
+import { liveCard, bindLiveOpen, circlesSvg } from './identity-figures.mjs';
+const live = document.querySelector('[data-home-live]');
+if (live) {
+  try {
+    const card = liveCard('experience/');
+    live.insertAdjacentHTML('beforeend', card.html);
+    bindLiveOpen(live, card.setup, card.example, 'experience/');
+  } catch {
+    live.insertAdjacentHTML('beforeend', '<p class="ig-live-find"><a href="experience/#performance">Open the gearing and traction lab</a></p>');
+  }
+}
+const circles = document.querySelector('[data-home-circles]');
+if (circles) circles.innerHTML = circlesSvg();

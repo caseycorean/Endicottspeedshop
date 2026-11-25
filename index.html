@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Endicott Speed Shop | Build it. Then prove it.</title>
+<title>Endicott Speed Shop | Run it before you buy it.</title>
 <meta name="description" content="Choose your car, compare builds and use engineering tools to test changes in weight, grip, gearing and suspension.">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-GGJVMS8CZD"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.href.split('#')[0]});</script>
 <link rel="canonical" href="https://endicottspeedshop.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Endicott Speed Shop">
-<meta property="og:title" content="Endicott Speed Shop | Build it. Then prove it.">
+<meta property="og:title" content="Endicott Speed Shop | Run it before you buy it.">
 <meta property="og:description" content="Choose your car, compare builds and use engineering tools to test changes in weight, grip, gearing and suspension.">
 <meta property="og:url" content="https://endicottspeedshop.com/">
 <meta property="og:image" content="https://endicottspeedshop.com/logo-round.png">
@@ -21,6 +21,8 @@
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/ess-search.css">
 <link rel="stylesheet" href="assets/ess-editorial.css">
+<link rel="stylesheet" href="assets/ess-identity.css">
+<meta name="theme-color" content="#1b1e1a">
 <script type="module" src="experience/home.mjs"></script>
 </head>
 <body class="ess-theme">
@@ -33,33 +35,43 @@
 <nav><a href="./">Home<small>Start here</small></a><a href="experience/">Vehicle Lab<small>Build, compare and test your car</small></a><a href="plan/">Plan<small>Plan your build, step by step</small></a><a href="tools/">Tools<small>Calculators built from measured data</small></a><a href="articles/">Articles<small>Engineering foundations and build notes</small></a><a href="build/">The Build<small>The green car, measured</small></a><a href="about/">About<small>Why this exists</small></a><a href="contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
 <p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="contact/">Spot a problem? Tell us.</a></p>
 </aside>
-<main class="page home-page" id="main">
-<section class="vehicle-hero" aria-labelledby="home-title">
-  <div class="vehicle-hero-copy">
-    <p class="kicker">The real-world performance workshop</p>
-    <h1 id="home-title">Build it.<br><em>Then prove it.</em></h1>
-    <p>Start with a car and find out what a change does before you make it.</p>
-    <div class="hero-actions" data-home-vehicle data-lab-root="experience/">
-      <button type="button" data-open-catalog aria-haspopup="dialog" class="hero-button">Choose your car</button>
-      <a href="experience/#garage">My Garage</a>
+<main class="page home-page ig-home" id="main">
+<section class="ig-hero" aria-labelledby="home-title">
+  <div class="ig-hero-inner">
+    <div>
+      <p class="ig-eyebrow">Measure. Test. Improve.</p>
+      <h1 id="home-title">Run it before<br><em>you buy it.</em></h1>
+      <p class="ig-lede">Pick your car, change a gear, a tire or a part, and see what it does before anything ships. Engineering models, sourced numbers, honest ranges.</p>
+      <p class="ig-invite">Your car. Your experiment.</p>
+      <div class="ig-hero-actions hero-actions" data-home-vehicle data-lab-root="experience/">
+        <button type="button" data-open-catalog aria-haspopup="dialog" class="hero-button">Choose your car</button>
+        <a href="experience/#garage">My Garage</a>
+      </div>
+      <noscript><p><a href="tools/">Browse calculators</a></p></noscript>
     </div>
-    <noscript><p><a href="tools/">Browse calculators</a></p></noscript>
+    <div class="ig-live" data-home-live aria-live="polite">
+      <p class="ig-live-cap">Live from the Vehicle Lab</p>
+    </div>
   </div>
-  <figure class="vehicle-hero-photo">
-    <img src="assets/palouse-pony.webp" width="1320" height="880" alt="Illustrative classic American coupe in the Palouse">
-  </figure>
 </section>
-<section class="home-intentions" aria-labelledby="intent-title">
+<section class="ig-section home-intentions" aria-labelledby="intent-title">
   <h2 id="intent-title">What are you working on?</h2>
-  <div class="intent-choices"><a class="intent-choice" href="experience/#build"><strong>Improve my car</strong><span>Try a part, a gear or a chassis change.</span></a><a class="intent-choice" href="experience/#compare"><strong>Compare vehicles</strong><span>See how two cars or two setups stack up.</span></a><a class="intent-choice" href="plan/"><strong>Plan my next build</strong><span>Work from a goal to a list you can test.</span></a><a class="intent-choice" href="experience/#learn"><strong>Understand the engineering</strong><span>Explore what makes the numbers move.</span></a></div>
-</section>
-<section class="home-fieldnotes" aria-labelledby="field-title">
-  <div>
-    <p class="kicker">In the workshop</p><h2 id="field-title">From a change to a result</h2>
-    <p>Try braking and turning together. See which tire gets light first, then explore the same forces on your setup.</p>
-    <a class="section-link" href="experience/#tools">Explore tire loads</a>
+  <div class="ig-paths intent-choices">
+    <a class="ig-path intent-choice" href="experience/#build"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M8 7v18M16 7v18M24 7v9M8 16h16"/><circle cx="24" cy="23" r="3" fill="#f2a81d" stroke="none"/></svg><strong>Improve my car</strong><span>Try a part, a gear or a chassis change.</span></a>
+    <a class="ig-path intent-choice" href="experience/#compare"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M11 4v24M21 4v24" opacity=".45"/><circle cx="11" cy="10" r="3.4" fill="currentColor" stroke="none"/><circle cx="21" cy="17" r="3.4" fill="#f2a81d" stroke="none"/></svg><strong>Compare vehicles</strong><span>See how two cars or two setups stack up.</span></a>
+    <a class="ig-path intent-choice" href="plan/"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8l2.5 2.5L12 6M5 17l2.5 2.5L12 15"/><path d="M16 9h11M16 18h11M16 26h11"/><circle cx="8" cy="26" r="2.6" fill="#f2a81d" stroke="none"/></svg><strong>Plan my next build</strong><span>Work from a goal to a list you can test.</span></a>
+    <a class="ig-path intent-choice" href="experience/#learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="9.5" stroke-width="2"/><path d="M12 4.5v15M4.5 12h15" stroke-width="1" opacity=".5"/><circle cx="18.7" cy="5.3" r="2.7" fill="#f2a81d" stroke="none"/></svg><strong>Understand the engineering</strong><span>Explore what makes the numbers move.</span></a>
   </div>
-  <div class="home-reading">
+</section>
+<section class="ig-section home-fieldnotes" aria-labelledby="field-title">
+  <p class="ig-eyebrow">In the workshop</p><h2 id="field-title">From a change to a result</h2>
+  <div class="ig-feature">
+    <svg viewBox="0 0 220 220" role="img" aria-label="Traction circles growing from a period bias-ply tire to a modern extreme-performance tire"><g data-home-circles></g></svg>
+    <div><h3>The traction circle</h3>
+      <p>Every tire has one limit, shared between braking, turning and accelerating. Modern tires made it far bigger. Read why, then brake into a corner and watch which tire goes light first.</p>
+      <a class="ig-btn" href="articles/traction-circle/">Read the article</a> <a class="section-link" href="experience/#tools">Explore tire loads</a></div>
+  </div>
+  <div class="ig-more home-reading">
     <a href="tools/"><strong>Calculators</strong><span>Weight, balance, load transfer and spring rates</span></a>
     <a href="articles/"><strong>Engineering articles</strong><span>From the traction circle to real component weights</span></a>
     <a href="build/"><strong>The ESS Firebird</strong><span>Follow the shop's measured project</span></a>
@@ -67,7 +79,7 @@
 </section>
 <p class="review-entrance"><a href="grip/">Try the tire-load entrance</a></p>
 </main>
-<footer class="footer"><div class="line"><span>© 2026 Endicott Speed Shop · Beta — <a href="contact/">report a problem</a></span><span><a href="privacy/">Privacy</a> · <a href="contact/">Contact</a></span></div></footer>
+<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="contact/">report a problem</a></span><span><a href="privacy/">Privacy</a> · <a href="contact/">Contact</a></span></div></footer>
 <script src="assets/site.js"></script>
 </body>
 </html>

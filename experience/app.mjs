@@ -13,7 +13,7 @@ import { components, componentOverrides } from './components.mjs';
 import { mountCamber } from './diagrams.mjs';
 import { mountFrontGeometry, frontGeometry } from './front-geometry.mjs';
 import { studies, missingFor } from './readiness.mjs';
-import { performanceView, performanceExplain, loadPerf, savePerf, perfDefaults, summaryHtml, tractionHtml, gearTableHtml, tireTableHtml, perfModel } from './performance-view.mjs';
+import { performanceView, performanceExplain, loadPerf, savePerf, perfDefaults, summaryHtml, tractionHtml, gearTableHtml, tireTableHtml, feedbackHtml, perfModel } from './performance-view.mjs';
 
 const app = document.querySelector('#app');
 installCatalog();
@@ -530,8 +530,10 @@ function perfFinalDrive(value, final) {
     byId('perf-summary').outerHTML = summaryHtml(m, state.focus);
     byId('perf-traction').outerHTML = tractionHtml(m, state.focus);
     byId('perf-gearing').outerHTML = gearTableHtml(m);
-    const tires = byId('perf-tires');
-    if (tires) tires.outerHTML = tireTableHtml(m) || '<span id="perf-tires"></span>';
+    byId('perf-tires').outerHTML = tireTableHtml(m);
+    byId('perf-feedback').outerHTML = feedbackHtml(m);
+    const next = byId('perf-next');
+    if (next) next.setAttribute('aria-busy', 'true'); // suggestions refresh when the slider is released
     for (const chip of app.querySelectorAll('#perf-controls [data-axle-ratio]'))
       chip.setAttribute('aria-pressed', String(Number(chip.dataset.axleRatio) === value));
     rememberDraft();
@@ -559,6 +561,12 @@ function perfClick(el) {
   perfPendingRef = null;
   if (d.axleRatio) { perfFinalDrive(Number(d.axleRatio), true); return true; }
   if (d.perfGear !== undefined) { perf = {...perf, gear: Number(d.perfGear)}; perfCommit('Traction check in gear ' + (perf.gear + 1) + '.'); return true; }
+  if (d.perfApplyTire) {
+    perf = {...perf, tire: d.perfApplyTire, surface: d.perfApplySurface || perf.surface};
+    perfCommit('Trying ' + el.querySelector('strong').textContent + '.');
+    byId('perf-feedback')?.scrollIntoView({block: 'center'});
+    return true;
+  }
   if (d.perfPickTire) { perf = {...perf, tire: d.perfPickTire}; perfCommit('Tire class changed.'); return true; }
   if (el.hasAttribute('data-perf-tire-reset')) { perf = {...perf, tire: null}; perfCommit('Back to tire classes.'); return true; }
   if (el.hasAttribute('data-perf-reset')) {
