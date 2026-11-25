@@ -9,6 +9,7 @@ import { transmissions } from './data/transmissions.mjs';
 import { swapEngines, engineFamilyFor } from './data/engines.mjs';
 import { applyItems } from './loads.mjs';
 import { straightLine } from './acceleration.mjs';
+import { archiveCatalog, archiveVehicles, archiveResolveOptions, searchVehicles as search } from './archive.mjs';
 
 linkSwapDonors(catalog);
 
@@ -19,9 +20,11 @@ export const evidenceLabel = {
 };
 
 export function labVehicle(configId, components = {}, owner = {}) {
-  const rec = catalog[configId];
+  // Curated vehicles first; 'sx-…' ids are Supercar X archive records (evidence 'historical').
+  const rec = catalog[configId] ?? archiveCatalog[configId]?.record;
   if (!rec) return null;
-  const r = resolveVehicle(rec, { configId, components, owner });
+  const r = resolveVehicle(rec, catalog[configId] ? { configId, components, owner } : archiveResolveOptions(configId, { components, owner }));
+  if (rec.archive) r.archive = { ...rec.archive, tier: archiveCatalog[configId].tier, why: archiveCatalog[configId].why ?? null };
   // Engine swap changes mass too (estimated position), so every tool sees the same modified car.
   if (components.engine && r.vehicle.weight && r.vehicle.front) {
     const to = swapEngines[components.engine]?.family, from = engineFamilyFor(rec.name);
@@ -52,4 +55,13 @@ export function garageComponents() {
       evidence: t.evidence, label: evidenceLabel[t.evidence], weight: t.weight ?? null, note: t.note ?? null, sources: t.sources }])),
     engine: Object.fromEntries(Object.entries(swapEngines).map(([id, e]) => [id, { name: e.name, from: e.from, family: e.family }])),
   };
+}
+
+/** Search curated + archive vehicles in one list (curated first). Each hit: {id, name, source, tier, runs}. */
+export const searchVehicles = (query, options) => search(catalog, query, options);
+
+/** Counts for a coverage line, e.g. "53 curated · 70 archive (61 simulation-ready)". */
+export function vehicleCoverage() {
+  const by = t => archiveVehicles.filter(x => x.tier === t).length;
+  return { curated: Object.keys(catalog).length, archive: archiveVehicles.length, simulationReady: by('simulation-ready'), partial: by('partial'), reference: by('historical-reference') };
 }

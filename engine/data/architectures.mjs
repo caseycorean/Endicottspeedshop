@@ -34,7 +34,7 @@ export function codeFromText(text, end) {
     if (/twin i-beam/.test(t)) return 'twinIBeam';
     if (/strut/.test(t)) return 'strut';
     if (/multi-?link/.test(t)) return 'multilink';
-    if (/wishbone|short\/long|control.arm|a-arm|unequal-length/.test(t)) return 'sla';
+    if (/wishbone|short\/long|control.arm|a-\s?arm|unequal.length/.test(t)) return 'sla';
     return null;
   }
   if (/truck arm/.test(t)) return 'truckArm';
@@ -42,10 +42,14 @@ export function codeFromText(text, end) {
   if (/three-link/.test(t)) return 'threeLink';
   if (/five-link/.test(t)) return 'fiveLink';
   if (/torque arm/.test(t)) return 'torqueArm';
-  if (/semi-trailing/.test(t)) return 'semiTrailing';
+  if (/semi-tr(ai|ia)ling/.test(t)) return 'semiTrailing';
+  if (/rigid axle/.test(t) && /3 trailing links/.test(t) && /panhard/.test(t)) return 'threeLink';
   if (/strut/.test(t)) return 'irsStrut';
   if (/multi-?link|integral.link/.test(t) && /live axle/.test(t)) return 'fiveLink';
   if (/multi-?link|integral.link/.test(t)) return 'irsMultilink';
+  // Archive (Supercar X) wording: independent rears described by link counts, e.g. "1 trailing link and 2 lateral links per side".
+  if (/^ind/.test(t) && /\d (lateral|diagonal|trailing|trialing|toe-control) links?/.test(t) && !/unequal.length|upper and lower/.test(t)) return 'irsMultilink';
+  if (/^ind/.test(t) && /(upper|lower) (a-\s?arms?|l-\s?arms?)|upper and lower control arms|fixed-length half-shaft/.test(t)) return 'irsControlArm';
   if (/wishbone|short\/long|control arms/.test(t) && !/live/.test(t)) return 'irsControlArm';
   if (/trailing arms and watts/.test(t)) return 'fourLinkParallel';
   return null;
