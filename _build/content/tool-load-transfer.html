@@ -15,7 +15,7 @@
 <div><label for="ax">Braking / acceleration (g)</label><input id="ax" inputmode="decimal" value="0.4"></div>
 <div><label for="dirn">Cornering</label><select id="dirn"><option value="r" selected>Turning right</option><option value="l">Turning left</option></select></div>
 <div><label for="ay">Cornering (g)</label><input id="ay" inputmode="decimal" value="0.9"></div></div>
-<p class="hint">Example: trail-braking at 0.4 g while cornering at 0.9 g. Set either value to 0 to look at braking or cornering alone. Street tires reach roughly 0.8–0.9 g; the <a href="../../articles/traction-circle/">traction circle</a> explains why you can't have full braking and full cornering at the same time.</p></div>
+<p class="note" id="labnote" hidden>Filled in from the grip experiment on the home page: weight, front %, CG height, braking and cornering. The suspension values below are the same defaults it uses.</p><p class="hint">Example: trail-braking at 0.4 g while cornering at 0.9 g. Set either value to 0 to look at braking or cornering alone. Street tires reach roughly 0.8–0.9 g; the <a href="../../articles/traction-circle/">traction circle</a> explains why you can't have full braking and full cornering at the same time.</p></div>
 <details class="panel"><summary><strong>Suspension (changes the front/rear split of cornering load only)</strong></summary><div class="fields" style="margin-top:12px">
 <div><label for="kf">Roll stiffness on front (%)</label><input id="kf" inputmode="decimal" value="60"></div>
 <div><label for="zf">Front roll center height (in)</label><input id="zf" inputmode="decimal" value="2"></div>
@@ -92,6 +92,9 @@ function calc(){
 }
 function show(m,keep){var w=$('warn');w.style.display=m?'block':'none';w.textContent=m;if(m&&!keep){$('take').textContent='–';clearOut()}}
 document.querySelectorAll('input,select').forEach(function(i){i.addEventListener('input',calc);i.addEventListener('change',calc)});
+// Opened from the home-page grip experiment: '#lab:w=..&fp=..&h=..&ax=..&ay=..' fills those inputs (other inputs keep their defaults).
+(function(){var m=(location.hash||'').match(/^#lab:(.+)$/);if(!m)return;var n=0;m[1].split('&').forEach(function(kv){var p=kv.split('='),el=['w','fp','h','ax','ay'].indexOf(p[0])>=0?$(p[0]):null;if(el&&/^\d+(\.\d+)?$/.test(p[1]||'')){el.value=p[1];n++}});
+ if(n){$('lm').value=parseFloat($('ax').value)>0?'b':'n';$('dirn').value='r';var h=$('labnote');if(h)h.hidden=false}})();
 calc();
 })();
 </script>

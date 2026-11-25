@@ -6,7 +6,7 @@
 <title>Load Transfer Calculator | Endicott Speed Shop</title>
 <meta name="description" content="Free load transfer calculator: braking, acceleration and cornering weight transfer, front/rear split from roll stiffness and roll centers, and the load on each tire.">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-GGJVMS8CZD"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD');</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.href.split('#')[0]});</script>
 <link rel="canonical" href="https://endicottspeedshop.com/tools/load-transfer/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Endicott Speed Shop">
@@ -24,11 +24,11 @@
 <body>
 <header class="site-header"><div class="header-inner">
 <div class="brand-wrap"><a href="../.././" class="brand" aria-label="Endicott Speed Shop home"><img src="../../logo-horizontal-tight.png" alt="Endicott Speed Shop — Measure, Test, Improve" width="611" height="192"></a><a class="beta-pill" href="../../about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
-<nav class="topnav"><a href="../../tools/" class=on>Tools</a><a href="../../articles/">Articles</a><a href="../../build/">The Build</a><a href="../../about/">About</a><a href="../../contact/">Contact</a></nav>
+<nav class="topnav"><a href="../../plan/">Plan</a><a href="../../tools/" class=on>Tools</a><a href="../../articles/">Articles</a><a href="../../build/">The Build</a><a href="../../about/">About</a><a href="../../contact/">Contact</a></nav>
 <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
 </div></header>
 <aside class="sidebar" id="sidebar"><button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
-<nav><a href="../.././">Home<small>Start here</small></a><a href="../../tools/">Tools<small>Calculators built from measured data</small></a><a href="../../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../../build/">The Build<small>The green car, measured</small></a><a href="../../about/">About<small>Why this exists</small></a><a href="../../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
+<nav><a href="../.././">Home<small>Start here</small></a><a href="../../plan/">Plan<small>Plan your build, step by step</small></a><a href="../../tools/">Tools<small>Calculators built from measured data</small></a><a href="../../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../../build/">The Build<small>The green car, measured</small></a><a href="../../about/">About<small>Why this exists</small></a><a href="../../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
 <p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="../../contact/">Spot a problem? Tell us.</a></p>
 </aside>
 <main class="page">
@@ -48,7 +48,7 @@
 <div><label for="ax">Braking / acceleration (g)</label><input id="ax" inputmode="decimal" value="0.4"></div>
 <div><label for="dirn">Cornering</label><select id="dirn"><option value="r" selected>Turning right</option><option value="l">Turning left</option></select></div>
 <div><label for="ay">Cornering (g)</label><input id="ay" inputmode="decimal" value="0.9"></div></div>
-<p class="hint">Example: trail-braking at 0.4 g while cornering at 0.9 g. Set either value to 0 to look at braking or cornering alone. Street tires reach roughly 0.8–0.9 g; the <a href="../../articles/traction-circle/">traction circle</a> explains why you can't have full braking and full cornering at the same time.</p></div>
+<p class="note" id="labnote" hidden>Filled in from the grip experiment on the home page: weight, front %, CG height, braking and cornering. The suspension values below are the same defaults it uses.</p><p class="hint">Example: trail-braking at 0.4 g while cornering at 0.9 g. Set either value to 0 to look at braking or cornering alone. Street tires reach roughly 0.8–0.9 g; the <a href="../../articles/traction-circle/">traction circle</a> explains why you can't have full braking and full cornering at the same time.</p></div>
 <details class="panel"><summary><strong>Suspension (changes the front/rear split of cornering load only)</strong></summary><div class="fields" style="margin-top:12px">
 <div><label for="kf">Roll stiffness on front (%)</label><input id="kf" inputmode="decimal" value="60"></div>
 <div><label for="zf">Front roll center height (in)</label><input id="zf" inputmode="decimal" value="2"></div>
@@ -125,6 +125,9 @@ function calc(){
 }
 function show(m,keep){var w=$('warn');w.style.display=m?'block':'none';w.textContent=m;if(m&&!keep){$('take').textContent='–';clearOut()}}
 document.querySelectorAll('input,select').forEach(function(i){i.addEventListener('input',calc);i.addEventListener('change',calc)});
+// Opened from the home-page grip experiment: '#lab:w=..&fp=..&h=..&ax=..&ay=..' fills those inputs (other inputs keep their defaults).
+(function(){var m=(location.hash||'').match(/^#lab:(.+)$/);if(!m)return;var n=0;m[1].split('&').forEach(function(kv){var p=kv.split('='),el=['w','fp','h','ax','ay'].indexOf(p[0])>=0?$(p[0]):null;if(el&&/^\d+(\.\d+)?$/.test(p[1]||'')){el.value=p[1];n++}});
+ if(n){$('lm').value=parseFloat($('ax').value)>0?'b':'n';$('dirn').value='r';var h=$('labnote');if(h)h.hidden=false}})();
 calc();
 })();
 </script>
