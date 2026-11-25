@@ -359,3 +359,45 @@ input[type="range"] { width: 100%; height: 28px; margin: 0; accent-color: var(--
 .performance-why { margin: .35rem 0 0; color: var(--muted); font-size: .8rem; line-height: 1.4; }
 .text-button { min-height: 44px; }
 .performance-main small { font-size: .75rem; }
+
+/* Editorial entrance and engineering workspaces. */
+.hero { border-radius: 3px; }
+.hero-copy { background: #1b201f; }
+.hero h1, .suspension-workspace h1, .garage-page h1 {
+  font-family: Georgia, 'Times New Roman', serif; font-weight: 500; letter-spacing: -.055em;
+}
+.hero h1 em { font-style: italic; color: #ecc393; }
+.hero-editorial { position: relative; min-width: 0; margin: 0; background: #13191e; display: grid; }
+.hero-editorial img { width: 100%; height: 100%; object-fit: cover; object-position: 58% 51%; }
+.hero-editorial figcaption { position: absolute; bottom: .4rem; right: .55rem; font: .76rem var(--mono); color: #f0d7b4; background: #141a1ccc; padding: .2rem .35rem; }
+.garage-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .6rem; margin-block: .6rem; }
+.garage-current .actions { margin-top: .6rem; align-items: end; }
+.garage-card h2 { overflow-wrap: anywhere; }
+.link-canvas-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .6rem; }
+.link-canvas-grid figure { margin: 0; min-width: 0; }
+.link-canvas-grid figcaption { margin-bottom: .2rem; color: var(--muted); font-size: .86rem; }
+.link-canvas-grid canvas { width: 100%; height: auto; display: block; border: 1px solid var(--line); border-radius: 6px; }
+.link-status, .traction-panel { border: 1px solid var(--line); border-left: 4px solid var(--level, var(--mint)); padding: .45rem .65rem; margin-block: .45rem; border-radius: 5px; }
+[data-level="green"] { --level: #9fcebd; }
+[data-level="yellow"] { --level: #f0c278; }
+[data-level="red"] { --level: #ffa398; }
+.link-readout { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: .4rem; margin: .5rem 0; }
+.link-readout > div { padding: .45rem; background: var(--raised); border-radius: 4px; }
+.link-readout dt { font-size: .78rem; color: var(--muted); }
+.link-readout dd { margin: 0; font: 700 .86rem/1.35 var(--mono); overflow-wrap: anywhere; }
+.suspension-workspace > .tool-grid { margin-top: .7rem; }
+.swap-panel .pair-grid { margin: .45rem 0; }
+.traction-panel p { margin-top: .15rem; font-size: .82rem; }
+.replay-details .race-scene { margin-top: .3rem; }
+@media (max-width: 620px) {
+  .hero-editorial img { max-height: 225px; }
+  .link-readout { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .link-canvas-grid, .garage-grid { grid-template-columns: 1fr; }
+  .garage-current .actions .vehicle-select { flex: 1 1 165px; }
+}
+.awaiting-specs > .build-specs { grid-row: 1; }
+.awaiting-specs > .mod-controls { grid-row: 2; }
+@media (max-width: 620px) {
+  .awaiting-specs > .build-specs { grid-row: 2; }
+  .awaiting-specs > .mod-controls { grid-row: 4; }
+}

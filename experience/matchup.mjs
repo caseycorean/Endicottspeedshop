@@ -1,3 +1,4 @@
+import { drivetrainPanel } from './drivetrain-view.mjs';
 import { lanes, labelLane, modeOf, modified } from './configuration.mjs';
 import { resolve, straightLine } from './models.mjs';
 import { ovalLap } from './oval.mjs';
@@ -44,7 +45,7 @@ export function comparisonResults(entries, oval) {
 function laneEditor(entry) {
   const {key, setup, mode} = entry;
   return `<div class="lineup-car car-${key}">
-    <div class="pair-grid">${vehicleSelector(labelLane(key), setup.id, {key})}${configModes(setup, key, mode)}</div>
+    <div class="pair-grid">${vehicleSelector(labelLane(key), setup.id, {key, name: setup.name})}${configModes(setup, key, mode)}</div>
     <p>${escape(setupName(setup))} · ${fmt(entry.value.weight)} lb · ${fmt(entry.value.hp)} hp</p>
     <div class="actions"><button class="button secondary small" data-edit="${key}">Build ${labelLane(key)}</button>
     <button class="button secondary small" data-use-lane="${key}">Use ${labelLane(key)}</button>
@@ -72,7 +73,7 @@ function quickTune(state, entries) {
     <div class="tool-controls">
       ${[['finalDrive', 'Final drive', 2, 6, .01], ['grip', 'Tire grip (μ)', .35, 1.4, .01]].map(([key, caption, min, max, step]) =>
       `<label class="slider"><span>${caption} <output id="quick-${key}">${fmt(tuned[key], 2)}</output></span>
-      <input type="range" data-quick="${key}" min="${min}" max="${max}" step="${step}" value="${tuned[key]}"></label>`).join('')}
+      <input type="range" data-quick="${key}" min="${min}" max="${max}" step="${step}" value="${tuned[key] ?? (key === 'grip' ? .9 : 3.08)}"></label>`).join('')}
     </div>
     <p class="quick-impact" id="quick-impact">${escape(quickImpact(entry, state.event === 'oval'))}</p>
     <p class="quiet small"> <button class="text-button" data-edit="${entry.key}">Edit the full build</button></p>
@@ -90,6 +91,10 @@ export function racePanel(state, entries) {
       <button class="button secondary small" data-event="oval" aria-pressed="${oval}">Test oval</button>
       <button class="button secondary small" data-action="open-lineup">Edit lineup</button>
     </div>
+    <div id="race-results">${comparisonResults(entries, oval)}</div>
+    ${quickTune(state, entries)}
+    ${drivetrainPanel(state[state.focus])}
+    <details class="explain replay-details" id="replay-details" data-details="replay"><summary>Watch the replay</summary>
     <div class="race-scene"><canvas id="race-scene" width="620" height="${oval ? 246 : entries.length > 2 ? 225 : 166}" role="img"
       aria-label="${entries.length} vehicle model positions on the ${oval ? 'synthetic test oval' : 'quarter-mile drag strip'}"></canvas></div>
     <div class="live-grid" id="race-live">${liveGrid(entries)}</div>
@@ -101,8 +106,7 @@ export function racePanel(state, entries) {
     <div class="scrub-grid"><label class="scrubber">Replay position <input id="scrubber" type="range" min="0" max="1000" value="0" ${playable ? '' : 'disabled'}></label>
       <label><span>Speed</span><select id="playback-rate"><option value=".5">½×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label></div>
     <div id="share-feedback" role="status"></div>
-    ${quickTune(state, entries)}
-    <div id="race-results">${comparisonResults(entries, oval)}</div>
+    </details>
   </section>`;
 }
 
@@ -134,7 +138,7 @@ export function compare(state, entries) {
           <h2>How to read the results</h2>
           ${explanation('What the simulation assumes',
             oval ? 'The synthetic oval has two 520 ft straights and two 200 ft radius turns. The flying lap starts at speed. The solver limits corner speed by grip and brakes for the next turn. Gears are idealized. Suspension and transient handling are outside this model. Turn speed depends only on the grip coefficient here, so weight changes show up only through acceleration out of the turns, not corner speed or braking.' :
-            'The model combines the estimated torque curve, gear ratios, tire radius, drivetrain loss, rear grip, drag and shift delay. Launch grip and engine output need measurement to predict real times. Use the results to compare the effect of your settings.')}
+            'The model combines the estimated torque curve, gear ratios, tire radius, drivetrain loss, driven-axle grip, drag and shift delay. Launch grip and engine output need measurement to predict real times. Use the results to compare the effect of your settings.')}
           ${oval ? '' : `<details class="explain"><summary>Published test checkpoints for the first two references</summary>
             ${metricTable([['0–60 mph', a.test60, b.test60, 's', 1], ['Quarter mile', a.testEt, b.testEt, 's', 1],
               ['Reported trap', a.testTrap, b.testTrap, 'mph', 1]], ['Car A stock', 'Car B stock'], true)}

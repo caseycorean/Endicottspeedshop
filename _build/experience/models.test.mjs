@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { vehicles } from '../../experience/vehicles.mjs';
+import { vehicleIds, vehicles } from '../../experience/vehicles.mjs';
 import { newSetup, cleanSetup, usableSetup, resolve, tireLoads, ride, straightLine,
   driveResistance, tractiveLimit, powerIssue, MPH, presets, atTime } from '../../experience/models.mjs';
 import { example, readFragment, shareFragment, shareResult } from '../../experience/configuration.mjs';
@@ -57,7 +57,7 @@ test('ride model agrees with the existing ESS spring example and rejects zero sp
 });
 
 test('all reference vehicles produce finite, monotonic-distance traces with explicit shift intervals', () => {
-  for (const id of Object.keys(vehicles)) {
+  for (const id of vehicleIds) {
     const run = straightLine(resolve(newSetup(id)));
     assert.ok(run.zeroTo60 > 0, id);
     assert.ok(run.finish.t > run.zeroTo60, id);
@@ -123,7 +123,7 @@ test('oval closes and solves physically ordered flying laps without exceeding th
   near(ovalLength, 1040 + 400 * Math.PI);
   assert.deepEqual(ovalPoint(0), ovalPoint(ovalLength));
   assert.deepEqual(ovalPoint(520), { x: 520, y: 0 });
-  for (const id of Object.keys(vehicles)) {
+  for (const id of vehicleIds) {
     const v = resolve(newSetup(id));
     const r = ovalLap(v);
     near(r.trace[0].speed, r.trace.at(-1).speed);

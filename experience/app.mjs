@@ -1,20 +1,26 @@
 import { vehicles, stock, vehicleIds } from './vehicles.mjs';
-import { resolve, cleanSetup, newSetup, presets, validValue, usableSetup } from './models.mjs';
-import { example, clone, modified, shareFragment, readFragment, getSaved, saveBuild, shareResult, getActive, useConfig, laneKeys, lanes, labelLane, modeOf } from './configuration.mjs';
+import { resolve, massIssue, choices, cleanSetup, newSetup, presets, validValue, usableSetup } from './models.mjs';
+import { example, clone, modified, shareFragment, readFragment, getSaved, saveBuild, getGarage, saveToGarage, removeFromGarage, shareResult, getActive, useConfig, laneKeys, lanes, labelLane, modeOf } from './configuration.mjs';
 import { home, build, toolsView, learn, inputGroups, toolResults } from './views.mjs';
 import { fmt, numberField } from './ui.mjs';
 import { compare, matchupEntries, comparisonResults, liveGrid, resultTime, setupName, quickImpact } from './matchup.mjs';
 import { paintReplay, replayFrame } from './replay.mjs';
+import { garageView } from './garage-view.mjs';
+import { mountSuspension, suspensionView } from './suspension-view.mjs';
+import { installCatalog } from './catalog.mjs';
+import { tractionPanel } from './drivetrain-view.mjs';
+import { components, componentOverrides } from './components.mjs';
 import { mountCamber } from './diagrams.mjs';
 
 const app = document.querySelector('#app');
+installCatalog();
 const notice = document.querySelector('#link-notice');
 const status = document.querySelector('#status');
 const defaults = { brake: .4, lateral: .9 };
 let saved = getSaved();
 function initialState() {
   const selected = getActive();
-  return selected ? {...example(), a: selected.setup, aMode: selected.mode} : example();
+  return selected ? {...example(), a: selected.setup, aMode: selected.mode} : {...example(), a: newSetup('camaro')};
 }
 let state = initialState();
 let view = 'home';
@@ -76,12 +82,15 @@ function render(next = view, restoreDetails = false) {
       break;
     }
     case 'tools': app.innerHTML = toolsView(state, toolSettings(), shareFragment(state, 'tools'), saved); break;
-    case 'learn': app.innerHTML = learn(); break;
-    default: {
-      app.innerHTML = home(state, saved);
-      const entries = matchupEntries({...state, event: 'strip', c: undefined, d: undefined});
-      paintReplay(byId('home-scene'), 'strip', entries, replayFrame(entries.filter(e => e.run.trace), 0), 0);
+    case 'garage': app.innerHTML = garageView(getGarage(), getActive()); break;
+    case 'suspension': {
+      const selected = getActive();
+      app.innerHTML = suspensionView(selected && setupName(selected.setup));
+      mountSuspension(app, selected && resolve(selected.setup, selected.mode === 'after'));
+      break;
     }
+    case 'learn': app.innerHTML = learn(); break;
+    default: app.innerHTML = home(state, saved);
   }
   mountCamber(app);
   notice.textContent = sharedLinkNotice;
@@ -151,6 +160,7 @@ function choosePreset(key) {
 }
 
 function numericValue(key, text) {
+  if (choices[key]) return text;
   if (key === 'gears') {
     const values = text.split(',').map(s => s.trim());
     return values.every(s => /^\d*\.?\d+$/.test(s)) ? values.map(Number) : null;
@@ -193,16 +203,21 @@ app.addEventListener('submit', event => {
     if (name) next.name = name;
     else delete next.name;
   }
-  const benchmark = section === 'base' ? stock(next.id) : resolve(next, false);
+  const benchmark = section === 'base' ? stock(next.id) : {...resolve(next, false), ...componentOverrides(next)};
   for (const key of inputGroups[group]) {
-    const value = numericValue(key, values.get(key).trim());
+    const entered = values.get(key).trim();
+    if (!entered) {
+      delete next[section][key];
+      continue;
+    }
+    const value = numericValue(key, entered);
     if (!validValue(key, value)) {
       issue.textContent = 'Check the highlighted specifications. Use positive numbers and decreasing comma-separated gear ratios.';
       form.elements.namedItem(key).focus();
       return;
     }
-    const same = key === 'gears' ? value.length === benchmark[key].length && value.every((n, i) => n === benchmark[key][i]) :
-      Math.abs(value - benchmark[key]) < .000051;
+    const same = key === 'gears' ? value.length === benchmark[key]?.length && value.every((n, i) => n === benchmark[key][i]) :
+      choices[key] ? value === benchmark[key] : Number.isFinite(benchmark[key]) && Math.abs(value - benchmark[key]) < .000051;
     if (same) delete next[section][key];
     else next[section][key] = value;
   }
@@ -210,21 +225,40 @@ app.addEventListener('submit', event => {
     issue.textContent = 'The resulting mass or axle balance is outside the model limits.';
 });
 
+app.addEventListener('ess:vehicle-selected', event => {
+  const target = event.target.dataset.vehicleKey;
+  if (!target) return;
+  const key = target === 'focus' || target === 'garage' ? state.focus : target;
+  const {id, template} = event.detail;
+  const previous = state[key];
+  if (id === previous.id && !template && target !== 'garage') return;
+  if ((modified(previous) || previous.name || Object.keys(previous.base).length) && target !== 'garage' &&
+      !window.confirm('Replace the current experiment in this lane? Your saved builds stay available.')) return;
+  state[key] = newSetup(id);
+  state[key + 'Mode'] = 'before';
+  if (target === 'garage') carryLane(key, 'before');
+  if (template) {
+    state.focus = key;
+    navigate('build');
+    app.querySelector('[data-details="original"]').open = true;
+  } else render(view, true);
+  speak('Selected ' + vehicles[id].name + '.');
+});
+
 app.addEventListener('change', event => {
   const el = event.target;
-  const selected = el.dataset.vehicle;
-  if (selected) {
-    const key = selected === 'focus' ? state.focus : selected;
-    if (el.value === state[key].id) return;
-    const previous = state[key];
-    if (modified(previous) || previous.name || Object.keys(previous.base).length) {
-      const replace = window.confirm('Replace the current experiment in this lane? Your saved build stays available.');
-      if (!replace) { el.value = previous.id; return; }
-    }
-    state[key] = newSetup(el.value);
-    state[key + 'Mode'] = 'before';
-    render(view, true);
-    speak('Selected ' + vehicles[el.value].name + '.');
+  if (el.dataset.component) {
+    const kind = el.dataset.component;
+    const next = clone(active());
+    const before = next.components?.[kind];
+    if (before === el.value) return;
+    const specs = components[kind][el.value] ?? components[kind][before];
+    const config = {...next.components};
+    if (el.value) config[kind] = el.value;
+    else delete config[kind];
+    next.components = config;
+    for (const key of Object.keys(specs?.values ?? {})) delete next.tune[key];
+    commitExperiment(next, specs ? specs.name + (el.value ? ' applied.' : ' removed.') : '');
   } else if (el.dataset.mode) {
     state[el.dataset.mode + 'Mode'] = el.value;
     render(view, true);
@@ -262,6 +296,7 @@ function updateReplay(t) {
 
 function play(button) {
   if (!replay?.duration) return;
+  byId('replay-details').open = true;
   if (replay.frame) {
     cancelAnimationFrame(replay.frame);
     replay.frame = null;
@@ -300,7 +335,10 @@ function refreshComparison() {
   byId('race-live').innerHTML = liveGrid(entries);
   const oval = state.event === 'oval';
   byId('race-results').innerHTML = comparisonResults(entries, oval);
-  byId('quick-impact').textContent = quickImpact(entries.find(entry => entry.key === state.focus), oval);
+  const selected = entries.find(entry => entry.key === state.focus);
+  byId('quick-impact').textContent = quickImpact(selected, oval);
+  const traction = app.querySelector('[data-traction-result]');
+  if (traction) traction.outerHTML = tractionPanel(resolve(selected.setup));
   byId('share-feedback').replaceChildren();
   setReplay(entries);
   const playable = Boolean(replay.duration);
@@ -346,6 +384,10 @@ async function share() {
 
 function sameChange() {
   const keys = lanes(state);
+  if (keys.some(key => massIssue(resolve(state[key])))) {
+    speak('Add weight and balance data for each car before applying the same part change.');
+    return;
+  }
   const drafts = keys.map(key => {
     const draft = clone(state[key]);
     if (!draft.parts.some(p => p.preset === 'remove')) addPreset(draft, 'remove');
@@ -386,7 +428,7 @@ document.addEventListener('click', event => {
   const el = event.target.closest('a,button');
   if (!el) return;
   const href = el.getAttribute('href');
-  if (href && ['#home', '#build', '#compare', '#tools', '#learn'].includes(href) &&
+  if (href && ['#home', '#build', '#compare', '#tools', '#learn', '#garage', '#suspension'].includes(href) &&
       !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
     event.preventDefault();
     speak();
@@ -413,6 +455,22 @@ document.addEventListener('click', event => {
     return;
   }
   if (el.dataset.edit) { state.focus = el.dataset.edit; navigate('build'); return; }
+  const garageKey = el.dataset.garageOpen || el.dataset.garageUse || el.dataset.garageRemove;
+  if (garageKey) {
+    const item = getGarage().find(entry => entry.key === garageKey);
+    if (!item) return;
+    if (el.dataset.garageRemove) {
+      if (window.confirm('Remove this saved variant from My Garage?')) {
+        if (removeFromGarage(garageKey)) render(view, true);
+      }
+      return;
+    }
+    state[state.focus] = item.setup;
+    state[state.focus + 'Mode'] = item.mode;
+    if (el.dataset.garageUse) { carryLane(state.focus, item.mode); render(view, true); }
+    else navigate('build');
+    return;
+  }
   const action = el.dataset.action;
   if (!action) return;
   switch (action) {
@@ -420,6 +478,7 @@ document.addEventListener('click', event => {
     case 'compare-original': {
       const draft = clone(active());
       draft.tune = {};
+      delete draft.components;
       draft.parts = [];
       if (!addLane(draft)) {
         speak('Four cars are already in the comparison. Remove an added lane to include the original.');
@@ -437,6 +496,7 @@ document.addEventListener('click', event => {
       state.event = 'strip';
       navigate('compare');
       play(app.querySelector('[data-action="play"]'));
+      byId('replay-details').scrollIntoView({block: 'start'});
       break;
     case 'add-car': {
       const available = vehicleIds.find(id => lanes(state).every(k => state[k].id !== id)) || vehicleIds[0];
@@ -455,14 +515,20 @@ document.addEventListener('click', event => {
     }
     case 'restart': resetProgress(); break;
     case 'save':
-      if (saveBuild(active())) { saved = clone(active()); render(view, true); speak('Saved in this browser as my build.'); }
+      if (saveToGarage(active(), modified(active()) ? 'after' : 'before')) {
+        saveBuild(active());
+        saved = clone(active());
+        render(view, true);
+        speak('Variant saved to My Garage.');
+      }
       else speak('This browser could not save the build. The temporary experiment is still open.');
       break;
     case 'load-saved':
       if (saved) { changeFocused(clone(saved)); navigate(view === 'tools' ? 'tools' : 'build'); speak('Opened a temporary copy of my saved build.'); }
       break;
     case 'reset': {
-      const next = { ...active(), tune: {}, parts: [] };
+      const next = {...active(), tune: {}, parts: []};
+      delete next.components;
       commitExperiment(next, 'Modifications reset. Original specifications kept.');
       break;
     }

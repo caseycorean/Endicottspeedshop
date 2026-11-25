@@ -1,8 +1,9 @@
 import { cleanSetup, newSetup, usableSetup } from './models.mjs';
 
 const activeKey = 'ess.active-configuration.v1';
+const garageKey = 'ess.garage.v1';
 const savedKey = 'ess.vehicle-build.v1';
-export const views = ['home', 'build', 'compare', 'tools', 'learn'];
+export const views = ['home', 'build', 'compare', 'tools', 'learn', 'suspension', 'garage'];
 const maxFragment = 32768;
 
 export const getSaved = () => {
@@ -55,7 +56,38 @@ export function useConfig(setup, mode) {
   } catch { return false; }
 }
 
-export const modified = s => s.parts.length > 0 || Object.keys(s.tune).length > 0;
+export function getGarage() {
+  try {
+    const data = JSON.parse(localStorage.getItem(garageKey));
+    return Array.isArray(data) ? data.slice(0, 40).flatMap(entry => {
+      const selection = validateSelection(entry?.setup, entry?.mode);
+      return selection && typeof entry.key === 'string' && /^[a-zA-Z0-9-]{1,80}$/.test(entry.key) ?
+        [{key: entry.key, ...selection}] : [];
+    }) : [];
+  } catch { return []; }
+}
+
+export function saveToGarage(setup, mode) {
+  const selection = validateSelection(setup, mode);
+  if (!selection) return false;
+  const garage = getGarage();
+  if (garage.some(item => item.mode === mode && JSON.stringify(item.setup) === JSON.stringify(selection.setup))) return true;
+  if (garage.length >= 40) return false;
+  const key = globalThis.crypto?.randomUUID?.() ?? Date.now() + '-' + Math.random().toString(36).slice(2);
+  try {
+    localStorage.setItem(garageKey, JSON.stringify([{key, ...selection}, ...garage]));
+    return true;
+  } catch { return false; }
+}
+
+export function removeFromGarage(key) {
+  try {
+    localStorage.setItem(garageKey, JSON.stringify(getGarage().filter(entry => entry.key !== key)));
+    return true;
+  } catch { return false; }
+}
+
+export const modified = s => s.parts.length > 0 || Object.keys(s.tune).length > 0 || Object.keys(s.components ?? {}).length > 0;
 export const clone = s => cleanSetup(s);
 
 function encodePayload(payload) {

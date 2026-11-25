@@ -2,6 +2,9 @@ import { getSaved, getActive, useConfig, example, readFragment, shareFragment, m
 import { resolve, newSetup } from './models.mjs';
 import { vehicleSelector, escape } from './ui.mjs';
 import { setupName } from './matchup.mjs';
+import { installCatalog } from './catalog.mjs';
+
+installCatalog();
 
 const filledMessage = {
   'load-transfer': 'Weight and geometry have been applied.',
@@ -13,26 +16,27 @@ const filledMessage = {
 
 function fillCalculator(tool, setup, mode, settings) {
   const v = resolve(setup, mode === 'after');
-  const weight = {w: v.weight, fp: v.front * 100};
+  const weight = {w: v.weight, fp: Number.isFinite(v.front) ? v.front * 100 : null};
   const mapping = {
     'load-transfer': {...weight, wb: v.wheelbase, h: v.cg, tf: v.frontTrack, tr: v.rearTrack,
       ...(settings ? {ax: settings.brake, ay: settings.lateral, lm: 'b', dirn: 'r'} : {})},
     'spring-rate': {...weight, uf: v.frontUnsprung, ur: v.rearUnsprung, kt: v.tireRate,
       sf: v.frontSpring, sr: v.rearSpring, mf: v.frontMotion, mr: v.rearMotion, af: 0, ar: 0},
     'cg-builder': {mode: 'total', wb: v.wheelbase, tf: v.frontTrack, tr: v.rearTrack,
-      tot: v.weight, fpct: v.front * 100, hcg: v.cg, lpct: 50},
+      tot: v.weight, fpct: weight.fp, hcg: v.cg, lpct: 50},
     'scale-delta': {wb: v.wheelbase, tw: (v.frontTrack + v.rearTrack) / 2},
-    'weight-distribution-calculator': {totalWeight: v.weight, frontPct: v.front * 100, wheelbase: v.wheelbase},
+    'weight-distribution-calculator': {totalWeight: v.weight, frontPct: weight.fp, wheelbase: v.wheelbase},
   };
   const fields = mapping[tool];
   if (!fields) return;
   for (const [id, value] of Object.entries(fields)) {
     const input = document.getElementById(id);
-    if (input) input.value = typeof value === 'number' ? String(+value.toFixed(5)) : value;
+    if (input && value != null) input.value = typeof value === 'number' ? String(+value.toFixed(5)) : value;
   }
   // Populate the group before invoking the existing calculator.
   const first = document.getElementById(Object.keys(fields)[0]);
   first?.dispatchEvent(new Event(tool === 'cg-builder' ? 'change' : 'input', {bubbles: true}));
+  return Object.values(fields).some(value => value == null);
 }
 
 for (const panel of document.querySelectorAll('[data-ess-vehicle]')) {
@@ -47,37 +51,48 @@ for (const panel of document.querySelectorAll('[data-ess-vehicle]')) {
   const labRoot = panel.dataset.labRoot || '../../experience/';
 
   panel.innerHTML = `<details><summary>Vehicle configuration <span data-active-name></span></summary>
-    <div class="ess-selector-fields">${vehicleSelector('Reference vehicle', selected?.setup.id ?? state.a.id)}
-    <button type="button" class="btn-small" data-apply="reference">Use this configuration</button>
+    <div class="ess-selector-fields">${vehicleSelector('Reference vehicle', selected?.setup.id ?? state.a.id, {name: selected ? setupName(selected.setup) : 'Choose your car'})}
     ${saved ? '<button type="button" class="btn-small" data-apply="saved">Use my saved build</button>' : ''}</div>
     <p class="hint">Reference estimates are editable in Vehicle Lab. Your active configuration follows you across ESS on this browser.</p>
     </details>
     <p class="hint" data-feedback role="status"></p>
     <a class="ess-config-link" href="${escape(labRoot)}#${target}">${isArticle ? 'Try it in Vehicle Lab' : 'Edit in Vehicle Lab'}</a>`;
 
-  const picker = panel.querySelector('select');
+  const picker = panel.querySelector('[data-open-catalog]');
   const feedback = panel.querySelector('[data-feedback]');
   const activeName = panel.querySelector('[data-active-name]');
   const lab = panel.querySelector('.ess-config-link');
   const setConfig = (setup, mode, settings, indicateActive) => {
-    fillCalculator(tool, setup, mode, settings);
+    const hasMissing = fillCalculator(tool, setup, mode, settings);
     const linkState = {...state, [state.focus]: setup, [state.focus + 'Mode']: mode};
     lab.hash = shareFragment(linkState, target);
     const name = setupName(setup);
     activeName.textContent = ' · ' + name;
+    picker.textContent = name;
     const qualifier = mode === 'after' ? 'modified' : Object.keys(setup.base).length ? 'original' : 'stock-based';
-    feedback.textContent = `${qualifier[0].toUpperCase() + qualifier.slice(1)} ${indicateActive ? 'active setup' : 'setup from link'}. ${filledMessage[tool] ?? 'Open Vehicle Lab for the interactive tools.'}`;
+    feedback.textContent = `${qualifier[0].toUpperCase() + qualifier.slice(1)} ${indicateActive ? 'active setup' : 'setup from link'}. ${filledMessage[tool] ?? 'Open Vehicle Lab for the interactive tools.'}${hasMissing ? ' Unavailable fields kept their existing inputs.' : ''}`;
   };
 
   panel.addEventListener('click', event => {
     const source = event.target.closest('button[data-apply]')?.dataset.apply;
     if (!source) return;
-    const s = source === 'saved' && saved ? saved : newSetup(picker.value);
+    const s = saved;
     const mode = modified(s) ? 'after' : 'before';
     const carried = useConfig(s, mode);
     setConfig(s, mode, undefined, carried);
     if (!carried) feedback.append(' Use the Vehicle Lab link to carry this setup.');
-    picker.value = s.id;
+
+  });
+
+  panel.addEventListener('ess:vehicle-selected', event => {
+    const {id, template} = event.detail;
+    const candidate = newSetup(id);
+    const carried = useConfig(candidate, 'before');
+    setConfig(candidate, 'before', undefined, carried);
+    if (template) {
+      const linkState = {...state, [state.focus]: candidate, [state.focus + 'Mode']: 'before'};
+      location.href = labRoot + shareFragment(linkState, 'build');
+    }
   });
 
   if (incoming.state) {

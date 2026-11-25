@@ -1,7 +1,8 @@
 import { vehicles, fields, firebirdEvidence } from './vehicles.mjs';
-import { presets, limits, resolve, massIssue, powerIssue, tireLoads, ride } from './models.mjs';
+import { presets, limits, choices, resolve, massIssue, powerIssue, tireLoads, ride } from './models.mjs';
 import { modified } from './configuration.mjs';
 import { setupName } from './matchup.mjs';
+import { drivetrainPanel } from './drivetrain-view.mjs';
 import { camberDemo } from './diagrams.mjs';
 import { vehicleSelector, evidence, explanation, fmt, delta, metricTable, numberField, escape } from './ui.mjs';
 
@@ -30,16 +31,13 @@ export function home(state, saved) {
       <h1 id="hero-title">Build it.<br><em>Then prove it.</em></h1>
       <p>Pick a project car, change a part and see what it does to balance and acceleration.</p>
       <div class="actions"><a class="button primary" href="#compare">Compare performance</a>
-      <a class="button secondary" href="#build">Build a car</a></div>
+      <a class="button secondary" href="#suspension">Explore rear suspension</a></div>
     </div>
-    <div class="hero-demo">
-      <canvas id="home-scene" width="620" height="166" role="img" aria-label="Cars staged for the virtual quarter mile"></canvas>
-      <button class="button secondary" data-action="watch-run">Watch the quarter mile</button>
-    </div>
+    <figure class="hero-editorial"><img src="strip.webp" alt="" width="1200" height="675"><figcaption>Illustrative test strip</figcaption></figure>
   </section>
   <section class="shell home-bay" aria-labelledby="starter-title">
     <div class="section-heading"><div><p class="eyebrow">Head to head</p><h2 id="starter-title">Pick your matchup</h2></div>
-      <a class="text-link" href="#learn">How the model works</a></div>
+      <button class="button secondary small" data-action="watch-run">Watch the quarter mile</button></div>
     <div class="starter">
       <div class="starter-vehicle car-a">${vehicleSelector('Car A', state.a.id, { key: 'a' })}
         <p>${escape(vehicles[state.a.id].trim)}</p><strong>${fmt(a.weight)} lb <i></i> ${fmt(a.hp)} hp</strong></div>
@@ -59,20 +57,23 @@ export function home(state, saved) {
 }
 
 function fieldInput(key, value) {
+  if (choices[key]) return `<label><span>${fields[key]}</span><select name="${key}"><option value="">Choose a type</option>
+    ${choices[key].map(type => `<option value="${type}" ${type === value ? 'selected' : ''}>${type}</option>`).join('')}</select></label>`;
   const [lo, hi] = limits[key] ?? [];
-  if (key === 'gears') return `<label><span>Gear ratios, highest to lowest</span><input name="gears" value="${escape(value.join(', '))}" required></label>`;
-  return numberField(key, fields[key], key === 'front' ? +(value * 100).toFixed(4) : +value.toFixed(4), {
-    min: key === 'front' ? lo * 100 : lo, max: key === 'front' ? hi * 100 : hi, required: true,
+  if (key === 'gears') return `<label><span>Gear ratios, highest to lowest</span><input name="gears" value="${escape(value?.join(', ') ?? '')}" placeholder="e.g. 2.87, 1.89, 1.28, 1, 0.68"></label>`;
+  const shown = Number.isFinite(value) ? (key === 'front' ? +(value * 100).toFixed(4) : +value.toFixed(4)) : '';
+  return numberField(key, fields[key], shown, {
+    min: key === 'front' ? lo * 100 : lo, max: key === 'front' ? hi * 100 : hi,
   });
 }
 
-const powerKeys = ['hp', 'hpRpm', 'torque', 'torqueRpm', 'redline', 'gears', 'finalDrive', 'diameter', 'grip', 'cda'];
+const powerKeys = ['drivetrain','transmission','hp', 'hpRpm', 'torque', 'torqueRpm', 'redline', 'gears', 'finalDrive', 'diameter', 'grip', 'cda'];
 const geometryKeys = ['weight', 'front', 'wheelbase', 'cg', 'frontTrack', 'rearTrack'];
 const rideKeys = ['frontSpring', 'rearSpring', 'frontMotion', 'rearMotion', 'frontUnsprung', 'rearUnsprung', 'tireRate'];
 export const inputGroups = { original: [...geometryKeys, ...powerKeys, ...rideKeys], power: powerKeys, ride: rideKeys, geometry: ['cg'] };
 
 function overrideForm(group, values, title, copy, keys, name = '') {
-  return `<details class="explain" data-details="${group}"><summary>${title}</summary><p>${copy}</p>
+  return `<details class="explain" data-details="${group}" ${group === 'original' && [values.weight,values.front,values.wheelbase].some(v => !Number.isFinite(v)) ? 'open' : ''}><summary>${title}</summary><p>${copy}</p>
     <form data-form="${group}" class="edit-form">
       ${group === 'original' ? `<label><span>Custom configuration name (optional)</span><input name="setupName" value="${escape(name)}" maxlength="36" placeholder="e.g. My autocross Camaro"></label>` : ''}
       <div class="input-grid">${keys.map(key => fieldInput(key, values[key])).join('')}</div>
@@ -83,7 +84,7 @@ function overrideForm(group, values, title, copy, keys, name = '') {
 
 function setupPicker(setup, label) {
   return `<div class="configuration-bar">
-    ${vehicleSelector(label, setup.id, { key: 'focus' })}
+    ${vehicleSelector(label, setup.id, { key: 'focus', name: setup.name })}
     <span>${escape(setup.name ? setupName(setup) : vehicles[setup.id].trim)}</span>
   </div>`;
 }
@@ -93,7 +94,7 @@ export function massMetrics(before, after, isCompare = false) {
     ['Total', before.weight, after.weight, 'lb'],
     ['Front axle', before.frontLb, after.frontLb, 'lb'],
     ['Rear axle', before.rearLb, after.rearLb, 'lb'],
-    ['Front share', 100 * before.front, 100 * after.front, '%', 1, 'pp'],
+    ['Front share', before.front === null ? null : 100 * before.front, after.front === null ? null : 100 * after.front, '%', 1, 'pp'],
     ['CG behind front axle', before.cgX, after.cgX, 'in', 1],
   ], isCompare ? ['Car A', 'Car B'] : undefined, isCompare);
 }
@@ -129,27 +130,27 @@ export function build(state, saved) {
   const estimateBalance = setup.base.front === undefined && vehicles[setup.id].data.front[1] === 'estimated';
   const frontMove = after.frontLb - before.frontLb;
   const rearMove = after.rearLb - before.rearLb;
-  const massMessage = modified(setup) ?
+  const massMessage = massIssue(after) || (modified(setup) ?
     `Front axle ${delta(frontMove, 1)} lb. Rear axle ${delta(rearMove, 1)} lb. ${estimateBalance && 'Original front share is estimated.' || ''}` :
-    `Add a part change to see its effect. ${estimateBalance && 'Original front share is estimated.' || ''}`;
+    `Add a part change to see its effect. ${estimateBalance && 'Original front share is estimated.' || ''}`);
   return `<section class="shell workspace">
     ${pageTitle('Garage', 'Build your car', 'Make a change and see where the weight goes. Keep an original to compare against.')}
     ${setupPicker(setup, `Car ${state.focus.toUpperCase()}`)}
-    <div class="workspace-grid">
+    <div class="workspace-grid ${massIssue(after) ? 'awaiting-specs' : ''}">
       <aside class="panel sticky-result">
         <div class="result-caption"><span>Modified weight</span><strong>${fmt(after.weight)} <small>lb</small></strong>
-        <span>${delta(after.weight - before.weight)} lb vs original · ${fmt(after.front * 100, 1)}% front</span></div>
+        <span>${Number.isFinite(after.front) && Number.isFinite(before.weight) ? delta(after.weight - before.weight) + ' lb vs original · ' + fmt(after.front * 100, 1) + '% front' : 'Weight or balance data missing'}</span></div>
         <div class="result-body">
         ${massMetrics(before, after)}
         <p class="takeaway">${massMessage}</p>
-        ${axleGraphic(before, after)}
+        ${Number.isFinite(after.cgX) ? axleGraphic(before, after) : ''}
         ${concept('moments')}
         </div>
       </aside>
       <section class="panel content-panel mod-controls">
           <h2>Try a modification</h2>
-          <div class="quick-grid">${Object.entries(presets).filter(([, p]) => !p.firebird || setup.id === 'firebird').map(([key, p]) =>
-            `<button class="preset" data-preset="${key}" ${setup.parts.some(x => x.preset === key) ? 'disabled' : ''}>
+          <div class="quick-grid">${Object.entries(presets).filter(([, p]) => (!p.firebird || setup.id === 'firebird') && !p.requiresOld).map(([key, p]) =>
+            `<button class="preset" data-preset="${key}" ${massIssue(after) || setup.parts.some(x => x.preset === key) ? 'disabled' : ''}>
               <strong>${p.label}</strong><span>${p.note}</span></button>`).join('')}</div>
           <div id="preset-form"></div>
           ${partForm()}
@@ -160,13 +161,14 @@ export function build(state, saved) {
           <div class="actions"><button class="button primary" data-action="compare-build">Compare performance</button>
             <button class="button secondary" data-action="use">Use this configuration</button>
             ${modified(setup) ? '<button class="button secondary" data-action="compare-original">Compare with original</button>' : ''}</div>
-          <div class="actions save-row"><button class="button secondary" data-action="save">Apply to my build</button>
+          <div class="actions save-row"><button class="button secondary" data-action="save">Save to My Garage</button>
             ${saved ? '<button class="button secondary" data-action="load-saved">Open my saved build</button>' : ''}
             ${modified(setup) ? '<button class="button plain" data-action="reset">Reset modifications</button>' : ''}</div>
-          <p class="quiet small">Experiments stay temporary. Apply to my build saves this configuration in this browser.</p>
+          <p class="quiet small">Save separate variants in My Garage. Apply a configuration to carry it across ESS.</p>
         </section>
         <section class="panel content-panel build-specs">
           <h2>Change the specifications</h2>
+          ${drivetrainPanel(setup)}
           ${overrideForm('original', before, 'Original specifications', 'Enter your real readings to replace the reference inputs used for both original and modified.', inputGroups.original, setup.name)}
           ${overrideForm('power', after, 'Engine, transmission and tires', 'Enter your replacement power figures, gear ratios, or tire changes. Component weights are changed separately above.', powerKeys)}
           ${overrideForm('ride', after, 'Springs and tire stiffness', 'These settings affect ride frequency.', rideKeys)}
@@ -193,13 +195,13 @@ export function toolResults(before, after, settings) {
   const rideBefore = ['front', 'rear'].map(axle => ride(before, axle));
   const rideNow = ['front', 'rear'].map(axle => ride(after, axle));
   const lightest = now.tires.indexOf(Math.min(...now.tires));
-  const first = invalid ? 'The simplified model reaches a wheel-lift or roll-axis limit.' :
+  const first = now.missing ? 'Add weight, front share and wheelbase to calculate tire loads.' : invalid ? 'The simplified model reaches a wheel-lift or roll-axis limit.' :
     `${tires[lightest]} carries ${fmt(now.tires[lightest])} lb in this turn.${prior.invalid ?
       ' The original setup reaches a model limit at these settings.' : ''}`;
   return {
     loads: `<div class="tire-diagram" role="img" aria-label="${invalid ? first : tires.map((t, i) => t + ' ' + fmt(now.tires[i]) + ' lb').join(', ')}">
       <div class="tire-nose">Front</div>
-      ${now.tires.map((v, i) => `<div class="tire-cell ${i === lightest ? 'light-tire' : ''}" style="--tire-load:${Math.min(100, Math.max(0, v / after.weight * 245)).toFixed(0)}%">
+      ${now.tires.map((v, i) => `<div class="tire-cell ${i === lightest ? 'light-tire' : ''}" style="--tire-load:${Math.min(100, Math.max(0, (v ?? 0) / (after.weight || 1) * 245)).toFixed(0)}%">
         <span>${tires[i]} <b>${invalid ? '—' : fmt(v) + ' lb'}</b></span>
         <small>${invalid ? '' : delta(v - parked.tires[i], 0) + ' lb vs parked'}</small></div>`).join('')}</div>
       <p class="${invalid || overGrip ? 'warning' : 'takeaway'}">${first}
