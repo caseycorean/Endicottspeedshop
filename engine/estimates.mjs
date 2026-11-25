@@ -37,7 +37,10 @@ export function frontShare(v) {
 }
 
 /** Shift ceiling from peak-power rpm: median ratio 1.067 (64 archive cars; 10–90%: 1.00–1.16). */
-export function redline({ hpRpm }) {
+export function redline({ hpRpm, year }) {
+  if (year && year < 1985 && hpRpm < 4500)
+    return est(Math.round((hpRpm + 1200) / 50) * 50, hpRpm + 500, hpRpm + 1400,
+      'Low-peak pre-1985 engine: peak-power rpm + 1,200 (archive classics run +500 to +1,400; 1977 Formula 3,600 → 5,000).');
   return est(Math.round(hpRpm * 1.067 / 50) * 50, hpRpm, Math.round(hpRpm * 1.16 / 50) * 50,
     'Peak-power rpm × 1.067 (Supercar X archive median, 64 cars; range ×1.00–1.16).');
 }
