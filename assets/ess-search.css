@@ -55,7 +55,7 @@ body.ess-theme {
 .ess-theme .gl-load.light { fill: #ffab5855; }
 .ess-theme .ess-config { background: var(--ess-panel); color: var(--text); border: 1px solid var(--ess-line); border-radius: 7px; padding: .6rem .75rem; margin-block: .65rem 1rem; }
 .ess-theme .ess-config:empty { display: none; }
-.ess-theme .ess-config summary { min-height: 34px; color: var(--accent); cursor: pointer; }
+.ess-theme .ess-config summary { min-height: 44px; display: flex; align-items: center; color: var(--accent); cursor: pointer; }
 .ess-theme .ess-config .ess-selector-fields { display: flex; flex-wrap: wrap; gap: .45rem; align-items: end; }
 .ess-theme .ess-config .ess-selector-fields label { flex: 1 1 185px; display: grid; }
 .ess-theme .ess-config .hint { margin: .2rem 0; }

@@ -2,6 +2,7 @@ import { lanes, labelLane, modeOf, modified } from './configuration.mjs';
 import { resolve, straightLine } from './models.mjs';
 import { ovalLap } from './oval.mjs';
 import { vehicles } from './vehicles.mjs';
+import { changeFromOriginal } from './change.mjs';
 import { vehicleSelector, configModes, evidence, explanation, fmt, delta, metricTable, escape } from './ui.mjs';
 
 export const setupName = setup => setup.name || vehicles[setup.id].name;
@@ -13,8 +14,9 @@ export function matchupEntries(state) {
     const mode = modeOf(state, key);
     const value = resolve(setup, mode === 'after');
     const run = runModel(value);
-    const baseline = mode === 'after' && modified(setup) ? runModel(resolve(setup, false)) : run;
-    return {key, setup, mode, value, run, baseline};
+    const original = mode === 'after' && modified(setup) ? resolve(setup, false) : value;
+    const baseline = original === value ? run : runModel(original);
+    return {key, setup, mode, value, original, run, baseline};
   });
 }
 
@@ -24,7 +26,8 @@ export function comparisonResults(entries, oval) {
   const ranked = entries.map(entry => ({...entry, time: resultTime(entry.run, oval)}))
     .sort((a, b) => (a.time ?? Infinity) - (b.time ?? Infinity));
   return `<div class="estimate-label">Estimated ${oval ? 'flying lap' : 'quarter mile'}</div>
-    <div class="performance-results">${ranked.map(({key, setup, run, baseline, time}) => {
+    <div class="performance-results">${ranked.map(({key, setup, value, original, run, baseline, time}) => {
+      const why = baseline !== run ? changeFromOriginal('', original, value, baseline, run, oval)?.why : '';
       const before = resultTime(baseline, oval);
       const change = Number.isFinite(time) && Number.isFinite(before) && baseline !== run ? time - before : null;
       return `<article class="performance-card car-${key}">
@@ -32,6 +35,7 @@ export function comparisonResults(entries, oval) {
         <div class="performance-main">${Number.isFinite(time) ? fmt(time, 2) + ' s' : '—'}
           <small>${oval ? fmt(run.peakSpeed, 0) + ' mph peak' : fmt(run.finish?.trap, 0) + ' mph finish'}</small></div>
         ${change === null ? '' : `<p class="performance-delta">Original ${fmt(before, 2)} s · ${delta(change, 2)} s (${delta(100 * change / before, 1)}%)</p>`}
+        ${why ? `<p class="performance-why">${escape(why)}</p>` : ''}
         ${run.issue ? `<p class="warning">${escape(run.issue)}</p>` : Number.isFinite(time) ? '' : '<p class="warning">No finish within the modeled distance or time limit.</p>'}
       </article>`;
     }).join('')}</div>`;
@@ -129,7 +133,7 @@ export function compare(state, entries) {
         <section class="panel content-panel">
           <h2>How to read the results</h2>
           ${explanation('What the simulation assumes',
-            oval ? 'The synthetic oval has two 520 ft straights and two 200 ft radius turns. The flying lap starts at speed. The solver limits corner speed by grip and brakes for the next turn. Gears are idealized. Suspension and transient handling are outside this model.' :
+            oval ? 'The synthetic oval has two 520 ft straights and two 200 ft radius turns. The flying lap starts at speed. The solver limits corner speed by grip and brakes for the next turn. Gears are idealized. Suspension and transient handling are outside this model. Turn speed depends only on the grip coefficient here, so weight changes show up only through acceleration out of the turns, not corner speed or braking.' :
             'The model combines the estimated torque curve, gear ratios, tire radius, drivetrain loss, rear grip, drag and shift delay. Launch grip and engine output need measurement to predict real times. Use the results to compare the effect of your settings.')}
           ${oval ? '' : `<details class="explain"><summary>Published test checkpoints for the first two references</summary>
             ${metricTable([['0–60 mph', a.test60, b.test60, 's', 1], ['Quarter mile', a.testEt, b.testEt, 's', 1],
