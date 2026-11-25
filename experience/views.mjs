@@ -148,7 +148,8 @@ export function build(state, saved) {
           <div id="preset-form"></div>
           ${partForm()}
           <div class="parts">${setup.parts.map((p, i) => `<div><span><strong>${escape(p.label)}</strong>
-            <small>${fmt(p.oldWeight, 1)} lb at ${fmt(p.oldX, 1)} in → ${fmt(p.newWeight, 1)} lb at ${fmt(p.newX, 1)} in</small></span>
+            <small>${fmt(p.oldWeight, 1)} lb at ${fmt(p.oldX, 1)} in → ${fmt(p.newWeight, 1)} lb at ${fmt(p.newX, 1)} in</small>
+            ${p.preset ? `<small>${presets[p.preset].note}</small>` : ''}</span>
             <button class="button secondary small" data-remove="${i}" aria-label="Undo ${escape(p.label)}">Undo</button></div>`).join('')}</div>
           <div class="actions"><button class="button primary" data-action="compare-build">Compare performance</button>
             <button class="button secondary" data-action="use">Use this configuration</button>
@@ -235,7 +236,7 @@ export function compare(state, a, b, runs) {
       <div class="stack">
         ${racePanel(runs, state)}
         <section class="panel content-panel">
-          <div class="section-heading"><h2>Estimated results</h2><span class="quiet small">Equal grip starts at 0.90</span></div>
+          <div class="section-heading"><h2>Estimated results</h2><span class="quiet small">Grip A ${fmt(a.grip, 2)} · B ${fmt(b.grip, 2)}</span></div>
           ${metricTable(metrics, ['Car A', 'Car B'], true)}
           <p class="takeaway">${faster || 'Check the input warnings before interpreting the comparison.'}</p>
           ${explanation('What the simulation assumes',

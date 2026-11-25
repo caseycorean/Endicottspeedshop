@@ -18,7 +18,7 @@ Open `http://localhost:8000/experience/`. The browser needs HTTP or HTTPS to loa
 - **Apply to my build** saves one setup locally. Try another change, then reopen your saved build to verify it is unchanged. Clearing site browser data clears the saved setup.
 - **Learn** → trace measured parts and load states, or vary the lever arm and inertia radius.
 
-Run `node --test _build/experience/models.test.mjs` for 13 computational/configuration checks. Run `PYTHONDONTWRITEBYTECODE=1 python3 _build/build.py` after editing legacy templates. Static `experience/` pages are served directly, independent of the generator.
+Run `node --test _build/experience/models.test.mjs` for 14 computational/configuration checks. Run `PYTHONDONTWRITEBYTECODE=1 python3 _build/build.py` after editing legacy templates. Static `experience/` pages are served directly, independent of the generator.
 
 ## Integration seams
 

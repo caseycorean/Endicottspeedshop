@@ -163,3 +163,27 @@ test('published test checkpoints stay distinct from the editable configuration',
   assert.equal(tuned.testEt, 16.9);
   assert.ok(straightLine(tuned).zeroTo60 > stockRun.zeroTo60);
 });
+
+test('local save is explicit; restoring and editing shared state leaves the saved build unchanged', async () => {
+  const { getSaved, saveBuild } = await import('../../experience/configuration.mjs');
+  const storage = new Map();
+  const prior = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+  Object.defineProperty(globalThis, 'localStorage', {
+    configurable: true, value: { setItem: (key, value) => storage.set(key, value), getItem: key => storage.get(key) },
+  });
+  try {
+    const state = example();
+    assert.equal(getSaved(), null);
+    state.a.parts.push({ ...presets.seats, preset: 'seats' });
+    assert.equal(saveBuild(state.a), true);
+    const restored = readFragment(shareFragment(state)).state;
+    restored.a.parts.push({ ...presets.radiator, preset: 'radiator' });
+    assert.equal(resolve(getSaved()).weight, 3807);
+    assert.equal(resolve(restored.a).weight, 3787);
+    assert.equal(saveBuild({ ...restored.a, id: 'missing' }), false);
+    assert.equal(resolve(getSaved()).weight, 3807);
+  } finally {
+    if (prior) Object.defineProperty(globalThis, 'localStorage', prior);
+    else delete globalThis.localStorage;
+  }
+});

@@ -247,8 +247,13 @@ input[type="range"] { width: 100%; height: 28px; margin: 0; accent-color: var(--
   .workspace-grid > .build-specs { grid-row: 4; }
   .compare-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .compare-grid > .stack:first-child { display: contents; }
-  .compare-grid > .stack:last-child, .same-change { grid-column: 1 / -1; }
-  .compare-grid > .stack:last-child { grid-row: 2; }
+  .compare-grid > .stack:last-child { display: contents; }
+  .compare-grid > .stack:last-child > *, .same-change { grid-column: 1 / -1; }
+  .compare-grid .race { grid-row: 2; }
+  .compare-grid .same-change { grid-row: 3; }
+  .compare-grid > .stack:last-child > .content-panel { grid-row: 4; }
+  .preset { min-height: 52px; }
+  .preset span { display: none; }
 }
 .checkbox-line { display: flex; align-items: flex-start; gap: .45rem; margin: .55rem 0 .2rem; }
 .checkbox-line input[type="checkbox"] { width: auto; min-height: 0; margin-top: .26rem; accent-color: var(--accent); }
