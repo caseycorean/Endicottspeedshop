@@ -1,5 +1,5 @@
 import { vehicles, stock } from './vehicles.mjs';
-import { resolve, newSetup, presets, validValue, usableSetup, straightLine, atTime, MPH } from './models.mjs';
+import { resolve, cleanSetup, newSetup, presets, validValue, usableSetup, straightLine, atTime, MPH } from './models.mjs';
 import { example, clone, modified, shareFragment, readFragment, getSaved, saveBuild, shareResult } from './configuration.mjs';
 import { home, build, compare, toolsView, learn, inputGroups, toolResults } from './views.mjs';
 import { fmt, numberField } from './ui.mjs';
