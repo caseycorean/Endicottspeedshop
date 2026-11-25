@@ -82,8 +82,11 @@ export const assignedArchitectures = {
   'volkswagen-golf-mk8--2024-r-2.0-m6-hatch': E('strut', 'irsMultilink'),
   'chevrolet-colorado-3rd-gen--2023-zr2-2.7-a8-crew-cab-4wd': { front: 'sla', rear: 'leaf', evidence: 'estimated', basis: 'Record: live axle; Colorado uses leaf springs.' },
 };
-/** Architecture codes for one record: explicit assignment first, then the record's own text. */
+import { architectureCodes } from './architecture-codes.mjs';
+/** Architecture codes for one record: explicit assignment, then the generated table, then the record's own text. */
 export function architectureFor(configId, typeFront, typeRear) {
+  const t = architectureCodes[configId];
+  if (t?.front && t?.rear && !assignedArchitectures[configId]) return { front: t.front, rear: t.rear, evidence: 'record', basis: `Mapped from the record's suspension text: "${t.text[0]}" / "${t.text[1]}".` };
   const a = assignedArchitectures[configId];
   const f = codeFromText(typeFront, 'front'), r = codeFromText(typeRear, 'rear');
   return {
