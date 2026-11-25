@@ -66,7 +66,7 @@ function quickTune(state, entries) {
         `<button type="button" class="button secondary small car-${key}" data-focus-lane="${key}" aria-label="Tune ${labelLane(key)}" aria-pressed="${key === state.focus}">${key.toUpperCase()}</button>`).join('')}</div>
     </div>
     <div class="tool-controls">
-      ${[['finalDrive', 'Final drive', 2, 6, .01], ['grip', 'Tire grip (μ)', .35, 1.4, .01]].map(([key, caption, min, max, step]) => 
+      ${[['finalDrive', 'Final drive', 2, 6, .01], ['grip', 'Tire grip (μ)', .35, 1.4, .01]].map(([key, caption, min, max, step]) =>
       `<label class="slider"><span>${caption} <output id="quick-${key}">${fmt(tuned[key], 2)}</output></span>
       <input type="range" data-quick="${key}" min="${min}" max="${max}" step="${step}" value="${tuned[key]}"></label>`).join('')}
     </div>
