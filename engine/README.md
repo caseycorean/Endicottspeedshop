@@ -9,6 +9,19 @@ Pure ES modules: no DOM, no network, browser and Node alike. Tests: `node --test
 | `acceleration.mjs` | straight-line run (0–60, quarter mile, trap), traction limit with load transfer, tire-type grip defaults, rotating inertia, clutch-slip launch, magazine-style rollout timing, time split by what limited the car | **Candidate v2**, not wired into the Vehicle Lab yet. With the new effects switched off it reproduces the shipped model (test) |
 | `suspension.mjs` | front view: short/long-arm and MacPherson camber change, instant centre, roll-centre height, swing-arm length, track change through travel; side view: anti-squat for four-link, three-link, torque arm, leaf (range), independent; anti-dive, anti-lift; live-axle roll centre for Panhard, Watts, leaf | **New.** SLA agrees with the ESS 3-D solver (`ess-knowledge/archive/2026-11-24_fbody-front-suspension/kinematics.py`) to 0.001° and 0.001 in on a planar test corner |
 
+| `resolve.mjs` | **one resolver**: vehicle record + selected components + owner entries → simulator-ready vehicle, per-field provenance, readiness per simulator | New (25 Nov). Precedence owner > component > record > Supercar X exact match > library mapping > estimate |
+| `garage-adapter.mjs` | `labVehicle(configId, components, owner)`, `labRun(…)`, `garageComponents()`, `evidenceLabel` — the entry point for Work's Garage UI | New. Engine swap also moves mass (estimated position) so every tool sees the same car |
+| `data/transmissions.mjs` | 31 gear sets (Muncie, Super T-10, T5 family, TKX, T56/TR6060, MT82, Powerglide/TH350/TH400/200-4R/4L60E/4L80E/6L80/8L90/10-speed, TorqueFlite, C4/C6/AOD/4R70W), each with sources; weights where published; per-vehicle mapping | Every entry sourced (tested) |
+| `data/engines.mjs` | engine families with installed weights, swap engines (ratings from donor records), gross→net rule, ESS-measured parts (LS1 teardown log) | |
+| `data/axles.mjs` | axle assembly weights, documented final-drive choices | |
+| `data/architectures.mjs` | suspension architecture codes (owner-approved), text→code mapping, per-architecture motion-ratio and unsprung ranges, codes for records with missing text | |
+| `data/supercarx.mjs` | 75 parsed Supercar X spec sheets (historical tier): calibration + 49 hold-out road tests | |
+| `data/recovered.mjs` | specs recovered for records that lacked them (1965 GTO, 1993 Mustang, 1969 Z/28) — to promote into the records after QA | |
+| `tires.mjs` | tire-size parser (metric, LT, flotation, letter series) and tire-type grip defaults | |
+| `estimates.mjs` | estimation rules with ranges and stated basis: front share by layout class, redline, track, CG height, drag area, ride defaults | |
+
+Evidence tiers everywhere: manufacturer · independent_test · published · calculated · **historical** (Supercar X) · **estimated** (rule, with low/high/basis) · **owner**.
+
 Units: lb, in, ft (distance in the acceleration model), s, mph, g, degrees.
 
 ## Where the same math currently lives (duplication map, 25 Nov)
@@ -44,7 +57,12 @@ Validation approach, designed to improve over time without validating every car 
   logged in `data/vehicle-reference/VERIFY-BACKLOG.md`, not fixed by tuning.
 - Results show the evidence level: "matches a road test within x", "same physics, not checked against a test".
 
-Current residuals, candidate v2 (magazine timing): ET mean |error| 0.17 s over six cars (shipped: 0.51 s);
+Update 25 Nov (component package): drive layout (front / rear / all-wheel traction) and a generic torque converter
+for automatics added. Whole pipeline (resolver + estimates + v2) against 67 road tests: median |ET error| 0.31 s,
+80% within 0.51 s; Supercar X manual hold-outs (33 cars never used for tuning) median 0.28 s. Known bias: classic
+(pre-1972) cars run 0.3–1.7 s slower than their period tests even at gross = net — read classic results as comparisons.
+
+Earlier residuals, candidate v2 (magazine timing): ET mean |error| 0.17 s over six cars (shipped: 0.51 s);
 Corvette ET +0.19 s (shipped +1.32 s). Fiero (+0.7 s, test is a different trim) and Firebird are flagged.
 
 ## Suspension: assumptions shown to visitors

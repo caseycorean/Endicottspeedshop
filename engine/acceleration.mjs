@@ -6,7 +6,8 @@
 //   3. tire grip defaults by tire type instead of one 0.90 for every car
 //   4. results reported both from standstill and with the 1-ft rollout US magazines use
 // Units: lb, in, ft, s, mph. Limitations: flat torque-curve shape from four anchor points, constant shift time,
-// no tire growth, no wheel hop, no traction control, no torque converter (automatics are approximated as manuals).
+// no tire growth, no wheel hop, no traction control; automatics use a generic converter (see `converter`);
+// all-wheel drive assumes an ideal split (μ × total weight).
 
 const G = 32.174;
 const MPH = 5280 / 3600;
@@ -43,18 +44,31 @@ export function torqueAt(v, rpm) {
 /** Gillespie's rule-of-thumb mass factor for an overall ratio N (gear × final drive). */
 export const massFactor = overall => 1.04 + .0025 * overall * overall;
 
-/** Rear-drive traction limit (lb) including load transfer: F ≤ μ(Wr + (F − R)h/L), also front-lift capped. */
-export function tractionLimit(v, resistance, mu = v.grip) {
+/**
+ * Traction limit (lb) including longitudinal load transfer, by driven axle:
+ *  rear:  F ≤ μ(Wr + (F − R)h/L), also capped where the front would lift
+ *  front: F ≤ μ(Wf − (F − R)h/L)
+ *  all:   F ≤ μW (a perfect centre split; real AWD systems fall somewhat short)
+ */
+export function tractionLimit(v, resistance, mu = v.grip, drive = v.drive ?? 'rear') {
   const frontLb = v.weight * v.front;
   const rearLb = v.weight - frontLb;
   const ratio = v.cg / v.wheelbase;
+  if (drive === 'all') return Math.max(0, mu * v.weight);
+  if (drive === 'front') return Math.max(0, mu * (frontLb + resistance * ratio) / (1 + mu * ratio));
   const rearGrip = mu * (rearLb - resistance * ratio) / (1 - mu * ratio);
   return Math.max(0, Math.min(rearGrip, frontLb / ratio + resistance));
 }
 
+/** Generic torque converter: torque ratio falls linearly from `stallRatio` at stall to 1.0 at the coupling point. */
+export const converter = { stallRpm: 2200, stallRatio: 2.0, couplingSpeedRatio: .85, shiftSeconds: .12,
+  evidence: 'estimated', basis: 'Typical stock street converter; a measured stall speed and converter data override.' };
+
 export function straightLine(v, options = {}) {
+  const automatic = (options.transmission ?? v.transmission) === 'automatic';
+  const conv = { ...converter, ...(options.converter ?? {}) };
   const o = { ...defaults, launchRpm: Math.min(Math.max(3000, v.torqueRpm), v.redline - 500), distanceFt: 1320,
-    maxTime: 45, mu: v.grip, ...options };
+    maxTime: 45, mu: v.grip, drive: v.drive ?? 'rear', ...(automatic ? { shiftSeconds: conv.shiftSeconds } : {}), ...options };
   const circumference = Math.PI * v.diameter / 12;
   const radius = v.diameter / 24;
   const engineRpm = (speed, gear) => speed * 60 * v.gears[gear] * v.finalDrive / circumference;
@@ -67,10 +81,20 @@ export function straightLine(v, options = {}) {
     const wheelRpm = engineRpm(speed, gear);
     if (shift <= 0 && gear < v.gears.length - 1 && wheelRpm >= v.redline - 50) { gear++; shift = o.shiftSeconds; }
     const resistance = o.rollResistance * v.weight + .5 * AIR * v.cda * speed * speed;
-    const cap = tractionLimit(v, resistance, o.mu);
-    const slipping = gear === 0 && wheelRpm < o.launchRpm;
-    const rpm = slipping ? o.launchRpm : Math.max(1000, wheelRpm);
-    const available = shift > 0 ? 0 : torqueAt(v, rpm) * v.gears[gear] * v.finalDrive * o.driveline / radius;
+    const cap = tractionLimit(v, resistance, o.mu, o.drive);
+    let slipping, rpm, multiply = 1;
+    if (automatic) {
+      // Converter: engine sits at (at least) stall speed until the turbine catches up; torque multiplied meanwhile.
+      rpm = Math.max(conv.stallRpm, wheelRpm, 1000);
+      const sr = Math.min(1, wheelRpm / rpm / conv.couplingSpeedRatio);
+      multiply = conv.stallRatio - (conv.stallRatio - 1) * sr;
+      slipping = sr < 1;
+      if (!slipping) rpm = Math.max(1000, wheelRpm);
+    } else {
+      slipping = gear === 0 && wheelRpm < o.launchRpm;
+      rpm = slipping ? o.launchRpm : Math.max(1000, wheelRpm);
+    }
+    const available = shift > 0 && !automatic ? 0 : torqueAt(v, rpm) * multiply * v.gears[gear] * v.finalDrive * o.driveline / radius * (shift > 0 ? .5 : 1);
     let limit = shift > 0 ? 'shifting' : available > cap ? 'traction' : slipping ? 'clutch' : 'engine';
     const force = Math.min(available, cap);
     // Engine and driveline inertia only load the tires when the engine is coupled and below the grip limit.
