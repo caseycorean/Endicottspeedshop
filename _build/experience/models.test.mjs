@@ -153,11 +153,13 @@ test('sharing restores the selected event and tool settings', () => {
   assert.equal(readFragment(shareFragment({ ...state, tool: { brake: 4, lateral: 0 } })).invalid, true);
 });
 
-test('compare reports published checkpoints without treating them as model matches', () => {
-  for (const id of ['firebird', 'camaro', 'corvette', 'gto']) {
-    const v = resolve(newSetup(id));
-    const run = straightLine(v);
-    assert.ok(Number.isFinite(v.test60) && Number.isFinite(v.testEt));
-    assert.ok(Math.abs(run.zeroTo60 - v.test60) > 0.03);
-  }
+test('published test checkpoints stay distinct from the editable configuration', () => {
+  const setup = firebird();
+  const stockRun = straightLine(resolve(setup));
+  assert.equal(resolve(setup).test60, 9.3);
+  setup.tune.grip = .55;
+  const tuned = resolve(setup);
+  assert.equal(tuned.test60, 9.3);
+  assert.equal(tuned.testEt, 16.9);
+  assert.ok(straightLine(tuned).zeroTo60 > stockRun.zeroTo60);
 });

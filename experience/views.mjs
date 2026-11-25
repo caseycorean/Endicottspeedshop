@@ -222,7 +222,7 @@ export function compare(state, a, b, runs) {
       ['Speed at finish', ra.finish?.trap, rb.finish?.trap, 'mph', 0]];
   metrics.push(['Weight per horsepower', a.weight / a.hp, b.weight / b.hp, 'lb/hp', 1]);
   return `<section class="shell workspace">
-    ${pageTitle('Performance', 'Compare project cars', 'Choose a car in each lane. Compare stock setups or bring in your own modifications.')}
+    ${pageTitle('Performance', 'Compare cars', 'Choose a car in each lane. Compare stock setups or bring in your own modifications.')}
     <div class="compare-grid">
       <div class="stack">
         ${compareCard(state.a, 'a', state.aMode)}
@@ -331,7 +331,7 @@ export function learn() {
       <section class="panel content-panel"><h2>Balance and response</h2>
       ${concept('moments')}${concept('inertia', `
         ${slider('radius', 'Distance from axis', 2, 'ft', .5, 5, .1)}
-        <p class="takeaway" id="inertia-demo">A 40 lb mass contributes 160.0 lbm·ft² about this axis.</p>`)}${concept('torque', `
+        <p class="takeaway" id="inertia-demo">A 40 lbm mass contributes 160.0 lbm·ft² about this axis.</p>`)}${concept('torque', `
         ${slider('lever', 'Lever arm', 1, 'ft', .25, 4, .05)}
         <p class="takeaway" id="torque-demo">50 lb of force makes 50.0 lb-ft of torque.</p>`)}
       <p><a href="../articles/weight-distribution-50-50/">Read about weight distribution</a></p></section>

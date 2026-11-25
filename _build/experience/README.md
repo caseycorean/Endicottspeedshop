@@ -43,6 +43,17 @@ Share links encode values and part labels in the URL fragment. Opening a shared 
 - **Validation leads.** The 1977 W72 Trans Am, 1991 Camaro Z28, 2002 Corvette Z06 and 2004 GTO expose matched source checkpoints for review. The results are deliberately uncalibrated. Differences include driver, rollout, road, drivetrain and tire assumptions. The green Firebird’s existing scale states establish weight and build history, with no equivalent paired 0–60 or quarter-mile test available in the reviewed records. RGV8 Fiero remains a lead. The recovered archive tree, available crosswalk and repository search did not establish a traceable paired stock and modified result. The stock 1988 Fiero record is a separate vehicle.
 - **Art.** The strip illustration is AI-generated scene-setting imagery. Vehicle identity and dimensions used by the models come from the reference inputs.
 
+### Stock checkpoint comparison
+
+These classroom estimates use the same illustrative 0.90 launch grip, with the sourced parameters and default gaps exposed in each vehicle's evidence panel. The values below are model versus published road tests in seconds. They show why acceleration remains a prototype.
+
+| Reference | 0–60 estimate / test | Quarter-mile estimate / test |
+| --- | ---: | ---: |
+| 1977 W72 Trans Am | 7.8 / 9.3 | 16.2 / 16.9 |
+| 1991 Camaro Z28 | 6.6 / 6.4 | 15.1 / 14.9 |
+| 2002 Corvette Z06 | 6.0 / 4.07 | 13.8 / 12.48 |
+| 2004 Pontiac GTO | 6.3 / 5.3 | 14.6 / 14.0 |
+
 ## Priorities after handoff
 
 1. Independent device review at the intended hosted origin. Exercise phone share sheets, a clean recipient browser, keyboard navigation and search-page round trips. Verify calculator analytics sends no user-entered values before exposing links widely.

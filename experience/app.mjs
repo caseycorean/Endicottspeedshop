@@ -245,7 +245,7 @@ function updateReplay(t) {
 function drawOval(samples) {
   const canvas = byId('oval-map');
   const ctx = canvas.getContext('2d');
-  const project = position => [140 + position.x * .65, 18 + position.y * .60];
+  const project = position => [148 + position.x * .62, 18 + position.y * .60];
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   const route = () => {
     ctx.beginPath();
@@ -427,7 +427,7 @@ app.addEventListener('input', event => {
   const unit = key === 'lever' || key === 'radius' ? 'ft' : key.endsWith('Spring') ? 'lb/in' : 'g';
   byId('out-' + key).value = value + ' ' + unit;
   if (key === 'radius') {
-    byId('inertia-demo').textContent = 'A 40 lb mass contributes ' + fmt(40 * value ** 2, 1) + ' lbm·ft² about this axis.';
+    byId('inertia-demo').textContent = 'A 40 lbm mass contributes ' + fmt(40 * value ** 2, 1) + ' lbm·ft² about this axis.';
     return;
   }
   if (key === 'lever') {
