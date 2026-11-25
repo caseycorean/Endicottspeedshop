@@ -65,7 +65,8 @@ export function tractionLimit(v, resistance, mu = v.grip, drive = v.drive ?? ({F
   let grip;
   if (drive === 'front') grip = mu * (front + resistance * lever) / (1 + mu * lever);
   else if (drive === 'all') grip = mu * v.weight;
-  else grip = mu * (v.weight - front - resistance * lever) / (1 - mu * lever);
+  // mu·h/L ≥ 1: the rear tires can push harder than it takes to lift the front, so the front-lift cap governs.
+  else grip = 1 - mu * lever > 0 ? mu * (v.weight - front - resistance * lever) / (1 - mu * lever) : Infinity;
   return Math.max(0, Math.min(grip, lift));
 }
 
