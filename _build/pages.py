@@ -88,7 +88,7 @@ def build(page):
 <div class="paths">
 <article class="card"><span class="tag cat-found">Available</span><h3><a href="plan/">Plan your build</a></h3><p>Turn a goal — turn-in, grip, ride, weight — into steps you can test, using the tools here along the way.</p><a class="more" href="plan/">Start planning</a></article>
 <article class="card"><span class="tag cat-data">Available</span><h3><a href="tools/">Run the numbers</a></h3><p>Balance and center of gravity, load transfer, spring rates and part weights — on your own car’s numbers.</p><a class="more" href="tools/">Open the calculators</a></article>
-<article class="card"><span class="tag cat-notes">In development</span><h3>Compare upgrades</h3><p>Two versions of a car through the same model: stock springs against stiffer ones, an iron part against aluminum, whole suspension approaches side by side. Published as each comparison is checked.</p></article>
+<article class="card"><span class="tag cat-notes">Prototype</span><h3><a href="experience/">Vehicle Lab</a></h3><p>Pick a car, change a part, compare acceleration and share the experiment.</p><a class="more" href="experience/">Open Vehicle Lab</a></article>
 <article class="card"><span class="tag cat-notes">In development</span><h3>Simulate the car</h3><p>The experiment above is step one. Next: straight-line acceleration, braking, a single corner, then linked corners and a representative lap — each checked before it goes up.</p>
 <ul class="roadmap" aria-label="Simulation roadmap"><li class="now">Tire loads</li><li>Acceleration</li><li>Braking</li><li>One corner</li><li>Linked corners</li><li>A lap</li></ul></article>
 </div></section>
