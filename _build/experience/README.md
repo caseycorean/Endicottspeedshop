@@ -4,7 +4,7 @@ Review prototype on `experience/vehicle-lab`, draft website PR #10. It is design
 
 ## Run and review
 
-From the website checkout:
+Start the local server from the website checkout.
 
 ```sh
 python3 -m http.server 8000
@@ -19,6 +19,12 @@ Open `http://localhost:8000/experience/`. The browser needs HTTP or HTTPS to loa
 - **Learn** → trace measured parts and load states, or vary the lever arm and inertia radius.
 
 Run `node --test _build/experience/models.test.mjs` for 14 computational/configuration checks. Run `PYTHONDONTWRITEBYTECODE=1 python3 _build/build.py` after editing legacy templates. Static `experience/` pages are served directly, independent of the generator.
+
+## Browser review, November 25
+
+[Phone-width views of the actual implementation](review/mobile.webp) show the social entrance, the measured 23 lb seat removal, and the two-lane test oval.
+
+The browser pass covered 27 checks. It included the 320 px garage and 390 px entry/comparison, measured and custom component changes, explicit save and restore, dual-car modification, both replay types, invalid share fallback, reopening modifications and event selection in a fresh tab, spring and load calculator data transfer, the Fiero article handoff, and custom engine and gearing inputs. Physical iOS/Android share sheets and hosted traffic still need independent verification.
 
 ## Integration seams
 
