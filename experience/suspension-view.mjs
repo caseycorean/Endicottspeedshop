@@ -1,5 +1,6 @@
 import { linkLayout, layouts, solveRearLinks, stages } from './rear-links.mjs';
 import { escape, fmt } from './ui.mjs';
+import { rearLinkInsights, rollSteerMeaning } from './rear-link-insights.mjs';
 
 const colors = {lower: '#b3a487', upper: '#ffb971', lateral: '#8bcdb7', slider: '#9fc8ed'};
 const dimensions = [
@@ -46,6 +47,7 @@ export function suspensionView(activeName) {
         <p class="quiet small" data-link-assumptions>Illustrative live-axle geometry and vehicle dimensions.</p>
         ${activeName ? `<button class="button secondary small" data-link-quick="garage">Use dimensions from ${escape(activeName)}</button>` : ''}
         <details class="explain"><summary>Instant center and anti-squat</summary><p>In level, symmetric travel the side-view link lines meet at a virtual pivot. The anti-squat estimate compares the slope from the rear tire contact patch to that pivot against CG height divided by wheelbase. It applies to the idealized rear-drive longitudinal force. For a torque arm, the height-only guide makes a vertical constraint line through the current nose. Roll, nonphysical fits and unresolved intersections suppress the readout.</p></details>
+        <details class="explain"><summary>Roll center, roll steer and pinion change</summary><p>Roll center is the height on the axle about which the body rolls relative to the axle; with a Panhard bar it sits near the bar height, with a triangulated four-link near the upper links' meeting point. Roll steer is how many degrees the axle steers for each degree of body roll: positive means the rear steers out of the turn (roll oversteer, looser), negative steers into it (roll understeer, more stable). Lower links that climb toward their front mounts give roll oversteer. Pinion change is how the axle nose rotates per inch of travel, which drives U-joint angle changes; it is one over the instant-center distance. All three are small-motion values at the current pose and are blanked when the links cannot reach it.</p></details>
         <details class="explain"><summary>Leaf spring reference and model limits</summary><p>A conventional leaf spring locates and supports the axle through the eyes, spring and shackle. The axle path and windup depend on spring deformation and shackle geometry. This fixed-length solver covers rod-link layouts and a simplified torque-arm guide. Real bushings, joints, springs, dampers, stops, clearances, strength and safety require separate checks. Green reports agreement with these modeled constraints only.</p></details>
       </section>
     </div>
@@ -55,7 +57,12 @@ export function suspensionView(activeName) {
 function draw(canvas, view, links, result, selected) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
-  const {width, height} = canvas;
+  // Draw in CSS pixels at device resolution so labels stay readable on phones (Claude, 25 Nov).
+  const height = 225;
+  const width = Math.max(240, Math.round(canvas.clientWidth || 580));
+  const dpr = Math.min(3, window.devicePixelRatio || 1);
+  if (canvas.width !== Math.round(width * dpr)) { canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr); }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   const xMax = Math.max(48, ...links.map(l => l.chassis[0]), view === 'side' && result.center ?
     Math.min(110, result.center[0] + 4) : 0);
   const xMin = Math.min(-10, ...links.map(l => l.axle[0])) - 2;
@@ -102,7 +109,7 @@ function draw(canvas, view, links, result, selected) {
       ctx.fillStyle = color; ctx.fill();
     }
   }
-  ctx.font = '13px monospace';
+  ctx.font = '12px monospace';
   ctx.fillStyle = '#a9b3b4';
   ctx.fillText(view === 'side' ? 'ROAD DATUM' : 'CENTERLINE', 15, height - 8);
 }
@@ -127,6 +134,7 @@ export function mountSuspension(root, reference) {
   }
   function update() {
     const result = solveRearLinks(links, state);
+    const insight = rearLinkInsights(links, state);
     status.dataset.level = result.level;
     status.textContent = result.message + (Number.isFinite(result.residual) ? ' Max mismatch ' + fmt(result.residual, 3) + ' in.' : '');
     const metrics = [
@@ -134,8 +142,12 @@ export function mountSuspension(root, reference) {
       ['Anti-squat', Number.isFinite(result.antiSquat) ? fmt(result.antiSquat, 0) + '%' : '—'],
       ['Axle shift', result.pose ? fmt(result.pose[0], 2) + ' fore/aft · ' + fmt(result.pose[1], 2) + ' lateral (in)' : '—'],
       ['Axle steer / pitch', result.pose ? fmt(result.yaw, 2) + '° / ' + fmt(result.pitch, 2) + '°' : '—'],
+      ['Roll center', insight.fits ? fmt(insight.rollCentre, 1) + ' in high' : '—'],
+      ['Roll steer', insight.fits ? fmt(insight.rollSteer, 3) + '° per 1° roll' : '—'],
+      ['Pinion change', insight.fits ? fmt(insight.pinionRate, 2) + '° per in of travel' : '—'],
     ];
-    readout.innerHTML = metrics.map(([label,value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join('');
+    readout.innerHTML = metrics.map(([label,value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join('') +
+      (insight.fits ? `<div class="link-readout-wide"><dt>What the roll steer means</dt><dd>${rollSteerMeaning(insight.rollSteer)}</dd></div>` : '');
     for (const canvas of panel.querySelectorAll('canvas')) draw(canvas, canvas.dataset.linkCanvas, links, result, Number(pick.value));
   }
   panel.addEventListener('input', event => {
