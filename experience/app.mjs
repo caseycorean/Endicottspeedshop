@@ -60,7 +60,6 @@ function render(next = view, restoreDetails = false) {
   stopReplay();
   pendingPreset = null;
   view = next;
-  const activeVehicle = active();
   switch (view) {
     case 'build': app.innerHTML = build(state, saved); break;
     case 'compare': {
@@ -84,10 +83,8 @@ function render(next = view, restoreDetails = false) {
     if (nav.dataset.view === view) nav.setAttribute('aria-current', 'page');
     else nav.removeAttribute('aria-current');
   }
-  if (activeVehicle) {
-    for (const detail of app.querySelectorAll('[data-details]')) {
-      detail.open = openSections.includes(detail.dataset.details);
-    }
+  for (const detail of app.querySelectorAll('[data-details]')) {
+    detail.open = openSections.includes(detail.dataset.details);
   }
   if (focusData) {
     const [key, value] = focusData;
@@ -261,16 +258,28 @@ function play(button) {
 async function share() {
   const url = experimentUrl();
   const title = 'ESS Vehicle Lab comparison';
-  const summary = `${vehicles[state.a.id].name} vs. ${vehicles[state.b.id].name} · ESS acceleration experiment`;
+  const quarter = replay.runs.map(r => r.finish ? fmt(r.finish.t, 1) + ' s' : 'no finish').join(' vs. ');
+  const summary = `${vehicles[state.a.id].name} vs. ${vehicles[state.b.id].name} · Estimated quarter mile ${quarter}`;
   const target = byId('share-feedback');
   const result = await shareResult(url, title, summary);
-  if (!target.isConnected) return;
-  if (result === 'copied') target.textContent = 'Link copied. It opens this exact matchup.';
-  if (result === 'shared') target.textContent = 'Matchup shared.';
+  if (!target.isConnected || result === 'cancelled') return;
+  target.replaceChildren();
+  if (result === 'copied') target.append('Link copied. ');
+  if (result === 'shared') target.append('Matchup shared. ');
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.textContent = 'Open shared link';
+  anchor.target = '_blank';
+  anchor.rel = 'noopener';
+  target.append(anchor);
   if (result === 'manual') {
-    target.innerHTML = '<label><span>Copy the experiment link</span><input readonly></label>';
-    const input = target.querySelector('input');
+    const label = document.createElement('label');
+    label.textContent = 'Copy the experiment link';
+    const input = document.createElement('input');
+    input.readOnly = true;
     input.value = url;
+    label.append(input);
+    target.append(label);
     input.focus();
     input.select();
   }
@@ -368,5 +377,7 @@ app.addEventListener('input', event => {
   byId('load-link').hash = hash;
 });
 
-window.addEventListener('hashchange', applyLocation);
+window.addEventListener('hashchange', () => {
+  if (location.hash !== '#content') applyLocation();
+});
 applyLocation();

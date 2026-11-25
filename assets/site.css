@@ -167,3 +167,13 @@ table.compare th[scope=row]{text-transform:none;letter-spacing:0;font-size:.95re
 @media (max-width:760px){.gl-wrap{grid-template-columns:minmax(0,1fr);gap:8px}.gl-fig svg{max-height:380px}.gl-take{font-size:1.05rem}}
 @media (max-width:520px){.paths{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:860px){table.data.gl-tab{min-width:0}}
+
+/* Optional Vehicle Lab selector on search entry pages. */
+.ess-config:empty { display: none; }
+.ess-config { margin: 18px 0; padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; }
+.ess-config summary { cursor: pointer; font-weight: 650; color: var(--accent); }
+.ess-config .ess-selector-fields { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; margin-top: 10px; }
+.ess-config label { display: grid; gap: 3px; flex: 1 1 200px; min-width: 0; }
+.ess-config select, .ess-config button { min-height: 44px; width: auto; max-width: 100%; }
+.ess-config [data-feedback]:empty { display: none; }
+.ess-config-link { display: inline-block; margin-top: 5px; }
