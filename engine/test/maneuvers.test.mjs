@@ -19,6 +19,18 @@ test('acceleration profile reproduces the shared straight-line run (quarter mile
   near(p.interval.t, base.zeroTo60, 0.03, '0–60');
 });
 
+test('quarter-mile and magazine figures are the 1,320 ft strip whatever distance is shown (QA-FAIL 26 Nov)', () => {
+  const base = straightLine(civic);
+  for (const opt of [{ distanceFt: 1320 }, { distanceFt: 60 }, { distanceFt: 5280 }, { fromMph: 30, toMph: 70, distanceFt: 1320 }, {}]) {
+    const p = accelerationProfile(civic, opt);
+    near(p.magazine.et, base.magazine.et, 1e-9, `magazine ET for ${JSON.stringify(opt)}`);
+    near(p.quarter.t, base.finish.t, 1e-9, `standstill ¼ mile for ${JSON.stringify(opt)}`);
+    near(p.magazine.zeroTo60, base.magazine.zeroTo60, 1e-9, '0–60 with rollout');
+    assert.ok(p.magazine.et > 8 && p.magazine.et < 20, `plausible ET ${p.magazine.et}`);
+    assert.ok(p.magazine.et < p.quarter.t, 'rollout ET is quicker than the from-rest time');
+  }
+});
+
 test('rolling intervals are consistent: t(0–70) = t(0–30) + t(30–70)', () => {
   const a = accelerationProfile(camaro, { fromMph: 0, toMph: 70 }).interval.t;
   const b = accelerationProfile(camaro, { fromMph: 0, toMph: 30 }).interval.t;

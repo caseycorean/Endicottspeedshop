@@ -4,6 +4,7 @@
 import { accelerationProfile, brakeBetween, BRAKING_CONVENTIONS, steadyCorner, runPath, MANEUVERS, DIFFS, rollDefaults, brakeAvailable, MPH } from '../../engine/maneuvers.mjs';
 import { tireGrip } from '../../engine/acceleration.mjs';
 import { vehicles, browseIds } from '../vehicles.mjs';
+import { missingFor, missingText } from '../readiness.mjs';
 import { resolve, newSetup } from '../models.mjs';
 import { getActive, useConfig } from '../configuration.mjs';
 
@@ -89,6 +90,9 @@ const est = '<p class="sim-label">ESS model estimate · quasi-steady · not a me
 function accelerate(v0, v1) {
   const a = S.acc, opt = a.kind === 'distance' ? { distanceFt: a.ft } : { fromMph: a.from, toMph: a.to, distanceFt: 1320 };
   const r0 = accelerationProfile(v0, opt), r1 = anyChange() ? accelerationProfile(v1, opt) : r0;
+  // A record without gearing or redline cannot move in the model: say what is missing instead of an empty chart.
+  if (!(r0.top.mph > 1)) { const need = missingFor(v0, 'quarter');
+    return `<div class="sim-out"><p class="warn">The acceleration run needs ${need.length ? esc(missingText(need)) : 'drivetrain data'} for this car, which its record does not have yet. Braking and cornering work without it.</p></div>`; }
   const presetsD = [[60, '60 ft'], [330, '330 ft'], [660, '⅛ mile'], [1320, '¼ mile'], [2640, '½ mile'], [5280, '1 mile']];
   const presetsS = [[0, 60], [0, 100], [30, 70], [50, 100], [60, 130], [0, 150]];
   const pub = S.published?.et?.[0], pub60 = S.published?.t60?.[0];
@@ -106,7 +110,7 @@ function accelerate(v0, v1) {
       <label class="sim-range"><span>To</span><input type="range" min="10" max="220" step="5" value="${a.to}" data-acc="to" aria-label="Target speed"><input type="number" min="5" max="260" value="${a.to}" data-acc="to" aria-label="Target speed, exact"><span class="u">mph</span></label>` : ''}
   </div>
   <div class="sim-out">${est}<div class="sim-nums">${res}</div>${chart(series, { xLabel: a.kind === 'top' ? 'distance (miles)' : 'distance (ft)' })}
-    <p class="sim-note">Full throttle from rest with the shared launch and shift model; rolling intervals are read inside the same run, as a data logger would. Quarter mile ${fx(r0.magazine.et, 2)} s and 0–60 ${fx(r0.magazine.zeroTo60, 1)} s with the 1-ft rollout magazines use${pub || pub60 ? `; published road test: ${pub ? `¼ mile ${fx(pub.s, 2)} s` : ''}${pub && pub60 ? ', ' : ''}${pub60 ? `0–60 ${fx(pub60.s, 1)} s` : ''} (${esc((pub ?? pub60).pub ?? 'road test')})` : ''}.</p></div>`;
+    <p class="sim-note">Full throttle from rest with the shared launch and shift model; rolling intervals are read inside the same run, as a data logger would. Model estimate on the magazine clock (starts after the 1 ft rollout drag strips and road tests use): ¼ mile ${fx(r0.magazine.et, 2)} s at ${fx(r0.magazine.trap, 1)} mph, 0–60 ${fx(r0.magazine.zeroTo60, 1)} s; from a dead stop the same run takes ${fx(r0.quarter?.t, 2)} s to 1,320 ft${pub || pub60 ? `; published road test: ${pub ? `¼ mile ${fx(pub.s, 2)} s` : ''}${pub && pub60 ? ', ' : ''}${pub60 ? `0–60 ${fx(pub60.s, 1)} s` : ''} (${esc((pub ?? pub60).pub ?? 'road test')})` : ''}.</p></div>`;
 }
 
 // ---------------------------------------------------------------- 2 · brake
