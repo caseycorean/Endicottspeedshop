@@ -1,16 +1,14 @@
 # Page content for endicottspeedshop.com. Edit here, then run: python3 _build/build.py
 import json, os
+from reference_pages import discovery
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 ARTICLES = [
- ("articles/measured-firebird-weights/", "What Second-Gen Firebird Parts Actually Weigh (Measured)", "Build data",
-  "Scale-measured weights of LS-swap and second-gen F-body parts, with what each number includes."),
  ("articles/weight-distribution-50-50/", "What 50/50 Weight Distribution Really Means", "Engineering foundations",
   "A balanced car is a good thing, but the percentage alone doesn't tell you where the mass sits — and that matters too."),
  ("articles/traction-circle/", "Understanding the Traction Circle", "Engineering foundations",
   "Why braking into a corner costs grip, and how tires set the limit on everything the car can do."),
- ("articles/ls-swap-real-cost/", "What LS Swap Parts Actually Cost", "Build notes · green car",
-  "The advertised price is rarely the real price: a documented LS1/T5 swap parts list."),
+
 ]
 TOOLS = [
  ("tools/cg-builder/", "Balance & CG Builder", "New",
@@ -41,25 +39,11 @@ GOALS = [
  ("Springs and ride", "Turn a spring rate into what the wheel feels, and find the spring for the ride you want.",
   [("Spring Rate &amp; Ride Frequency", "tools/spring-rate/")]),
  ("Know what your parts weigh", "Measured second-gen F-body part weights, and how to weigh parts on your own car.",
-  [("Measured Firebird part weights", "articles/measured-firebird-weights/"), ("Part Weight from Corner Scales", "tools/scale-delta/")]),
+  [("How ESS measures parts", "build/"), ("Part Weight from Corner Scales", "tools/scale-delta/")]),
 ]
 def GOALS_HTML(rel):
     return "".join(f'<article class="card goal"><h3>{g}</h3><p>{d}</p><ul class="links">' +
                    "".join(f'<li><a href="{rel}{h}">{n}</a></li>' for n, h in links) + '</ul></article>' for g, d, links in GOALS)
-
-def contact(page, address):
-    """Contact page. The address is passed in (environment variable ESS_CONTACT_EMAIL) so it lives in one published page only."""
-    page("contact/index.html", "Contact | Endicott Speed Shop", "Contact Endicott Speed Shop with corrections, calculator problems, questions or measured part data.",
-         f"""<main class="page narrow article"><div class="kicker">Contact</div><h1>Contact the shop.</h1>
-<p class="lede">Endicott Speed Shop is a one-person shop. Email is the best way to reach us; replies may take a few days.</p>
-{('<p class="note">PREVIEW: the contact address is added before launch.</p>' if address == "pending" else f'<p><a class="btn primary" href="mailto:{address}?subject=Endicott%20Speed%20Shop">Email the shop</a></p>')}
-<h2>Especially welcome</h2>
-<ul><li><strong>Corrections.</strong> Which page, what looks wrong, and your source if you have one.</li>
-<li><strong>Calculator problems.</strong> Which tool, the numbers you entered, and your device and browser.</li>
-<li><strong>Measured data.</strong> A part's weight with what it included (hardware, fluids, brackets) and how it was weighed.</li>
-<li><strong>Questions</strong> about the builds, the articles or the tools.</li></ul>
-<p class="hint">What happens to your email: see <a href="../privacy/">Privacy</a>.</p>
-</main>""", active="Contact")
 
 def journey(path, rel):
     """Mount point for the model-driven 'try it on a car' band (experience/journey.mjs). Visible content, filled by the
@@ -81,51 +65,44 @@ from home import homepage, grip_entrance
 def build(page):
     page("index.html", "Endicott Speed Shop | Run it before you buy it.",
          "Choose your car, compare builds and use engineering tools to test changes in weight, grip, gearing and suspension.",
-         homepage(), extra_head='<script type="module" src="experience/home.mjs"></script>')
+         homepage().replace('<section class="ig-section home-fieldnotes"', discovery() + '<section class="ig-section home-fieldnotes"'), extra_head='<script type="module" src="experience/home.mjs"></script>')
     page("grip/index.html", "Tire Load Experiment | Endicott Speed Shop",
          "See how braking and cornering move load between your tires with an interactive experiment.",
          grip_entrance(), extra_head='<script type="module" src="../assets/grip-lab.js"></script>')
 
     # TOOLS HUB
     page("tools/index.html", "Tools | Endicott Speed Shop", "Free calculators for weight distribution, center of gravity, load transfer, spring rates and part weights.",
-         f'<main class="page"><div class="kicker">Tools</div><h1>Model it before you build it.</h1><p class="lede">Free calculators for balance, center of gravity, load transfer, springs and part weights. Results are estimates — the scales have the final word.</p><div class="grid">{cards(TOOLS, "../")}</div>'
-         '<p class="lab-callout">Use one car across experiments. <a href="../experience/#tools">Open Vehicle Lab tools</a>.</p></main>' , active="Tools")
+         f'<main class="page"><div class="kicker">Tools</div><h1>Model it before you build it.</h1><p class="lede">Free calculators for balance, center of gravity, load transfer, springs and part weights. Results are estimates you can check against measurements.</p><div class="grid">{cards(TOOLS, "../")}</div>'
+         '<p class="lab-callout">Use one car across experiments. <a href="../experience/#tools">Open Vehicle Lab tools</a> or <a href="../experiments/">discover more experiments</a>.</p></main>' , active="Tools")
 
     # ARTICLES HUB
-    page("articles/index.html", "Articles | Endicott Speed Shop", "Engineering foundations and measured build notes from Endicott Speed Shop.",
-         f'<main class="page"><div class="kicker">Articles</div><h1>Engineering, explained with real numbers.</h1><p class="lede">Foundations that explain how cars behave, and build notes that show what things really weigh and cost.</p><div class="grid">{cards(ARTICLES, "../")}</div></main>', active="Articles")
+    page("articles/index.html", "Articles | Endicott Speed Shop", "Engineering foundations from Endicott Speed Shop.",
+         f'<main class="page"><div class="kicker">Articles</div><h1>Engineering, explained with real numbers.</h1><p class="lede">Foundations that explain how vehicles behave, with experiments that put the ideas to work.</p><div class="grid">{cards(ARTICLES, "../")}</div></main>', active="Articles")
 
-    # BUILD
-    page("build/index.html", "The Build | Endicott Speed Shop", "The green 1977 Firebird Formula LS1/T5 build, measured as it is built.",
-         """<main class="page narrow article"><div class="kicker">The build</div><h1>The green car: a 1977 Firebird Formula, measured.</h1>
-<div class="meta">Status updated November 2026</div>
-<p>The green car is the proof of concept: a budget LS1/T5 swap with honest constraints. The engine is a 2004 GTO LS1; the transmission is a T5 from an '84 Z28. The patina stays — if the car performs against cars costing far more, the patina becomes the point.</p>
-<h2>Where it stands</h2>
-<ul><li>Drivetrain installed with clutch and flywheel; driveshaft in; headers in.</li>
-<li>Standalone engine harness and controller mounted; battery relocated to the trunk.</li>
-<li>C5 Corvette front brakes; fuel and brake plumbing largely done.</li>
-<li><strong>Next:</strong> finish wiring and final assembly, then first start.</li></ul>
-<h2>What gets measured</h2>
-<p>Major parts going on or off the car are weighed, and each published weight says what it includes. The whole car is weighed on four corner scales at milestones, and the scale differences give a major part's weight and location. The plan for the finished car is to weigh it with fuel, fluids and driver recorded, then take it to autocross.</p>
-<div class="callout">Latest recorded weighing (July 2026, not yet complete — no nose, hood, radiator, exhaust, fuel or coolant): <strong>2,786 lb, 51% front</strong>.</div>
-<h2>What comes next</h2>
-<p>The green car is the baseline. Later development explores moving the engine rearward, Corvette front suspension, a three-link rear axle and, eventually, a reworked structure and underbody aerodynamics — each step measured against this car.</p>
-<p><a href="../articles/measured-firebird-weights/">See the measured part weights →</a> · <a href="../articles/ls-swap-real-cost/">See what the swap parts really cost →</a></p>
-</main>""", active="The Build")
+    page("build/index.html", "Engineering research | Endicott Speed Shop",
+         "How Endicott Speed Shop establishes a measurable baseline, models changes and checks the results.",
+         """<main class="page narrow article"><div class="kicker">Engineering research</div>
+<h1>Build a case for the change.</h1>
+<p class="lede">Endicott Speed Shop grew out of Supercar X and a simple question. How much can we learn about the potential of the car we already have?</p>
+<h2>Start with the car and its job</h2><p>A daily-driver hatchback, a tow-capable pickup and a track car have different goals. Establish a baseline for the one you have. Record the exact configuration, the equipment, and the conditions that matter.</p>
+<h2>Model one change</h2><p>Use a shared model to see what changing gearing, tires, weight or suspension might do. Distinguish factory specifications, independent tests and your own measurements from estimates.</p>
+<h2>Repeat the measurement</h2><p>Check the prediction under comparable conditions. Capture the setup and what changed, including results that challenge the model.</p>
+<p><a href="../vehicles/">Find a documented baseline</a> · <a href="../experiments/">Explore the experiments</a> · <a href="../plan/">Plan a build</a></p>
+</main>""", active="Research")
 
-    # ABOUT
-    page("about/index.html", "About | Endicott Speed Shop", "Why Endicott Speed Shop exists: decisions explained, not just documented.",
-         """<main class="page narrow article"><div class="kicker">About</div><h1>Not what to do next — why it's the right move.</h1>
-<p>Endicott Speed Shop exists because most automotive content tells you what people did. Almost none of it tells you why the decision made sense, what it was trading off against, or how you would think through the same problem on a different car.</p>
-<p>The thinking behind this platform started in the early 2000s with a concept called SuperCar X. The premise was simple: treat the car as a variable. Pick any platform. Apply the same engineering philosophy. The specific car was never the point — the framework was. That idea sat in the background for twenty years while the builds got more serious and the thinking got sharper.</p>
-<p>ESS is where that led.</p>
-<p>The current work centers on second-generation Firebirds. The green car is the proof of concept — a budget build with honest constraints, designed to show that the philosophy produces results against cars costing far more. The white car is the full expression of the idea: an architectural build developed from the ground up, every decision deliberate.</p>
-<p>The tools, articles and guides here are built around the same question those cars ask every day: not what do I do next, but why is this the right move? That question has an engineering answer. Usually more than one. The goal of this platform is to help you find yours.</p>
-<div class="callout">Measure. Test. Improve. Know why.</div>
-<h2 id="beta">Why the site says "beta"</h2>
-<p>Endicott Speed Shop launched in November 2026 and is still being built. Tools are checked against hand calculations before they go up, but they are new, and articles will be corrected and expanded as the cars are measured and tested. If something looks wrong, <a href="../contact/">please tell us</a> — corrections are welcome.</p>
-<p>Questions, corrections or data to share: <a href="../contact/">contact the shop</a>.</p>
-</main>""", active="About")
+    page("about/index.html", "About | Endicott Speed Shop", "Supercar X grew into Endicott Speed Shop, an independent automotive engineering reference and workshop.",
+         """<main class="page narrow article"><div class="kicker">About ESS</div><h1>Explore the car you have.</h1>
+<p class="lede">Supercar X started with the idea that any car could be worth studying. Endicott Speed Shop carries that idea forward with sourced vehicle specifications, explanations and experiments.</p>
+<p>Use ESS to research a configuration, ask what a change might do, and decide what to measure or test next. The result you want might be more grip, a better ride, a more useful gear or simply a clearer understanding of how your vehicle works.</p>
+<h2 id="beta">What beta means</h2><p>We expand coverage when the evidence supports it. If a source conflicts, a model needs an input or a specification is missing, we show that distinction. <a href="../contact/">Tell us what needs attention</a>.</p>
+<p><a href="../build/">Read how we do the research</a></p></main>""", active="About")
+
+    for route in ("measured-firebird-weights", "ls-swap-real-cost"):
+        page(f"articles/{route}/index.html", "Engineering research | Endicott Speed Shop",
+             "Explore the ESS approach to measuring parts and planning a build.",
+             '<main class="page narrow article"><h1>Engineering research</h1><p>This article is awaiting editorial review.</p>'
+             '<p><a href="../../build/">See the research method</a> · <a href="../../articles/">Engineering articles</a></p></main>',
+             indexable=False, journey=False)
 
     # PLAN YOUR BUILD (owner desktop review, 24 Nov 2026): first version of the Build Planning Guide.
     page("plan/index.html", "Plan Your Build | Endicott Speed Shop",
@@ -138,7 +115,7 @@ def build(page):
 <ul class="links">{"".join(f'<li>{g}: ' + ' · '.join(f'<a href="../{h}">{n}</a>' for n, h in links) + '</li>' for g, d, links in GOALS)}</ul>
 <h2>2 · Record your baseline</h2>
 <p>Write down what you have now: total weight and corner weights if you can get the car on scales, wheelbase and track, tires, and the current suspension. Every later decision is measured against this.</p>
-<p><a href="../tools/cg-builder/">Balance &amp; CG Builder</a> · <a href="../tools/scale-delta/">Part Weight from Corner Scales</a> · <a href="../articles/measured-firebird-weights/">Measured part weights</a></p>
+<p><a href="../tools/cg-builder/">Balance &amp; CG Builder</a> · <a href="../tools/scale-delta/">Part Weight from Corner Scales</a> · <a href="../build/">Research method</a></p>
 <h2>3 · Set your constraints</h2>
 <p>Budget, time, tools, the fabrication you can actually do, and what has to stay (comfort, registration, originality). Constraints aren't limits on a good build — they are design inputs that narrow the options to the ones that fit.</p>
 <h2>4 · Understand what drives the result</h2>
@@ -151,7 +128,7 @@ def build(page):
 <p><a href="../tools/">All calculators</a></p>
 <h2>7 · Build in stages, and measure each one</h2>
 <p>Make the reversible decisions first. After each stage, weigh, test and compare against your baseline — that is how you find out whether a change did what you expected, and it's how the ESS cars are developed too.</p>
-<p><a href="../build/">Follow the green car</a> · <a href="../contact/">Questions or suggestions for this guide</a></p>
+<p><a href="../build/">How ESS measures and tests</a> · <a href="../contact/">Questions or suggestions for this guide</a></p>
 </main>""", active="Plan")
 
     # PRIVACY (launch blocker fix, 23 Nov 2026)
@@ -161,8 +138,7 @@ def build(page):
     # ARTICLES
     for p, t, k, d in ARTICLES:
         body = open(os.path.join(HERE, "content", p.strip("/").split("/")[-1] + ".html")).read()
-        meta = {"articles/ls-swap-real-cost/": "Endicott Speed Shop · Green car build log · Prices as of April 2026",
-                "articles/measured-firebird-weights/": "Endicott Speed Shop · Measured March–July 2026"}.get(p, "Endicott Speed Shop · Engineering foundations")
+        meta = "Endicott Speed Shop · Engineering foundations"
         article(page, p, t, k, d, meta, body)
 
     # TOOLS

@@ -6,7 +6,7 @@
 <title>Plan Your Build | Endicott Speed Shop</title>
 <meta name="description" content="A step-by-step way to go from a performance goal to a build plan you can test: goal, baseline, constraints, options, modeling and measurement.">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-GGJVMS8CZD"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.href.split('#')[0]});</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.origin+location.pathname,page_referrer:document.referrer?new URL(document.referrer).origin:''});</script>
 <link rel="canonical" href="https://endicottspeedshop.com/plan/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Endicott Speed Shop">
@@ -25,29 +25,32 @@
 <link rel="stylesheet" href="../assets/ess-presentation/ess-system.css">
 <link rel="stylesheet" href="../assets/ess-presentation/ess-claude-adapter.css">
 <link rel="icon" type="image/svg+xml" href="../assets/ess-presentation/ess-mark.svg">
+<link rel="stylesheet" href="../assets/ess-reference.css">
+<script type="module" src="../experience/measurement.mjs"></script>
 <meta name="theme-color" content="#162720">
 <script type="module" src="../experience/journey.mjs"></script><script type="module" src="../experience/search-bridge.mjs"></script>
 </head>
 <body class="ess-theme" data-ess-brand="speed">
+<a class="vr-skip" href="#main">Skip to content</a>
 <header class="site-header"><div class="header-inner">
 <div class="brand-wrap"><a href=".././" class="brand" aria-label="Endicott Speed Shop home"><span class="ess-wordmark"><strong>ENDICOTT</strong><span>SPEED SHOP</span></span></a><a class="beta-pill" href="../about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
-<nav class="topnav" aria-label="Main navigation"><a href="../experience/">Vehicle Lab</a><a href="../plan/" class=on>Plan</a><a href="../tools/">Tools</a><a href="../articles/">Articles</a><a href="../build/">The Build</a><a href="../about/">About</a><a href="../contact/">Contact</a></nav>
+<nav class="topnav" aria-label="Main navigation"><a href="../vehicles/">Vehicles</a><a href="../experience/">Vehicle Lab</a><a href="../plan/" class=on>Plan</a><a href="../tools/">Tools</a><a href="../articles/">Articles</a><a href="../build/">Research</a><a href="../about/">About</a><a href="../contact/">Contact</a></nav>
 <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
 </div></header>
 <aside class="sidebar" id="sidebar"><button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
-<nav><a href=".././">Home<small>Start here</small></a><a href="../experience/">Vehicle Lab<small>Build, compare and test your car</small></a><a href="../plan/">Plan<small>Plan your build, step by step</small></a><a href="../tools/">Tools<small>Calculators built from measured data</small></a><a href="../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../build/">The Build<small>The green car, measured</small></a><a href="../about/">About<small>Why this exists</small></a><a href="../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
+<nav><a href=".././">Home<small>Start here</small></a><a href="../vehicles/">Vehicles<small>Factory specifications and independent tests</small></a><a href="../experience/">Vehicle Lab<small>Build, compare and test your car</small></a><a href="../plan/">Plan<small>Plan your build, step by step</small></a><a href="../tools/">Tools<small>Calculators built from measured data</small></a><a href="../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../build/">Research<small>How ESS measures and tests changes</small></a><a href="../about/">About<small>Why this exists</small></a><a href="../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
 <p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="../contact/">Spot a problem? Tell us.</a></p>
 </aside>
-<main class="page narrow article"><div class="kicker">Build planning</div><h1>Plan your build.</h1>
+<main id="main" class="page narrow article"><div class="kicker">Build planning</div><h1>Plan your build.</h1>
 <div class="ess-config" data-ess-vehicle="plan" data-lab-root="../experience/"></div>
 <p class="lede">Most builds go wrong before the first bolt is turned: parts get bought before the goal is clear. This guide walks from what you want the car to do, to a plan you can test — using the articles and calculators on this site along the way.</p>
 <div class="callout">Save a baseline in <a href="../experience/#garage">My Garage</a> as you work through the guide. Use a measured baseline when you have one, and mark the changes you still need to test.</div>
 <h2>1 · Name the goal</h2>
 <p>What should the car do better: turn in, put power down, stop, ride, or simply weigh less? Is it a street car, a track car or both? A clear goal is what lets you say no to parts that don't serve it.</p>
-<ul class="links"><li>Balance and weight placement: <a href="../articles/weight-distribution-50-50/">What 50/50 really means</a> · <a href="../tools/cg-builder/">Balance &amp; CG Builder</a></li><li>Grip in corners and under braking: <a href="../articles/traction-circle/">Understanding the traction circle</a> · <a href="../tools/load-transfer/">Load Transfer Calculator</a></li><li>Springs and ride: <a href="../tools/spring-rate/">Spring Rate &amp; Ride Frequency</a></li><li>Know what your parts weigh: <a href="../articles/measured-firebird-weights/">Measured Firebird part weights</a> · <a href="../tools/scale-delta/">Part Weight from Corner Scales</a></li></ul>
+<ul class="links"><li>Balance and weight placement: <a href="../articles/weight-distribution-50-50/">What 50/50 really means</a> · <a href="../tools/cg-builder/">Balance &amp; CG Builder</a></li><li>Grip in corners and under braking: <a href="../articles/traction-circle/">Understanding the traction circle</a> · <a href="../tools/load-transfer/">Load Transfer Calculator</a></li><li>Springs and ride: <a href="../tools/spring-rate/">Spring Rate &amp; Ride Frequency</a></li><li>Know what your parts weigh: <a href="../build/">How ESS measures parts</a> · <a href="../tools/scale-delta/">Part Weight from Corner Scales</a></li></ul>
 <h2>2 · Record your baseline</h2>
 <p>Write down what you have now: total weight and corner weights if you can get the car on scales, wheelbase and track, tires, and the current suspension. Every later decision is measured against this.</p>
-<p><a href="../tools/cg-builder/">Balance &amp; CG Builder</a> · <a href="../tools/scale-delta/">Part Weight from Corner Scales</a> · <a href="../articles/measured-firebird-weights/">Measured part weights</a></p>
+<p><a href="../tools/cg-builder/">Balance &amp; CG Builder</a> · <a href="../tools/scale-delta/">Part Weight from Corner Scales</a> · <a href="../build/">Research method</a></p>
 <h2>3 · Set your constraints</h2>
 <p>Budget, time, tools, the fabrication you can actually do, and what has to stay (comfort, registration, originality). Constraints aren't limits on a good build — they are design inputs that narrow the options to the ones that fit.</p>
 <h2>4 · Understand what drives the result</h2>
@@ -60,9 +63,9 @@
 <p><a href="../tools/">All calculators</a></p>
 <h2>7 · Build in stages, and measure each one</h2>
 <p>Make the reversible decisions first. After each stage, weigh, test and compare against your baseline — that is how you find out whether a change did what you expected, and it's how the ESS cars are developed too.</p>
-<p><a href="../build/">Follow the green car</a> · <a href="../contact/">Questions or suggestions for this guide</a></p>
+<p><a href="../build/">How ESS measures and tests</a> · <a href="../contact/">Questions or suggestions for this guide</a></p>
 <section class="ig-journey" data-ess-journey="plan" data-lab-root="../experience/" aria-label="Try it on a car"><noscript><p><a href="../experience/">Open the Vehicle Lab</a></p></noscript></section></main>
-<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="../contact/">report a problem</a></span><span><a href="../privacy/">Privacy</a> · <a href="../contact/">Contact</a></span><label class="ess-units"><span>Units</span><select data-units-pref aria-label="Measurement units"><option value="us">US customary</option><option value="metric">Metric</option><option value="dual">Both</option></select></label></div></footer>
+<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="../contact/?from=/plan/">Give feedback</a></span><span><a href="../privacy/">Privacy</a> · <a href="../contact/">Contact</a></span><label class="ess-units"><span>Units</span><select data-units-pref aria-label="Measurement units"><option value="us">US customary</option><option value="metric">Metric</option><option value="dual">Both</option></select></label></div></footer>
 <script src="../assets/site.js"></script>
 <script type="module" src="../experience/units.mjs"></script>
 </body>

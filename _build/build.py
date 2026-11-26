@@ -3,21 +3,26 @@ Run from the repo root:  python3 _build/build.py
 Pages are defined in _build/pages.py; shared header/footer live here.
 Folders starting with '_' are not published by GitHub Pages (Jekyll default)."""
 import os, sys, re, importlib.util
+from html import escape
+import reference_pages
+import feedback_page
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import presentation
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-GA = """<script async src="https://www.googletagmanager.com/gtag/js?id=G-GGJVMS8CZD"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.href.split('#')[0]});</script>"""
-NAV = [("Vehicle Lab", "experience/", "Build, compare and test your car"),
+GA_TAGS = """<script async src="https://www.googletagmanager.com/gtag/js?id=G-GGJVMS8CZD"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.origin+location.pathname,page_referrer:document.referrer?new URL(document.referrer).origin:''});</script>"""
+GA = GA_TAGS if os.environ.get("ESS_PRIVATE_REVIEW") != "1" else ""
+NAV = [("Vehicles", "vehicles/", "Factory specifications and independent tests"),
+       ("Vehicle Lab", "experience/", "Build, compare and test your car"),
        ("Plan", "plan/", "Plan your build, step by step"),
        ("Tools", "tools/", "Calculators built from measured data"),
        ("Articles", "articles/", "Engineering foundations and build notes"),
-       ("The Build", "build/", "The green car, measured"),
+       ("Research", "build/", "How ESS measures and tests changes"),
        ("About", "about/", "Why this exists"),
        ("Contact", "contact/", "Corrections, questions and measured data")]
 
 SITE = "https://endicottspeedshop.com/"
-URLS = ["weight-distribution-calculator/"]  # hand-made page, not generated here
+URLS = ["experience/", "weight-distribution-calculator/"]  # hand-made page, not generated here
 
 def share_tags(title, desc, url):
     """Link-preview tags (Facebook, iMessage, forums, X) so a shared link shows the logo, title and summary."""
@@ -32,12 +37,16 @@ def share_tags(title, desc, url):
             f'<meta property="og:image:alt" content="Endicott Speed Shop logo: a second-generation Firebird in a round badge">\n'
             f'<meta name="twitter:card" content="summary_large_image">')
 
-def page(path, title, desc, body, active="", extra_head=""):
+def page(path, title, desc, body, active="", extra_head="", *, indexable=True, journey=True):
     depth = path.count("/")
     rel = "../" * depth
     canon = path[:-len("index.html")] if path.endswith("index.html") else path
-    URLS.append(canon)
-    if path.startswith(("articles/", "tools/", "plan/")) and "data-ess-journey" not in body:
+    title, desc = escape(title, quote=True), escape(desc, quote=True)
+    if indexable:
+        URLS.append(canon)
+    else:
+        extra_head += '<meta name="robots" content="noindex,follow">'
+    if journey and path.startswith(("articles/", "tools/", "plan/")) and "data-ess-journey" not in body:
         # Calculators, hubs and the planning guide end with the same model-driven next-experiment band as articles.
         key = path.replace("/index.html", "")
         band = (f'<section class="ig-journey" data-ess-journey="{key}" data-lab-root="{rel}experience/" aria-label="Try it on a car">'
@@ -45,12 +54,14 @@ def page(path, title, desc, body, active="", extra_head=""):
         body = body[:body.rfind("</main>")] + band + body[body.rfind("</main>"):]
     if "data-ess-journey" in body:
         extra_head += f'<script type="module" src="{rel}experience/journey.mjs"></script>'
-    if path.startswith(("articles/", "tools/", "plan/")):
+    if journey and path.startswith(("articles/", "tools/", "plan/")):
         tool = path.split("/")[-2] if path.startswith(("tools/", "plan/")) else "article"
         selector = (f'<div class="ess-config" data-ess-vehicle="{tool}" '
                     f'data-lab-root="{rel}experience/"></div>')
         body = re.sub(r"</h1>", "</h1>\n" + selector, body, count=1)
         extra_head += f'<script type="module" src="{rel}experience/search-bridge.mjs"></script>'
+    if 'id="main"' not in body:
+        body = body.replace("<main ", '<main id="main" ', 1)
     links = "".join(f'<a href="{rel}{h}"{" class=on" if active==n else ""}>{n}</a>' for n, h, _ in NAV)
     side = "".join(f'<a href="{rel}{h}">{n}<small>{s}</small></a>' for n, h, s in NAV)
     html = f"""<!DOCTYPE html>
@@ -67,10 +78,13 @@ def page(path, title, desc, body, active="", extra_head=""):
 <link rel="stylesheet" href="{rel}assets/ess-search.css">
 <link rel="stylesheet" href="{rel}assets/ess-editorial.css">
 <link rel="stylesheet" href="{rel}assets/ess-identity.css">
-{presentation.head(rel)}<meta name="theme-color" content="{presentation.theme_color()}">
+{presentation.head(rel)}<link rel="stylesheet" href="{rel}assets/ess-reference.css">
+<script type="module" src="{rel}experience/measurement.mjs"></script>
+<meta name="theme-color" content="{presentation.theme_color()}">
 {extra_head}
 </head>
 <body class="ess-theme"{presentation.body_attrs()}>
+<a class="vr-skip" href="#main">Skip to content</a>
 <header class="site-header"><div class="header-inner">
 <div class="brand-wrap"><a href="{rel}./" class="brand" aria-label="Endicott Speed Shop home"><span class="ess-wordmark"><strong>ENDICOTT</strong><span>SPEED SHOP</span></span></a><a class="beta-pill" href="{rel}about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
 <nav class="topnav" aria-label="Main navigation">{links}</nav>
@@ -81,7 +95,7 @@ def page(path, title, desc, body, active="", extra_head=""):
 <p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="{rel}contact/">Spot a problem? Tell us.</a></p>
 </aside>
 {body}
-<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="{rel}contact/">report a problem</a></span><span><a href="{rel}privacy/">Privacy</a> · <a href="{rel}contact/">Contact</a></span><label class="ess-units"><span>Units</span><select data-units-pref aria-label="Measurement units"><option value="us">US customary</option><option value="metric">Metric</option><option value="dual">Both</option></select></label></div></footer>
+<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="{rel}contact/?from=/{canon}">Give feedback</a></span><span><a href="{rel}privacy/">Privacy</a> · <a href="{rel}contact/">Contact</a></span><label class="ess-units"><span>Units</span><select data-units-pref aria-label="Measurement units"><option value="us">US customary</option><option value="metric">Metric</option><option value="dual">Both</option></select></label></div></footer>
 <script src="{rel}assets/site.js"></script>
 <script type="module" src="{rel}experience/units.mjs"></script>
 </body>
@@ -97,14 +111,8 @@ if __name__ == "__main__":
     spec = importlib.util.spec_from_file_location("pages", os.path.join(ROOT, "_build", "pages.py"))
     m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
     m.build(page)
-    # The contact page is the only page that holds the shop's email address. It is regenerated only
-    # when ESS_CONTACT_EMAIL is set; otherwise the published contact/index.html is left as it is.
-    addr = os.environ.get("ESS_CONTACT_EMAIL", "").strip()
-    if addr:
-        m.contact(page, addr)
-    else:
-        URLS.append("contact/")
-        print("kept contact/index.html (set ESS_CONTACT_EMAIL to regenerate it)")
+    reference_pages.build(page)
+    feedback_page.build(page)
     sm = "".join(f"<url><loc>{SITE}{u}</loc></url>" for u in sorted(set(URLS)))
     open(os.path.join(ROOT, "sitemap.xml"), "w").write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + sm + "</urlset>\n")
     open(os.path.join(ROOT, "robots.txt"), "w").write(f"User-agent: *\nAllow: /\nSitemap: {SITE}sitemap.xml\n")

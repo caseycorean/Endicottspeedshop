@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Balance & CG Builder | Endicott Speed Shop</title>
+<title>Balance &amp; CG Builder | Endicott Speed Shop</title>
 <meta name="description" content="Free center of gravity and weight distribution builder: start from corner weights, add, remove or move parts, see front %, side balance and CG height change.">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-GGJVMS8CZD"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.href.split('#')[0]});</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.origin+location.pathname,page_referrer:document.referrer?new URL(document.referrer).origin:''});</script>
 <link rel="canonical" href="https://endicottspeedshop.com/tools/cg-builder/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Endicott Speed Shop">
-<meta property="og:title" content="Balance & CG Builder | Endicott Speed Shop">
+<meta property="og:title" content="Balance &amp; CG Builder | Endicott Speed Shop">
 <meta property="og:description" content="Free center of gravity and weight distribution builder: start from corner weights, add, remove or move parts, see front %, side balance and CG height change.">
 <meta property="og:url" content="https://endicottspeedshop.com/tools/cg-builder/">
 <meta property="og:image" content="https://endicottspeedshop.com/logo-round.png">
@@ -25,20 +25,23 @@
 <link rel="stylesheet" href="../../assets/ess-presentation/ess-system.css">
 <link rel="stylesheet" href="../../assets/ess-presentation/ess-claude-adapter.css">
 <link rel="icon" type="image/svg+xml" href="../../assets/ess-presentation/ess-mark.svg">
+<link rel="stylesheet" href="../../assets/ess-reference.css">
+<script type="module" src="../../experience/measurement.mjs"></script>
 <meta name="theme-color" content="#162720">
 <script src="../../assets/tool-events.js" data-tool="cg_builder" data-result="oF" defer></script><script type="module" src="../../experience/journey.mjs"></script><script type="module" src="../../experience/search-bridge.mjs"></script>
 </head>
 <body class="ess-theme" data-ess-brand="speed">
+<a class="vr-skip" href="#main">Skip to content</a>
 <header class="site-header"><div class="header-inner">
 <div class="brand-wrap"><a href="../.././" class="brand" aria-label="Endicott Speed Shop home"><span class="ess-wordmark"><strong>ENDICOTT</strong><span>SPEED SHOP</span></span></a><a class="beta-pill" href="../../about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
-<nav class="topnav" aria-label="Main navigation"><a href="../../experience/">Vehicle Lab</a><a href="../../plan/">Plan</a><a href="../../tools/" class=on>Tools</a><a href="../../articles/">Articles</a><a href="../../build/">The Build</a><a href="../../about/">About</a><a href="../../contact/">Contact</a></nav>
+<nav class="topnav" aria-label="Main navigation"><a href="../../vehicles/">Vehicles</a><a href="../../experience/">Vehicle Lab</a><a href="../../plan/">Plan</a><a href="../../tools/" class=on>Tools</a><a href="../../articles/">Articles</a><a href="../../build/">Research</a><a href="../../about/">About</a><a href="../../contact/">Contact</a></nav>
 <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
 </div></header>
 <aside class="sidebar" id="sidebar"><button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
-<nav><a href="../.././">Home<small>Start here</small></a><a href="../../experience/">Vehicle Lab<small>Build, compare and test your car</small></a><a href="../../plan/">Plan<small>Plan your build, step by step</small></a><a href="../../tools/">Tools<small>Calculators built from measured data</small></a><a href="../../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../../build/">The Build<small>The green car, measured</small></a><a href="../../about/">About<small>Why this exists</small></a><a href="../../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
+<nav><a href="../.././">Home<small>Start here</small></a><a href="../../vehicles/">Vehicles<small>Factory specifications and independent tests</small></a><a href="../../experience/">Vehicle Lab<small>Build, compare and test your car</small></a><a href="../../plan/">Plan<small>Plan your build, step by step</small></a><a href="../../tools/">Tools<small>Calculators built from measured data</small></a><a href="../../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../../build/">Research<small>How ESS measures and tests changes</small></a><a href="../../about/">About<small>Why this exists</small></a><a href="../../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
 <p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="../../contact/">Spot a problem? Tell us.</a></p>
 </aside>
-<main data-ess-layout="calculator" class="page">
+<main id="main" class="page">
 <div class="kicker">Tools</div>
 <h1>Balance &amp; CG Builder</h1>
 <div class="ess-config" data-ess-vehicle="cg-builder" data-lab-root="../../experience/"></div>
@@ -47,24 +50,24 @@
 <div class="panel"><h2>1 · Your car now</h2>
 <div class="fields">
 <div><label for="mode">Start from</label><select id="mode"><option value="corners">Four corner weights</option><option value="total" selected>Total weight + front %</option></select></div>
-<div><label for="wb">Wheelbase (in)</label><input id="wb" inputmode="decimal" value="108"></div>
-<div><label for="tf">Front track (in)</label><input id="tf" inputmode="decimal" value="61"></div>
-<div><label for="tr">Rear track (in)</label><input id="tr" inputmode="decimal" value="60"></div>
+<div><label for="wb">Wheelbase (in)</label><input id="wb" inputmode="decimal" value="104"></div>
+<div><label for="tf">Front track (in)</label><input id="tf" inputmode="decimal" value="62"></div>
+<div><label for="tr">Rear track (in)</label><input id="tr" inputmode="decimal" value="61"></div>
 </div>
 <div class="fields" id="totalFields" style="margin-top:12px">
-<div><label for="tot">Total weight (lb)</label><input id="tot" inputmode="decimal" value="2786"></div>
-<div><label for="fpct">Front weight (%)</label><input id="fpct" inputmode="decimal" value="51"></div>
+<div><label for="tot">Total weight (lb)</label><input id="tot" inputmode="decimal" value="3200"></div>
+<div><label for="fpct">Front weight (%)</label><input id="fpct" inputmode="decimal" value="54"></div>
 <div><label for="lpct">Left side weight (%)</label><input id="lpct" inputmode="decimal" value="50"></div>
 <div><label for="hcg">CG height (in, optional)</label><input id="hcg" inputmode="decimal" placeholder="e.g. 19"></div>
 </div>
 <div class="fields" id="cornerFields" style="margin-top:12px;display:none">
-<div><label for="lf">Left front (lb)</label><input id="lf" inputmode="decimal" value="710"></div>
-<div><label for="rf">Right front (lb)</label><input id="rf" inputmode="decimal" value="711"></div>
-<div><label for="lr">Left rear (lb)</label><input id="lr" inputmode="decimal" value="682"></div>
-<div><label for="rr">Right rear (lb)</label><input id="rr" inputmode="decimal" value="683"></div>
+<div><label for="lf">Left front (lb)</label><input id="lf" inputmode="decimal" value="880"></div>
+<div><label for="rf">Right front (lb)</label><input id="rf" inputmode="decimal" value="848"></div>
+<div><label for="lr">Left rear (lb)</label><input id="lr" inputmode="decimal" value="720"></div>
+<div><label for="rr">Right rear (lb)</label><input id="rr" inputmode="decimal" value="752"></div>
 <div><label for="hcg2">CG height (in, optional)</label><input id="hcg2" inputmode="decimal" placeholder="e.g. 19"></div>
 </div>
-<p class="hint">Example values: the ESS green car, July 2026 (2,786 lb, 51% front, not yet complete). CG height can't be found from flat scales alone; enter an estimate (or a value from a tilt test) to see how parts move it. Leave it blank to skip height.</p>
+<p class="hint">Illustrative starting values for a 3,200 lb car. Replace them with your own scale readings. CG height can't be found from flat scales alone; enter an estimate (or a value from a tilt test) to see how parts move it. Leave it blank to skip height.</p>
 </div>
 
 <div class="panel"><h2>2 · Changes</h2>
@@ -106,7 +109,7 @@
 
 <div class="section narrow"><div class="section-label">How it works</div>
 <p>Each part's weight times its distance from the front axle is a moment. Removing a part takes its moment away; adding one puts a moment in; moving one does both; replacing one removes the old part and adds the new one. The new center of gravity is the total moment divided by the new total weight; front weight follows from where that center sits between the axles. The same arithmetic gives side-to-side balance and, when you supply a starting height, CG height.</p>
-<p>Part weights marked <span class="badge">measured</span> were weighed by ESS (see <a href="../../articles/measured-firebird-weights/">what each includes</a>); <span class="badge">typical</span> values are reasonable starting points, not measurements. Locations in the list are typical estimates for a second-gen F-body — edit them for your car. Measured weights include different hardware (for example, the stock subframe was weighed on its wheels and the C5 assembly without), so when you replace one with another, make sure the two include the same parts.</p></div>
+<p>Part weights marked <span class="badge">measured</span> were weighed by ESS (see <a href="../../build/">how ESS records measurements</a>); <span class="badge">typical</span> values are reasonable starting points, not measurements. Locations in the list are typical estimates for a second-gen F-body — edit them for your car. Measured weights include different hardware (for example, the stock subframe was weighed on its wheels and the C5 assembly without), so when you replace one with another, make sure the two include the same parts.</p></div>
 <section class="ig-journey" data-ess-journey="tools/cg-builder" data-lab-root="../../experience/" aria-label="Try it on a car"><noscript><p><a href="../../experience/">Open the Vehicle Lab</a></p></noscript></section></main>
 <script>
 (function(){
@@ -308,7 +311,7 @@ renum();calc();
 })();
 </script>
 
-<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/">report a problem</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span><label class="ess-units"><span>Units</span><select data-units-pref aria-label="Measurement units"><option value="us">US customary</option><option value="metric">Metric</option><option value="dual">Both</option></select></label></div></footer>
+<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/?from=/tools/cg-builder/">Give feedback</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span><label class="ess-units"><span>Units</span><select data-units-pref aria-label="Measurement units"><option value="us">US customary</option><option value="metric">Metric</option><option value="dual">Both</option></select></label></div></footer>
 <script src="../../assets/site.js"></script>
 <script type="module" src="../../experience/units.mjs"></script>
 </body>

@@ -2,6 +2,7 @@ import { reference } from './reference.mjs';
 import { catalog, sources } from './catalog-data.mjs';
 import { tireGrip } from '../engine/acceleration.mjs';
 import { labVehicle } from '../engine/garage-adapter.mjs';
+import { publishableArchive } from '../engine/archive.mjs';
 import { frontArchitectures, rearArchitectures } from '../engine/data/architectures.mjs';
 
 const tireProfiles = {firebird: 'radial70s', mustang: 'perf80s', camaro: 'perf80s', fiero: 'perf80s',
@@ -153,8 +154,19 @@ const provisionVehicle = (entry, ref) => {
   return {name: entry.name, trim: entry.body, ref, data, choices: resolved.choices,
     ...Object.fromEntries(['make','generation','category','layout','history','model','year'].map(k => [k, entry[k]]))};
 };
-const full = Object.fromEntries(Object.entries(catalog).filter(([ref]) => !oldAlias[ref])
+const full = Object.fromEntries(Object.entries(catalog)
   .map(([ref, entry]) => [ref, provisionVehicle(entry, ref)]));
+// Supercar X archive configurations whose identity is resolved (engine/data/publication.mjs) join the same registry,
+// so a specification page, shared link or Garage entry can carry an 'sx-…' id into every tool. Values come from the
+// shared resolver with archive / manufacturer / estimate provenance; nothing is re-entered here.
+const archiveMake = name => name.replace(/^\d{4}\s+/, '').split(' ')[0];
+for (const x of publishableArchive) {
+  const rec = x.record;
+  full[x.id] = provisionVehicle({name: rec.name, body: rec.archive.sub, layout: rec.layout, category: rec.category,
+    make: archiveMake(rec.name), generation: 'Supercar X archive', year: rec.year, fields: {},
+    history: [[rec.archive.title, rec.archive.capture, 'archive']]}, x.id);
+  full[x.id].archive = {tier: x.tier, competition: rec.archive.competition, modified: rec.archive.modified, capture: rec.archive.capture};
+}
 for (const id of vehicleIds) {
   const entry = catalog[demoVehicles[id].ref] ?? (id === 'camaro' ?
     {make:'Chevrolet', generation:'Third generation', category:'Coupe / performance car', layout:'FR'} :
@@ -177,16 +189,9 @@ export function architectureLabel(key, code) {
   return (key === 'archFront' ? frontArchitectures : rearArchitectures)[code]?.name ?? code;
 }
 
-export const browseIds = Object.keys(vehicles).filter(id => id !== 'custom')
+export const browseIds = Object.keys(vehicles).filter(id => id !== 'custom' && !oldAlias[id])
   .sort((a,b) => vehicles[a].make.localeCompare(vehicles[b].make) || vehicles[a].name.localeCompare(vehicles[b].name));
 
 export function stock(id) {
   return Object.fromEntries(Object.entries(vehicles[id].data).map(([key, info]) => [key, info[0]]));
 }
-
-export const firebirdEvidence = [
-  ['3,578 lb · 58% front', 'Historical Formula W72 reference. Configuration and original weight source remain unconfirmed.'],
-  ['3,240 lb · 60.5% front', 'Historical modified / stripped Formula, owner truck-scale record.'],
-  ['2,786 lb · 51% front', 'ESS corner scales, July 18. LS1/T5 installed. Nose, hood, radiator, exhaust, fuel and coolant absent.'],
-  ['2,988 lb · 53.5% front', 'Study 9 finished dry projection. Full four-corner measurement is pending.'],
-];

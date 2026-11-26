@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Part Weight from Corner Scales | Endicott Speed Shop</title>
-<meta name="description" content="Find a part's weight and fore-aft location from four-corner scale readings taken before and after removing it.">
+<meta name="description" content="Find a part&#x27;s weight and fore-aft location from four-corner scale readings taken before and after removing it.">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-GGJVMS8CZD"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.href.split('#')[0]});</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.origin+location.pathname,page_referrer:document.referrer?new URL(document.referrer).origin:''});</script>
 <link rel="canonical" href="https://endicottspeedshop.com/tools/scale-delta/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Endicott Speed Shop">
 <meta property="og:title" content="Part Weight from Corner Scales | Endicott Speed Shop">
-<meta property="og:description" content="Find a part's weight and fore-aft location from four-corner scale readings taken before and after removing it.">
+<meta property="og:description" content="Find a part&#x27;s weight and fore-aft location from four-corner scale readings taken before and after removing it.">
 <meta property="og:url" content="https://endicottspeedshop.com/tools/scale-delta/">
 <meta property="og:image" content="https://endicottspeedshop.com/logo-round.png">
 <meta property="og:image:width" content="1536">
@@ -25,36 +25,39 @@
 <link rel="stylesheet" href="../../assets/ess-presentation/ess-system.css">
 <link rel="stylesheet" href="../../assets/ess-presentation/ess-claude-adapter.css">
 <link rel="icon" type="image/svg+xml" href="../../assets/ess-presentation/ess-mark.svg">
+<link rel="stylesheet" href="../../assets/ess-reference.css">
+<script type="module" src="../../experience/measurement.mjs"></script>
 <meta name="theme-color" content="#162720">
 <script src="../../assets/tool-events.js" data-tool="scale_delta" data-result="w" defer></script><script type="module" src="../../experience/journey.mjs"></script><script type="module" src="../../experience/search-bridge.mjs"></script>
 </head>
 <body class="ess-theme" data-ess-brand="speed">
+<a class="vr-skip" href="#main">Skip to content</a>
 <header class="site-header"><div class="header-inner">
 <div class="brand-wrap"><a href="../.././" class="brand" aria-label="Endicott Speed Shop home"><span class="ess-wordmark"><strong>ENDICOTT</strong><span>SPEED SHOP</span></span></a><a class="beta-pill" href="../../about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
-<nav class="topnav" aria-label="Main navigation"><a href="../../experience/">Vehicle Lab</a><a href="../../plan/">Plan</a><a href="../../tools/" class=on>Tools</a><a href="../../articles/">Articles</a><a href="../../build/">The Build</a><a href="../../about/">About</a><a href="../../contact/">Contact</a></nav>
+<nav class="topnav" aria-label="Main navigation"><a href="../../vehicles/">Vehicles</a><a href="../../experience/">Vehicle Lab</a><a href="../../plan/">Plan</a><a href="../../tools/" class=on>Tools</a><a href="../../articles/">Articles</a><a href="../../build/">Research</a><a href="../../about/">About</a><a href="../../contact/">Contact</a></nav>
 <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
 </div></header>
 <aside class="sidebar" id="sidebar"><button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
-<nav><a href="../.././">Home<small>Start here</small></a><a href="../../experience/">Vehicle Lab<small>Build, compare and test your car</small></a><a href="../../plan/">Plan<small>Plan your build, step by step</small></a><a href="../../tools/">Tools<small>Calculators built from measured data</small></a><a href="../../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../../build/">The Build<small>The green car, measured</small></a><a href="../../about/">About<small>Why this exists</small></a><a href="../../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
+<nav><a href="../.././">Home<small>Start here</small></a><a href="../../vehicles/">Vehicles<small>Factory specifications and independent tests</small></a><a href="../../experience/">Vehicle Lab<small>Build, compare and test your car</small></a><a href="../../plan/">Plan<small>Plan your build, step by step</small></a><a href="../../tools/">Tools<small>Calculators built from measured data</small></a><a href="../../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../../build/">Research<small>How ESS measures and tests changes</small></a><a href="../../about/">About<small>Why this exists</small></a><a href="../../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
 <p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="../../contact/">Spot a problem? Tell us.</a></p>
 </aside>
-<main data-ess-layout="calculator" class="page">
+<main id="main" class="page">
 <div class="kicker">Tools</div>
 <h1>Part Weight from Corner Scales</h1>
 <div class="ess-config" data-ess-vehicle="scale-delta" data-lab-root="../../experience/"></div>
 <p class="lede">Weigh the car on four corner scales, remove a part (or install one), and weigh again. The difference tells you the part's weight — and how it splits between the axles tells you where it sat. No need to lift an engine onto a bathroom scale.</p>
 <div class="panel"><h2>Before</h2><div class="fields">
-<div><label for="b_lf">Left front</label><input id="b_lf" inputmode="decimal" value="582"></div><div><label for="b_rf">Right front</label><input id="b_rf" inputmode="decimal" value="608"></div>
-<div><label for="b_lr">Left rear</label><input id="b_lr" inputmode="decimal" value="760"></div><div><label for="b_rr">Right rear</label><input id="b_rr" inputmode="decimal" value="716"></div></div></div>
+<div><label for="b_lf">Left front</label><input id="b_lf" inputmode="decimal" value="810"></div><div><label for="b_rf">Right front</label><input id="b_rf" inputmode="decimal" value="790"></div>
+<div><label for="b_lr">Left rear</label><input id="b_lr" inputmode="decimal" value="743"></div><div><label for="b_rr">Right rear</label><input id="b_rr" inputmode="decimal" value="757"></div></div></div>
 <div class="panel"><h2>After</h2><div class="fields">
-<div><label for="a_lf">Left front</label><input id="a_lf" inputmode="decimal" value="355"></div><div><label for="a_rf">Right front</label><input id="a_rf" inputmode="decimal" value="370"></div>
-<div><label for="a_lr">Left rear</label><input id="a_lr" inputmode="decimal" value="709"></div><div><label for="a_rr">Right rear</label><input id="a_rr" inputmode="decimal" value="674"></div></div></div>
+<div><label for="a_lf">Left front</label><input id="a_lf" inputmode="decimal" value="788"></div><div><label for="a_rf">Right front</label><input id="a_rf" inputmode="decimal" value="770"></div>
+<div><label for="a_lr">Left rear</label><input id="a_lr" inputmode="decimal" value="720"></div><div><label for="a_rr">Right rear</label><input id="a_rr" inputmode="decimal" value="732"></div></div></div>
 <div class="panel"><h2>Car and scales</h2><div class="fields">
-<div><label for="wb">Wheelbase (in)</label><input id="wb" inputmode="decimal" value="108"></div>
+<div><label for="wb">Wheelbase (in)</label><input id="wb" inputmode="decimal" value="104"></div>
 <div><label for="tw">Track width (in)</label><input id="tw" inputmode="decimal" value="61"></div>
 <div><label for="res">Scale reading step (lb)</label><input id="res" inputmode="decimal" value="1"></div>
 <div><label for="dir">Change made</label><select id="dir"><option value="rem" selected>Part removed</option><option value="add">Part added</option></select></div></div>
-<p class="hint">Example values: an ESS weighing in March 2026 before and after pulling an LS1/T5 package (totals and front/rear split as recorded; the left/right split of the "after" readings is illustrative). Keep fuel, tire pressures, the car's position on the scales and anything sitting in the car the same for both weighings — every pound you forget lands in the answer.</p></div>
+<p class="hint">Illustrative before and after readings for a 90 lb assembly. Keep fuel, tire pressures, the car's position on the scales and anything sitting in the car the same for both weighings — every pound you forget lands in the answer.</p></div>
 <div class="panel"><h2>Result</h2><div class="results">
 <div class="result"><div class="l">Part weight</div><div class="v" id="w">–</div><div class="d" id="wu"></div></div>
 <div class="result"><div class="l">Location behind front axle</div><div class="v" id="x">–</div><div class="d" id="xu"></div></div>
@@ -65,7 +68,7 @@
 <div class="section narrow"><div class="section-label">How it works</div>
 <p>The part's weight is the change in the total. Its fore-aft location follows from how that change divides between the front and rear axles: if the rear scales lost 20% of it, the part sat 20% of the wheelbase behind the front axle. Side-to-side works the same way across the track.</p>
 <p>Each scale reading is rounded, so the result has an uncertainty. This tool assumes each of the eight readings can be off by up to half a reading step and shows the worst case. That covers rounding only — it is not the scales' accuracy or repeatability, which you should check by weighing the car more than once. Small parts on big scales give large location uncertainty — use this method for heavy assemblies and a component scale for small parts.</p>
-<p>Part weights ESS measured this way are in <a href="../../articles/measured-firebird-weights/">the measured weights reference</a>; use them in the <a href="../cg-builder/">Balance &amp; CG Builder</a>.</p></div>
+<p>Carry your measured weight and location into the <a href="../cg-builder/">Balance &amp; CG Builder</a>. See <a href="../../build/">how ESS records measurements</a>.</p></div>
 <section class="ig-journey" data-ess-journey="tools/scale-delta" data-lab-root="../../experience/" aria-label="Try it on a car"><noscript><p><a href="../../experience/">Open the Vehicle Lab</a></p></noscript></section></main>
 <script>
 (function(){
@@ -105,7 +108,7 @@ calc();
 })();
 </script>
 
-<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/">report a problem</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span><label class="ess-units"><span>Units</span><select data-units-pref aria-label="Measurement units"><option value="us">US customary</option><option value="metric">Metric</option><option value="dual">Both</option></select></label></div></footer>
+<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/?from=/tools/scale-delta/">Give feedback</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span><label class="ess-units"><span>Units</span><select data-units-pref aria-label="Measurement units"><option value="us">US customary</option><option value="metric">Metric</option><option value="dual">Both</option></select></label></div></footer>
 <script src="../../assets/site.js"></script>
 <script type="module" src="../../experience/units.mjs"></script>
 </body>
