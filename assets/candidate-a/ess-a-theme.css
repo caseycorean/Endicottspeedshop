@@ -109,7 +109,7 @@ body[data-ess-skin="candidate-a"] { font: 1rem/1.55 var(--ess-text-face); }
 }
 [data-ess-skin="candidate-a"] :is(.ig-live, .ig-hero .ig-live) {
   background: var(--a-soft) !important; color: #2c2c2c !important; border: 1px solid var(--a-line) !important; box-shadow: none !important;
-  --ig-amber: #b26b00; --ig-amber-ink: #b26b00;
+  --ig-amber: #b26b00; --ig-amber-ink: #8a5300;
 }
 [data-ess-skin="candidate-a"] .ig-live > :is(p, h2, h3, strong, .ig-live-cap) { color: #2c2c2c !important; }
 [data-ess-skin="candidate-a"] :is(.ig-hero, .ig-next) .gc-bar { background: #e3ebf3 !important; }
@@ -146,3 +146,14 @@ body[data-ess-skin="candidate-a"] { font: 1rem/1.55 var(--ess-text-face); }
 [data-ess-skin="candidate-a"] .ig-journey .gc-s { color: var(--level-ink) !important; }
 [data-ess-skin="candidate-a"] .ig-journey .gc-limit { border-color: #2c2c2c !important; }
 [data-ess-skin="candidate-a"] .ig-journey a:not(.ig-btn):not(.button) { color: var(--a-accent) !important; }
+
+/* B2 (26 Nov evaluation): the example-car head inside the light journey band was dark navy while the band's
+   text rules force dark ink (1.46:1). Keep it light like the band; and give small primary buttons a real fill. */
+[data-ess-skin="candidate-a"] .ig-journey .ig-journey-car { background: #fff !important; color: #2c2c2c !important; border: 1px solid var(--a-line-strong); }
+[data-ess-skin="candidate-a"] .ig-journey .ig-journey-car :is(span, small, b, strong, em) { color: #2c2c2c !important; }
+[data-ess-skin="candidate-a"] .btn-small.primary { background: var(--a-accent) !important; color: #fff !important; border-color: var(--a-accent) !important; }
+[data-ess-skin="candidate-a"] .btn-small.primary:hover { background: var(--a-accent-dark) !important; }
+/* Amber used as TEXT needs a darker ink for 4.5:1 on white/soft backgrounds; fills and lines keep --before. */
+[data-ess-skin="candidate-a"] :is(.c-stock, .ig-live-head span) { color: #8a5300 !important; }
+/* Selected tire row turns navy: its level percentage must switch to light ink. */
+[data-ess-skin="candidate-a"] .ig-tire-list :is(button[aria-pressed="true"], button.on, .on > button) .ig-pct { color: #fff !important; }

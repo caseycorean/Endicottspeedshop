@@ -9,7 +9,7 @@
      exploration      Candidate A category tags                 article (foundations blue), calculator/plan (data green),
                                                                 Vehicle Lab (test amber-brown), vehicle (notes slate)
    Words always accompany color. */
-.sg-page { --stock: var(--before, #b26b00); --mod: var(--after, #2f557f); --ok: var(--cat-data, #2c6a3c); --over: #b3261e; --est: #8b8f94; }
+.sg-page { --stock: #8a5300; --stock-fill: var(--before, #b26b00); --mod: var(--after, #2f557f); --ok: var(--cat-data, #2c6a3c); --over: #b3261e; --est: #8b8f94; }
 .sg-page * { min-width: 0; }
 .c-stock { color: var(--stock); font-weight: 600; } .c-mod { color: var(--mod); font-weight: 700; }
 .c-mod-fill { fill: var(--mod); }
