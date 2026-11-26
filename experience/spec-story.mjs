@@ -15,7 +15,7 @@ import { tireClasses, byGear, tractionCheck } from '../engine/traction.mjs';
 
 const dataEl = document.getElementById('ess-spec-data');
 const R = dataEl ? JSON.parse(dataEl.textContent) : null;
-const labRoot = new URL('../../experience/', location.href);
+const labRoot = new URL('../../experience/', document.baseURI);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const fx = (n, d = 0) => Number.isFinite(n) ? n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) : '—';
@@ -25,9 +25,9 @@ const MPH_FT = 5280 / 3600;
 const ordinal = n => n + ({ 1: 'st', 2: 'nd', 3: 'rd' }[n] ?? 'th');
 const statusEl = document.querySelector('[data-sp-status]');
 const say = t => { if (statusEl) { statusEl.textContent = ''; requestAnimationFrame(() => { statusEl.textContent = t; }); } };
-const page = slug => new URL(`../${slug}/`, location.href).href;
-const article = slug => new URL(`../../articles/${slug}/`, location.href).href;
-const tool = slug => new URL(`../../tools/${slug}/`, location.href).href;
+const page = slug => new URL(`../${slug}/`, document.baseURI).href;
+const article = slug => new URL(`../../articles/${slug}/`, document.baseURI).href;
+const tool = slug => new URL(`../../tools/${slug}/`, document.baseURI).href;
 
 // ---------- units on the static figures ----------
 function renderStaticUnits() {
@@ -98,7 +98,7 @@ function changes() {
 let library = null;
 async function loadLibrary() {
   if (library) return library;
-  try { library = (await (await fetch(new URL('../data/index.json', location.href))).json()).vehicles; } catch { library = []; }
+  try { library = (await (await fetch(new URL('../data/index.json', document.baseURI))).json()).vehicles; } catch { library = []; }
   return library;
 }
 const lib = slug => library?.find(x => x.slug === slug);
@@ -339,7 +339,7 @@ Q.decades = {
     ${deeper([[page('2002-pontiac-slp-firebird-firehawk-wu6'), '2002 SLP Firehawk', 'Fourth-generation F-body with the LS1.'], [page('1977-pontiac-firebird-trans-am-w72-four-speed-m4-us'), '1977 Trans Am W72', 'The same year and engine, dressed differently.'], [page('1991-ferrari-f40'), 'Ferrari F40', 'A mid-engine contrast, also on this site.']])}`,
   bind(b) { this.refresh(b); },
   async refresh(b) {
-    const root = b.querySelector('[data-cmp]'); const L = await loadLibrary(); if (!L.length) { root.innerHTML = `<p><a href="${esc(new URL('../compare/?a=' + R.slug, location.href).href)}">Open the comparison</a></p>`; return; }
+    const root = b.querySelector('[data-cmp]'); const L = await loadLibrary(); if (!L.length) { root.innerHTML = `<p><a href="${esc(new URL('../compare/?a=' + R.slug, document.baseURI).href)}">Open the comparison</a></p>`; return; }
     if (!state.compare.length) state.compare = DECADE_PICKS.filter(s => lib(s));
     const cars = [lib(R.slug), ...state.compare.map(lib).filter(Boolean)];
     const model = cars.map(x => { const m = x.labId && vehicles[x.labId] && x.runs ? run(x.slug === R.slug ? nowV() : resolve(newSetup(x.labId), false)) : null; return m?.magazine ?? null; });
