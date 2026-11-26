@@ -1,0 +1,226 @@
+<title>PREVIEW — ESS Braking Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column on phones (car → stop → why → experiments), two columns from 860px. ESS brand: olive-charcoal, warm ivory, muted gold. */
+:root {
+  --bg: #1d1f1a; --panel: #262922; --line: #3b3f34; --fg: #efe9dc; --muted: #b9b2a2; --gold: #c9a45a; --gold-ink: #1d1f1a;
+  --good: #8fbf7f; --warn: #e0b453; --bad: #e88a6e; --track: #33362e;
+  --display: 'Fraunces', Georgia, serif; --body: 'IBM Plex Sans', system-ui, sans-serif; --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
+  --bg: #f4efe4; --panel: #fbf8f1; --line: #d9d1bf; --fg: #23251f; --muted: #5d5a4f; --gold: #8a6a22; --gold-ink: #fbf8f1;
+  --good: #3f7a34; --warn: #8a5300; --bad: #a8442a; --track: #e6dfcf; color-scheme: light } }
+:root[data-theme="light"] { --bg: #f4efe4; --panel: #fbf8f1; --line: #d9d1bf; --fg: #23251f; --muted: #5d5a4f; --gold: #8a6a22; --gold-ink: #fbf8f1;
+  --good: #3f7a34; --warn: #8a5300; --bad: #a8442a; --track: #e6dfcf; color-scheme: light }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--body); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 40px }
+.wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 18px }
+header { display: grid; gap: 6px }
+.eyebrow { font: 500 12px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--gold) }
+h1 { font: 650 clamp(26px, 6vw, 40px)/1.1 var(--display); margin: 0; text-wrap: balance }
+h2 { font: 600 13px/1.2 var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 }
+p { margin: 0 }
+.lede { color: var(--muted); max-width: 62ch }
+.grid { display: grid; gap: 18px }
+@media (min-width: 860px) { .grid { grid-template-columns: 360px 1fr; align-items: start } }
+section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 14px; min-width: 0 }
+label, .lbl { font-size: 13px; color: var(--muted); display: block }
+select { width: 100%; min-height: 44px; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; font: 15px var(--body) }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--line); border-radius: 8px; overflow: hidden }
+.seg button { min-height: 44px; background: transparent; color: var(--fg); border: 0; border-left: 1px solid var(--line); font: 500 15px var(--body); cursor: pointer }
+.seg button:first-child { border-left: 0 }
+.seg button[aria-pressed="true"] { background: var(--gold); color: var(--gold-ink) }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px }
+.row { display: grid; gap: 6px }
+.slider { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center }
+.slider label { grid-column: 1 / -1 }
+input[type=range] { width: 100%; min-height: 44px; accent-color: var(--gold) }
+output { font: 500 14px var(--mono); min-width: 7ch; text-align: right }
+.check { display: flex; gap: 10px; align-items: center; min-height: 44px; font-size: 15px; color: var(--fg) }
+.check input { width: 22px; height: 22px; accent-color: var(--gold) }
+.big { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px }
+.big .n { font: 650 clamp(44px, 12vw, 64px)/1 var(--display); font-variant-numeric: tabular-nums }
+.big .u { font: 500 16px var(--body); color: var(--muted) }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px }
+.fact { border-top: 1px solid var(--line); padding-top: 8px; min-width: 0 }
+.fact b { display: block; font: 500 18px var(--mono); font-variant-numeric: tabular-nums }
+.fact span { font-size: 12px; color: var(--muted) }
+.pill { display: inline-block; font: 600 12px/1 var(--body); letter-spacing: .04em; padding: 6px 9px; border-radius: 99px; border: 1px solid currentColor }
+.pill.tires { color: var(--good) } .pill.brakes { color: var(--warn) } .pill.unstable { color: var(--bad) }
+.notes { display: grid; gap: 8px; padding: 0; margin: 0; list-style: none }
+.notes li { border-left: 3px solid var(--gold); padding: 2px 0 2px 10px }
+.cmp { display: grid; gap: 8px }
+.bar { display: grid; grid-template-columns: minmax(0, 9.5em) 1fr 5.5em; gap: 8px; align-items: center; font-size: 13px }
+.bar .t { height: 14px; background: var(--track); border-radius: 3px; overflow: hidden }
+.bar .t i { display: block; height: 100%; background: var(--gold) }
+.bar .t i.pub { background: var(--muted) }
+.bar .v { font: 500 13px var(--mono); text-align: right; font-variant-numeric: tabular-nums }
+.ex { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px }
+.ex button { min-height: 64px; text-align: left; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font: 500 14px var(--body); cursor: pointer; display: grid; gap: 2px }
+.ex button small { font: 500 13px var(--mono); color: var(--gold) }
+.ex button:hover { border-color: var(--gold) }
+svg text { fill: var(--muted); font: 12px var(--mono) }
+.foot { font-size: 13px; color: var(--muted); max-width: 75ch; display: grid; gap: 6px }
+.chartbox { overflow-x: auto }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Private preview · ESS engineering · not on the site</span>
+    <h1>How far does it take to stop?</h1>
+    <p class="lede">Pick a car with a published braking test, then change tires, ABS, brake split, brake size or CG height and see what actually shortens the stop.</p>
+  </header>
+
+  <div class="grid">
+    <section aria-labelledby="setup-h">
+      <h2 id="setup-h">The car and the stop</h2>
+      <div class="row"><label for="car">Car (all have a published braking test)</label><select id="car"></select></div>
+      <div class="row"><span class="lbl" id="speed-l">Stop from</span>
+        <div class="seg" role="group" aria-labelledby="speed-l" id="speed">
+          <button type="button" data-v="60">60 mph</button><button type="button" data-v="70">70 mph</button><button type="button" data-v="100">100 mph</button>
+        </div></div>
+      <div class="row"><label for="tire">Tires</label><select id="tire"></select></div>
+      <div class="slider"><label for="cg">CG height</label><input type="range" id="cg" min="14" max="34" step="0.5"><output id="cg-o" for="cg"></output></div>
+      <label class="check"><input type="checkbox" id="abs" checked> ABS</label>
+      <div class="slider" id="bias-row" hidden><label for="bias">Brake split, front share (no ABS)</label><input type="range" id="bias" min="0.45" max="0.9" step="0.01"><output id="bias-o" for="bias"></output></div>
+      <label class="check"><input type="checkbox" id="limitBrakes"> Limit front brake torque</label>
+      <div class="slider" id="torque-row" hidden><label for="torque">Front brake torque at full pedal</label><input type="range" id="torque" min="600" max="5000" step="50"><output id="torque-o" for="torque"></output></div>
+    </section>
+
+    <section aria-labelledby="res-h" aria-live="polite">
+      <h2 id="res-h">ESS model estimate</h2>
+      <div class="big"><span class="n" id="dist">—</span><span class="u" id="dist-u">ft</span><span id="limit"></span></div>
+      <div class="facts" id="facts"></div>
+      <div class="cmp" id="cmp"></div>
+      <ul class="notes" id="notes"></ul>
+      <div class="chartbox"><svg id="chart" viewBox="0 0 560 190" width="100%" role="img" aria-label="Speed against distance during the stop"></svg></div>
+    </section>
+  </div>
+
+  <section aria-labelledby="ex-h">
+    <h2 id="ex-h">Next experiment — change one thing</h2>
+    <div class="ex" id="ex"></div>
+  </section>
+
+  <div class="foot">
+    <p><b>How it works.</b> Weight moves to the front as the car slows (W·h·a/L). Each tire loses a little friction as its load rises (the same 15% load sensitivity the oval uses), so a lower CG helps slightly. ABS keeps each axle near its peak (95% of it, estimate). Without ABS the fixed brake split decides which axle reaches its limit first. Brakes build over 0.15 s (estimate). Air drag helps at speed. Not modelled: downforce, brake fade over repeated stops, road surface changes.</p>
+    <p><b>Validation.</b> Run against all 24 published stops in the ESS vehicle records without tuning: Car and Driver stops average 5% longer in the model (mean miss 7%). Tire class matters most: cars on track-oriented tires (911 GT3) stop much shorter than their default tire class suggests.</p>
+  </div>
+</div>
+
+<script>
+/*ENGINE*/
+const CARS = /*CARS*/;
+const TIRES = { allSeason: ['All-season street tire', .88], maxSummer: ['Max-performance summer', 1.05], extremeSummer: ['Extreme-performance summer (≈200 TW)', 1.10], track200: ['200-treadwear track tire, warm', 1.15], perf80s: ['1980s–90s performance radial', .95], radial70s: ['1970s street radial', .85], bias: ['Bias-ply (pre-1975)', .75], allTerrain: ['Light-truck all-terrain', .80] };
+const $ = id => document.getElementById(id);
+const fmt = (x, d = 0) => x.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+const state = { car: CARS.find(c => /civic/i.test(c.id))?.id ?? CARS[0].id, mph: 70, tire: null, cg: null, abs: true, bias: null, limit: false, torque: null };
+
+function carObj() { return CARS.find(c => c.id === state.car); }
+function vehicle(s = state) {
+  const c = CARS.find(x => x.id === s.car);
+  const grip = s.tire ? TIRES[s.tire][1] : c.grip;
+  return { weight: c.weight, frontLb: c.weight * c.front, rearLb: c.weight * (1 - c.front), cg: s.cg ?? c.cg, wheelbase: c.wheelbase, grip, cda: c.cda, diameter: c.diameter };
+}
+// The installed split belongs to the car's hardware: estimate it from the stock car, not from the tire or CG being tried.
+function stockBias(s = state) { const c = CARS.find(x => x.id === s.car); return installedBias(vehicle({ ...s, tire: null, cg: c.cg })); }
+function opts(s = state, v = vehicle(s)) {
+  const o = { from: s.mph, abs: s.abs };
+  if (!s.abs) o.bias = s.bias ?? stockBias(s);
+  if (s.limit) o.brakeTorque = { front: s.torque, rear: 1e6 };
+  return o;
+}
+const run = (s = state) => { const v = vehicle(s); return brakingStop(v, opts(s, v)); };
+function tireFor(grip) { return Object.entries(TIRES).find(([, t]) => Math.abs(t[1] - grip) < .001)?.[0] ?? 'maxSummer'; }
+function frontTorqueNeeded(v) { const d = decelAt(v, state.mph * 5280 / 3600, { abs: true }); return d.front * (v.diameter / 24 * .97); }
+
+function setupControls() {
+  const car = $('car');
+  car.innerHTML = CARS.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+  $('tire').innerHTML = Object.entries(TIRES).map(([k, t]) => `<option value="${k}">${t[0]} (μ ${t[1].toFixed(2)})</option>`).join('');
+  car.onchange = () => { state.car = car.value; resetCar(); render(); };
+  $('speed').onclick = e => { const b = e.target.closest('button'); if (!b) return; state.mph = +b.dataset.v; render(); };
+  $('tire').onchange = e => { state.tire = e.target.value; render(); };
+  $('cg').oninput = e => { state.cg = +e.target.value; render(); };
+  $('abs').onchange = e => { state.abs = e.target.checked; render(); };
+  $('bias').oninput = e => { state.bias = +e.target.value; render(); };
+  $('limitBrakes').onchange = e => { state.limit = e.target.checked; if (state.limit && !state.torque) state.torque = Math.round(frontTorqueNeeded(vehicle()) * .8 / 50) * 50; render(); };
+  $('torque').oninput = e => { state.torque = +e.target.value; render(); };
+}
+function resetCar() {
+  const c = carObj();
+  state.tire = tireFor(c.grip); state.cg = c.cg; state.bias = null; state.torque = null; state.limit = false;
+  const t = c.tests.find(t => t.mph === state.mph) ?? c.tests[0]; state.mph = t.mph;
+}
+
+function render() {
+  const c = carObj(), v = vehicle(), r = run();
+  $('car').value = state.car; $('tire').value = state.tire; $('cg').value = state.cg; $('cg-o').textContent = `${fmt(state.cg, 1)} in`;
+  $('abs').checked = state.abs; $('bias-row').hidden = state.abs; $('limitBrakes').checked = state.limit; $('torque-row').hidden = !state.limit;
+  const bias = state.bias ?? stockBias(); $('bias').value = bias; $('bias-o').textContent = `${Math.round(bias * 100)}%`;
+  if (state.limit) { $('torque').value = state.torque; $('torque-o').textContent = `${fmt(state.torque)} lb-ft`; }
+  for (const b of $('speed').children) b.setAttribute('aria-pressed', String(+b.dataset.v === state.mph));
+  $('dist').textContent = fmt(r.distance); $('dist-u').textContent = `ft from ${state.mph} mph`;
+  const cls = r.unstable ? 'unstable' : /brakes/.test(r.limit) ? 'brakes' : 'tires';
+  const limitText = r.unstable ? 'Rear locks first' : /brakes/.test(r.limit) ? 'Brakes limit it' : 'Tires limit it';
+  $('limit').innerHTML = `<span class="pill ${cls}">${limitText}</span>`;
+  $('facts').innerHTML = [
+    [`${fmt(r.time, 2)} s`, 'time to stop'], [`${fmt(r.meanG, 2)} g`, 'average'], [`${Math.round(r.loads.front / v.weight * 100)}%`, `on the front at peak (static ${Math.round(c.front * 100)}%)`],
+    [`${Math.round(r.energyShare.front * 100)} / ${Math.round(r.energyShare.rear * 100)}`, 'braking heat front / rear %'],
+  ].map(([b, s]) => `<div class="fact"><b>${b}</b><span>${s}</span></div>`).join('');
+  // comparison bars: published test (if any at this speed), stock model, ABS off, locked panic stop
+  const pub = c.tests.find(t => t.mph === state.mph);
+  const stock = { ...state, tire: tireFor(c.grip), cg: c.cg, abs: true, limit: false };
+  const lock = lockedStop(v, { from: state.mph });
+  const rows = [];
+  if (pub) rows.push([`Published (${pub.pub})`, pub.ft, 'pub']);
+  rows.push(['ESS model, stock', run(stock).distance, '']);
+  rows.push(['Your setup', r.distance, '']);
+  rows.push(['Wheels locked, no ABS', lock.distance, '']);
+  const max = Math.max(...rows.map(x => x[1]));
+  let html = rows.map(([l, d, k]) => `<div class="bar"><span>${l}</span><span class="t"><i class="${k}" style="width:${(d / max * 100).toFixed(1)}%"></i></span><span class="v">${fmt(d)} ft</span></div>`).join('');
+  if (pub) { const e = (run(stock).distance - pub.ft) / pub.ft; html += `<p class="lbl">Stock model vs published test: ${e >= 0 ? '+' : ''}${(e * 100).toFixed(1)}%. Published figures are one test on one day; the model is an estimate from the car's specifications and a tire class.</p>`; }
+  else html += `<p class="lbl">No published ${state.mph}–0 test for this car; published: ${c.tests.map(t => `${t.mph}–0 ${t.ft} ft`).join(', ')}.</p>`;
+  $('cmp').innerHTML = html;
+  const notes = [...r.notes];
+  if (state.limit) notes.push(`The tires could use about ${fmt(Math.round(frontTorqueNeeded(v) / 50) * 50)} lb-ft of front brake torque at this speed.`);
+  $('notes').innerHTML = notes.map(n => `<li>${n}</li>`).join('');
+  drawChart(r, pub);
+  experiments(r);
+}
+
+function drawChart(r, pub) {
+  const W = 560, H = 190, L = 44, B = 28, T = 10, R = 12;
+  const maxX = Math.max(r.distance, pub?.ft ?? 0) * 1.05, maxY = state.mph;
+  const x = d => L + d / maxX * (W - L - R), y = s => T + (1 - s / maxY) * (H - T - B);
+  const pts = [{ ft: 0, mph: state.mph }, ...r.trace, { ft: r.distance, mph: 0 }].map(p => `${x(p.ft).toFixed(1)},${y(p.mph).toFixed(1)}`).join(' ');
+  const ticksX = [0, .25, .5, .75, 1].map(f => Math.round(maxX * f / 10) * 10);
+  let s = `<line x1="${L}" y1="${H - B}" x2="${W - R}" y2="${H - B}" stroke="var(--line)"/>`;
+  ticksX.forEach((t, i) => { s += `<text x="${x(t)}" y="${H - 8}" text-anchor="${i === ticksX.length - 1 ? 'end' : 'middle'}">${t}${i === ticksX.length - 1 ? ' ft' : ''}</text>`; });
+  for (const m of [0, maxY / 2, maxY]) s += `<line x1="${L}" x2="${W - R}" y1="${y(m)}" y2="${y(m)}" stroke="var(--line)" stroke-dasharray="2 4"/><text x="${L - 6}" y="${y(m) + 4}" text-anchor="end">${m}</text>`;
+  if (pub) s += `<line x1="${x(pub.ft)}" x2="${x(pub.ft)}" y1="${T}" y2="${H - B}" stroke="var(--muted)" stroke-dasharray="4 3"/><text x="${x(pub.ft) - 4}" y="${T + 12}" text-anchor="end">published ${pub.ft} ft</text>`;
+  s += `<polyline points="${pts}" fill="none" stroke="var(--gold)" stroke-width="2.5"/>`;
+  s += `<text x="${L + 4}" y="${T + 12}">mph</text>`;
+  $('chart').innerHTML = s;
+}
+
+function experiments(base) {
+  const v = vehicle(), list = [];
+  const tryIt = (label, change) => { const s = { ...state, ...change }; const d = run(s).distance - base.distance; list.push({ label, d, change }); };
+  tryIt('Lower the CG 2 in', { cg: Math.max(14, state.cg - 2) });
+  const up = { allSeason: 'maxSummer', perf80s: 'maxSummer', radial70s: 'perf80s', bias: 'radial70s', maxSummer: 'extremeSummer', extremeSummer: 'track200', allTerrain: 'allSeason' }[state.tire];
+  if (up) tryIt(`Stickier tires: ${TIRES[up][0]}`, { tire: up });
+  if (state.limit) tryIt('Bigger front brakes (+30% torque)', { torque: Math.round(state.torque * 1.3 / 50) * 50 });
+  else tryIt('Bigger front brakes (+30% torque)', { limit: true, torque: Math.round(frontTorqueNeeded(v) * 1.3 / 50) * 50 });
+  tryIt(state.abs ? 'Turn ABS off (best driver)' : 'Turn ABS on', { abs: !state.abs });
+  if (!state.abs) tryIt('Ideal brake split', { bias: idealBias(v, v.grip) });
+  $('ex').innerHTML = list.map((e, i) => `<button type="button" data-i="${i}">${e.label}<small>${Math.abs(e.d) < .5 ? 'no change' : `${e.d < 0 ? '' : '+'}${fmt(e.d, 1)} ft`}</small></button>`).join('');
+  $('ex').onclick = ev => { const b = ev.target.closest('button'); if (!b) return; Object.assign(state, list[+b.dataset.i].change); render(); };
+}
+
+setupControls(); resetCar(); render();
+</script>
