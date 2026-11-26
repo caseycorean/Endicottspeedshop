@@ -73,7 +73,12 @@ export function accelerationProfile(v, { distanceFt = 1320, fromMph = 0, toMph =
     top: { mph: maxMph, reachedAtFt: top.x, reachedAtT: top.t,
       limit: rpmTop >= v.redline - 60 ? 'rev limit in top gear' : 'power vs aerodynamic drag and rolling resistance',
       cdaEstimated: !Number.isFinite(v.cda) },
-    trace: tr, quarter: run.finish, magazine: run.magazine,
+    // The long run above ends at maxDistanceFt, so its own finish/magazine figures describe that distance, not a
+    // quarter mile (QA-FAIL 26 Nov: the page captioned the 5-mile time, 122.68 s, as "Quarter mile"). The standard
+    // strip figures come from the same model stopped at 1,320 ft — identical physics up to that point.
+    ...(() => { const strip = straightLine(v, { ...options, distanceFt: 1320 });
+      return { quarter: strip.finish, magazine: strip.magazine }; })(),
+    trace: tr,
   };
 }
 
