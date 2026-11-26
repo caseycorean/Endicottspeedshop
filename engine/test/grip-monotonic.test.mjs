@@ -14,6 +14,8 @@ test('a grippier tire never gives a slower 0–60 or quarter mile, on every runn
   assert.ok(cars.length >= 85, `${cars.length} vehicles`);
   for (const [id, v] of cars) {
     const runs = mus.map(mu => straightLine(v, { mu }).magazine);
+    // QA 25 Nov: null <= x is true in JS, so a run that stops completing would pass. Every run must finish.
+    runs.forEach((r, i) => assert.ok(Number.isFinite(r.et) && Number.isFinite(r.zeroTo60), `${id} μ ${mus[i]} incomplete: et ${r.et}, 0–60 ${r.zeroTo60}`));
     for (let i = 1; i < runs.length; i++) {
       assert.ok(runs[i].et <= runs[i - 1].et + .005, `${id} ET μ ${mus[i - 1]}→${mus[i]}: ${runs[i - 1].et} → ${runs[i].et}`);
       assert.ok(runs[i].zeroTo60 <= runs[i - 1].zeroTo60 + .005, `${id} 0–60 μ ${mus[i - 1]}→${mus[i]}`);
