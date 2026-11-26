@@ -211,7 +211,11 @@ E.power = {
   teaser: c => `Peak torque at ${fx(c.v.torqueRpm)} rpm, peak power at ${fx(c.v.hpRpm)}; the weight it has to move sets how that feels.`,
   html() {
     const v = nowV(), rpm = state.rpm ?? v.torqueRpm, pct = state.tune.hp ? Math.round((state.tune.hp / stockV().hp - 1) * 100) : 0;
-    return `<p class="sg-lede">Torque is the twisting force; horsepower is torque times engine speed: <b>hp = torque × rpm ÷ 5,252</b>. What a driver feels is that force divided by the weight it has to move.</p>
+    // R4 (26 Nov): when the published rating is SAE gross (pre-1972), say why the model uses a lower net figure.
+    const pf = (R?.facts ?? []).find(f => f.key === 'power' && typeof f.value === 'number'), tf = (R?.facts ?? []).find(f => f.key === 'torque' && typeof f.value === 'number');
+    const gross = pf && pf.standard === 'gross' && Math.abs(pf.value - stockV().hp) > 1;
+    const grossNote = gross ? `<p class="sg-note">Published rating: ${fx(pf.value)} hp${tf ? ` and ${fx(tf.value)} lb-ft` : ''} SAE gross. Gross ratings were measured on a bare engine; the model uses an estimated ${fx(stockV().hp)} hp${tf ? ` and ${fx(stockV().torque)} lb-ft` : ''} installed (net), which is why these numbers differ from the specifications above.</p>` : '';
+    return `<p class="sg-lede">Torque is the twisting force; horsepower is torque times engine speed: <b>hp = torque × rpm ÷ 5,252</b>. What a driver feels is that force divided by the weight it has to move.</p>${grossNote}
       <figure class="sg-fig" data-curve></figure>
       <label class="sg-ctl"><span>Engine speed <output data-o="rpm">${fx(rpm)} rpm</output></span><input type="range" min="1000" max="${v.redline}" step="100" value="${rpm}" data-in="rpm"></label>
       <p class="sg-formula" data-formula></p>
