@@ -110,6 +110,7 @@ def page(path, title, desc, body, active="", extra_head="", *, indexable=True, j
     print("wrote", path)
 
 if __name__ == "__main__":
+    import simulate_published; simulate_published.write(ROOT)
     spec = importlib.util.spec_from_file_location("pages", os.path.join(ROOT, "_build", "pages.py"))
     m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
     m.build(page)

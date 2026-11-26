@@ -48,17 +48,9 @@ const name = id => vehicles[id]?.name ?? id;
 async function loadPublished() {
   S.published = null;
   try {
-    const idx = await (await fetch(new URL('../vehicles/data/index.json', document.baseURI))).json();
-    const hit = idx.vehicles.find(x => x.labId === S.id);
-    if (!hit) return;
-    const rec = await (await fetch(new URL(`../vehicles/data/${hit.slug}.json`, document.baseURI))).json();
-    const pick = re => rec.facts.filter(f => re.test(f.label) && Number.isFinite(f.value));
-    S.published = {
-      route: hit.route, title: hit.title,
-      stops: pick(/^Braking (\d+)–0 mph$/).map(f => ({ mph: +f.label.match(/(\d+)–0/)[1], ft: f.value, pub: f.source?.publisher })),
-      skidpad: pick(/^Skidpad$/).map(f => ({ g: f.value, pub: f.source?.publisher, note: f.note })),
-      et: pick(/^Quarter-mile time$/).map(f => ({ s: f.value, pub: f.source?.publisher })), t60: pick(/^0–60 mph$/).map(f => ({ s: f.value, pub: f.source?.publisher })),
-    };
+    loadPublished.all ??= await (await fetch(new URL('../../simulate/published.json', import.meta.url))).json();
+    const p = loadPublished.all[S.id];
+    if (p) S.published = p;
   } catch { S.published = null; }
 }
 
