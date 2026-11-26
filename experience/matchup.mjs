@@ -111,6 +111,8 @@ export function racePanel(state, entries) {
       <button class="button secondary small" data-event="oval" aria-pressed="${oval}">Test oval</button>
       <button class="button secondary small" data-action="open-lineup">Edit lineup</button>
     </div>
+    <div class="actions"><button type="button" class="button primary" data-action="reveal-replay" ${playable ? '' : 'disabled'}>
+      Watch the ${oval ? 'test-oval' : 'quarter-mile'} replay</button></div>
     <div id="race-results">${comparisonResults(entries, oval)}</div>
     ${quickTune(state, entries)}
     ${drivetrainPanel(state[state.focus])}

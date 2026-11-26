@@ -1,4 +1,4 @@
-import { vehicles, fields, firebirdEvidence, customEstimates } from './vehicles.mjs';
+import { vehicles, fields, customEstimates } from './vehicles.mjs';
 import { presets, limits, choices, resolve, massIssue, powerIssue, tireLoads, ride } from './models.mjs';
 import { modified } from './configuration.mjs';
 import { setupName } from './matchup.mjs';
@@ -289,10 +289,9 @@ export function learn() {
       <section class="panel content-panel"><h2>Grip and ride</h2>${concept('transfer')}${concept('grip')}${concept('ride')}
       <p><a href="../articles/traction-circle/">Read about the traction circle</a></p></section>
     </div>
-    <section class="panel content-panel evidence-history"><h2>What the ESS Firebird measured</h2>
-      <p>The cars and load states below differ. They show the build history and which measurements are still needed.</p>
-      <dl class="evidence">${firebirdEvidence.map(([weight, note]) => `<div><dt>${weight}</dt><dd>${note}</dd></div>`).join('')}</dl>
-      <p><a href="../articles/measured-firebird-weights/">Inspect the ESS component measurements</a></p>
+    <section class="panel content-panel"><h2>Check the baseline</h2>
+      <p>Record the configuration and load state before you compare measurements.</p>
+      <p><a href="../build/">See the ESS research method</a> · <a href="../vehicles/">Find vehicle specifications</a></p>
     </section>
   </section>`;
 }
