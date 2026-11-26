@@ -37,7 +37,7 @@ export function home(state, saved) {
     </div>
     <div class="actions"><a class="button secondary" href="#performance">Test gearing and traction</a>
     <a class="button secondary" href="#tools">Explore tire loads and ride</a>
-    <a class="button secondary" href="#suspension">Explore rear suspension</a>
+    <a class="button secondary" href="../suspension-v2/">Explore suspension geometry</a>
     ${saved ? '<button class="button secondary" data-action="load-saved">Open my saved build</button>' : ''}</div>
   </section>`;
 }
@@ -275,7 +275,7 @@ export function learn() {
     ${pageTitle('Engineering notes', 'Try the physics', 'Explore how weight, force and grip affect a car. Your experiment stays open in the Lab.')}
     <div class="actions"><a class="button secondary" href="../articles/">Browse all articles</a>
     <a class="button secondary" href="#tools">Try tire loads</a>
-    <a class="button secondary" href="#suspension">Explore rear suspension</a></div>
+    <a class="button secondary" href="../suspension-v2/">Explore suspension geometry</a></div>
     ${camberDemo()}
     ${frontGeometry()}
     <div class="tool-grid">

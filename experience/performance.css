@@ -63,3 +63,5 @@
 .perf-formula { font-family: var(--mono); font-size: .9rem; background: var(--raised); padding: .5rem .6rem; border-radius: 6px; overflow-wrap: anywhere; }
 .perf-explain .actions { margin-top: .8rem; }
 .perf-controls input[type="range"] { min-height: 44px; width: 100%; }
+/* R2: finishing place as a badge; card order stays A, B, C */
+.performance-name .result-place { margin-left: auto; font-size: .8rem; font-weight: 700; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; }

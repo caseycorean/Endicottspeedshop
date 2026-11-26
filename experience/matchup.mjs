@@ -36,16 +36,18 @@ function resultEvidence(setup, value, oval) {
 }
 
 export function comparisonResults(entries, oval) {
-  const ranked = entries.map(entry => ({...entry, time: resultTime(entry.run, oval)}))
-    .sort((a, b) => (a.time ?? Infinity) - (b.time ?? Infinity));
-  return `<div class="estimate-label">Estimated ${oval ? 'flying lap' : 'quarter mile'}</div>
-    <div class="performance-results">${ranked.map(({key, setup, value, original, run, baseline, time}) => {
+  // R2 (26 Nov): cards keep the lineup order (A, B, C…) so identities and colours never swap; finishing order is a badge.
+  const timed = entries.map(entry => ({...entry, time: resultTime(entry.run, oval)}));
+  const order = [...timed].filter(e => Number.isFinite(e.time)).sort((a, b) => a.time - b.time).map(e => e.key);
+  const place = key => { const i = order.indexOf(key); return i < 0 ? '' : ['1st', '2nd', '3rd', '4th'][i] ?? `${i + 1}th`; };
+  return `<div class="estimate-label">Estimated ${oval ? 'flying lap' : 'quarter mile, timed from a standstill (magazine figures subtract a 1-ft rollout, about 0.3 s quicker)'}</div>
+    <div class="performance-results">${timed.map(({key, setup, value, original, run, baseline, time}) => {
       const why = baseline !== run ? changeFromOriginal('', original, value, baseline, run, oval)?.why : '';
       const before = resultTime(baseline, oval);
       const change = Number.isFinite(time) && Number.isFinite(before) && baseline !== run ? time - before : null;
       const missing = missingFor(value, oval ? 'oval' : 'quarter');
       return `<article class="performance-card car-${key}">
-        <div class="performance-name"><b>${key.toUpperCase()}</b><strong>${escape(setupName(setup))}</strong></div>
+        <div class="performance-name"><b>${key.toUpperCase()}</b><strong>${escape(setupName(setup))}</strong>${timed.length > 1 && place(key) ? `<span class="result-place" aria-label="Finished ${place(key)}">${place(key)}</span>` : ''}</div>
         <div class="performance-main">${Number.isFinite(time) ? fmt(time, 2) + ' s' : '—'}
           <small>${oval ? fmt(run.peakSpeed, 0) + ' mph peak' : fmt(run.finish?.trap, 0) + ' mph finish'}</small></div>
         ${Number.isFinite(time) ? `<p class="experiment-evidence">${escape(resultEvidence(setup, value, oval))}</p>` : ''}

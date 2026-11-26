@@ -143,6 +143,8 @@ function applyLocation() {
 }
 
 function render(next = view, restoreDetails = false) {
+  // Suspension V2 replaces the earlier Lab suspension view (owner direction, 26 Nov); old links land on V2.
+  if (next === 'suspension') { location.replace(new URL('../suspension-v2/', location.href).href); return; }
   const openSections = new Map(restoreDetails ? [...app.querySelectorAll('details[data-details]')].map(el => [el.dataset.details, el.open]) : []);
   const priorFocus = restoreDetails ? app.querySelector(':focus') : null;
   const focusData = priorFocus && Object.entries(priorFocus.dataset)[0];

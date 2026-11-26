@@ -48,7 +48,7 @@ test('every vehicle page uses the Candidate A guided template with the shared na
     if (!html.includes('id="ess-spec-data"')) continue; // library index and compare page
     assert.match(html, /class="page sg-page"/, s);
     assert.match(html, /logo-horizontal-tight\.png/, s);
-    assert.match(html, />Vehicle Lab</, s);
+    assert.match(html, /<nav class="topnav"[^>]*>.*>Vehicles<.*>Test<.*>Plan<.*>Learn<.*>My Garage<\/a><\/nav>/s, `${s}: approved global navigation (26 Nov)`);
     assert.doesNotMatch(html, /data-sg-hero/, `${s}: generic side-view drawing removed`);
   }
 });

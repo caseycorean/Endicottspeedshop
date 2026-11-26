@@ -75,6 +75,19 @@ def build(page):
          f'<main class="page"><div class="kicker">Tools</div><h1>Model it before you build it.</h1><p class="lede">Free calculators for balance, center of gravity, load transfer, springs and part weights. Results are estimates you can check against measurements.</p><div class="grid">{cards(TOOLS, "../")}</div>'
          '<p class="lab-callout">Use one car across experiments. <a href="../experience/#tools">Open Vehicle Lab tools</a> or <a href="../experiments/">discover more experiments</a>.</p></main>' , active="Tools")
 
+    # LEARN HUB (approved architecture, 26 Nov): one entrance to explanations, calculators, experiments and method.
+    page("learn/index.html", "Learn | Endicott Speed Shop",
+         "Engineering explanations, free calculators and interactive experiments from Endicott Speed Shop, and how ESS measures and tests.",
+         '<main class="page"><div class="kicker">Learn</div><h1>Understand what makes the numbers move.</h1>'
+         '<p class="lede">Plain-language explanations with real numbers, calculators you can use on your own car, and how ESS measures and tests.</p>'
+         '<h2>Explanations</h2><div class="grid">' + cards(ARTICLES, "../") + '</div>'
+         '<h2>Calculators</h2><div class="grid">' + cards(TOOLS, "../") + '</div>'
+         '<h2>Interactive experiments</h2><div class="grid">'
+         '<article class="card"><span class="tag cat-test">Experiment</span><h3><a href="../grip/">Tire loads under braking and cornering</a></h3><p>Brake into a corner and watch what each tire carries.</p><a class="more" href="../grip/">Open</a></article>'
+         '<article class="card"><span class="tag cat-test">Experiments</span><h3><a href="../experiments/">Which change matters?</a></h3><p>Pick a question and run it on a car in Test.</p><a class="more" href="../experiments/">Open</a></article></div>'
+         '<h2>How ESS measures</h2><p><a href="../build/">Research method: baseline, model, measure again</a> · <a href="../about/">About ESS</a></p>'
+         '</main>', active="Learn", journey=False)
+
     # ARTICLES HUB
     page("articles/index.html", "Articles | Endicott Speed Shop", "Engineering foundations from Endicott Speed Shop.",
          f'<main class="page"><div class="kicker">Articles</div><h1>Engineering, explained with real numbers.</h1><p class="lede">Foundations that explain how vehicles behave, with experiments that put the ideas to work.</p><div class="grid">{cards(ARTICLES, "../")}</div></main>', active="Articles")
@@ -124,7 +137,7 @@ def build(page):
 <h2>5 · Compare the options on the same terms</h2>
 <p>Put each option side by side: cost, weight and where it sits, fabrication required, what it changes and what it doesn't. For example, a second-gen F-body owner improving the front suspension might compare upgrading the stock parts, a bolt-in aftermarket package such as those from QA1 or Pro Touring F-Body, and a Corvette front suspension conversion. ESS is documenting comparisons like this one; they will be published here as the data is checked. (Brands are examples, not recommendations.)</p>
 <h2>6 · Model before you spend</h2>
-<p>Use the calculators for the questions they answer well: balance, load transfer and spring rates. The Vehicle Lab lets you <a href="../experience/#compare">compare acceleration</a> and <a href="../experience/#suspension">explore rear link geometry</a> before deciding what to measure next.</p>
+<p>Use the calculators for the questions they answer well: balance, load transfer and spring rates. The Vehicle Lab lets you <a href="../experience/#compare">compare acceleration</a> and <a href="../suspension-v2/">explore rear link geometry</a> before deciding what to measure next.</p>
 <p><a href="../tools/">All calculators</a></p>
 <h2>7 · Build in stages, and measure each one</h2>
 <p>Make the reversible decisions first. After each stage, weigh, test and compare against your baseline — that is how you find out whether a change did what you expected, and it's how the ESS cars are developed too.</p>

@@ -71,13 +71,14 @@ def change_home_a(html):
     sims = ('<div class="a-sims" aria-label="Simulators">'
             '<a href="experience/#performance"><strong>Performance simulator</strong><span>0–60, quarter mile, gearing and tires, side by side</span></a>'
             '<a href="experience/#build"><strong>Build a car</strong><span>Engine, transmission, weight and balance</span></a>'
-            '<a href="experience/#suspension"><strong>Suspension lab</strong><span>Drag the geometry, watch camber and roll</span></a>'
+            '<a href="suspension-v2/"><strong>Suspension</strong><span>Move the pivots: camber, roll center and anti-squat through travel</span></a>'
             '<a href="vehicles/"><strong>Vehicle specifications</strong><span>116 cars with sources and live experiments</span></a></div>')
     return (html.replace("Endicott Speed Shop | Run it before you buy it.", "Endicott Speed Shop | Measure. Test. Improve.")
             .replace("Run it before<br><em>you buy it.</em>", "Your car.<br><em>Your experiment.</em>")
             .replace('<p class="ig-invite">Your car. Your experiment.</p>', '<p class="ig-invite">Engineering models, sourced numbers and honest ranges.</p>')
             .replace("Pick your car, change a gear, a tire or a part, and see what it does before anything ships. Engineering models, sourced numbers, honest ranges.",
                      "Pick a car. Change a gear, a tire or a part. See what it does to grip, balance and acceleration before you buy anything.")
+            .replace("Live from the Vehicle Lab", "Example · ESS model estimate", 1)  # R12: an example, not a live result
             .replace('<section class="ig-section home-intentions"', sims + '\n<section class="ig-section home-intentions"', 1))
 
 

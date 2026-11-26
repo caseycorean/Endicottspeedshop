@@ -12,17 +12,18 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GA_TAGS = """<script async src="https://www.googletagmanager.com/gtag/js?id=G-GGJVMS8CZD"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.origin+location.pathname,page_referrer:document.referrer?new URL(document.referrer).origin:''});</script>"""
 GA = GA_TAGS if os.environ.get("ESS_PRIVATE_REVIEW") != "1" else ""
-NAV = [("Vehicles", "vehicles/", "Factory specifications and independent tests"),
-       ("Vehicle Lab", "experience/", "Build, compare and test your car"),
-       ("Plan", "plan/", "Plan your build, step by step"),
-       ("Tools", "tools/", "Calculators built from measured data"),
-       ("Articles", "articles/", "Engineering foundations and build notes"),
-       ("Research", "build/", "How ESS measures and tests changes"),
-       ("About", "about/", "Why this exists"),
-       ("Contact", "contact/", "Corrections, questions and measured data")]
+# Approved architecture (owner, 26 Nov): Vehicles · Test · Plan · Learn + persistent My Garage. URLs unchanged.
+NAV = [("Vehicles", "vehicles/", "Find a car: factory specifications and independent tests"),
+       ("Test", "experience/", "Try a change: acceleration, gearing, grip and suspension"),
+       ("Plan", "plan/", "Decide what to do first, step by step"),
+       ("Learn", "learn/", "Articles, calculators and how ESS measures"),
+       ("My Garage", "experience/#garage", "Your saved cars, kept in this browser")]
+MORE_NAV = [("About", "about/", "Why this exists"), ("Contact", "contact/", "Corrections, questions and measured data")]
+# Older pages pass their former section name; map it to the destination it now belongs to.
+ACTIVE = {"Vehicle Lab": "Test", "Tools": "Learn", "Articles": "Learn", "Research": "Learn"}
 
 SITE = "https://endicottspeedshop.com/"
-URLS = ["experience/", "weight-distribution-calculator/"]  # hand-made page, not generated here
+URLS = ["weight-distribution-calculator/"]  # hand-made page, not generated here (experience/ is noindex: kept out of the sitemap, R13)
 
 def share_tags(title, desc, url):
     """Link-preview tags (Facebook, iMessage, forums, X) so a shared link shows the logo, title and summary."""
@@ -62,8 +63,9 @@ def page(path, title, desc, body, active="", extra_head="", *, indexable=True, j
         extra_head += f'<script type="module" src="{rel}experience/search-bridge.mjs"></script>'
     if 'id="main"' not in body:
         body = body.replace("<main ", '<main id="main" ', 1)
-    links = "".join(f'<a href="{rel}{h}"{" class=on" if active==n else ""}>{n}</a>' for n, h, _ in NAV)
-    side = "".join(f'<a href="{rel}{h}">{n}<small>{s}</small></a>' for n, h, s in NAV)
+    active = ACTIVE.get(active, active)
+    links = "".join(f'<a href="{rel}{h}"{" class=on aria-current=page" if active==n else ""}{" class=nav-garage" if n=="My Garage" else ""}>{n}</a>' for n, h, _ in NAV)
+    side = "".join(f'<a href="{rel}{h}">{n}<small>{s}</small></a>' for n, h, s in NAV + MORE_NAV)
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>

@@ -158,3 +158,5 @@
 .v2-sym { white-space: normal; align-items: flex-start; }
 .v2-sym input { margin-top: 4px; }
 .v2-sym small { display: block; color: var(--ess-subtle, #5b5b59); }
+/* skip link hidden until focused (this page does not load ess-reference.css) */
+.vr-skip { position: absolute; left: -9999px; top: 0; } .vr-skip:focus { left: 8px; z-index: 50; background: #fff; padding: 6px 10px; }

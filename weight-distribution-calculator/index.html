@@ -305,12 +305,12 @@
   <div class="wrap">
     <header class="weight-tool-header">
       <a href="../" class="brand" aria-label="Endicott Speed Shop home"><span class="ess-wordmark"><strong>ENDICOTT</strong><span>SPEED SHOP</span></span></a>
-      <nav aria-label="Related tools"><a href="../experience/">Vehicle Lab</a><a href="../tools/">All tools</a><a href="../tools/cg-builder/">Balance &amp; CG Builder</a></nav>
+      <nav aria-label="Main navigation"><a href="../vehicles/">Vehicles</a><a href="../experience/">Test</a><a href="../plan/">Plan</a><a href="../learn/" aria-current="page">Learn</a><a href="../experience/#garage">My Garage</a></nav>
     </header>
 
     <div class="section">
       <div class="section-head">
-        <h2 class="calculator-title">Car Weight Distribution Calculator</h2>
+        <h1 class="calculator-title">Car Weight Distribution Calculator</h1>
       </div>
       <div class="ess-config" data-ess-vehicle="weight-distribution-calculator" data-lab-root="../experience/"></div>
       <div class="grid-3">
@@ -461,6 +461,9 @@
 
       input.value = value || "";
       input.placeholder = placeholder;
+      // R8: each row field needs an accessible name (placeholders are not labels).
+      input.setAttribute("aria-label", {componentName: "Component name", origWeight: "Original weight (lb)", newWeight: "New weight (lb)",
+        fromLoc: "From location (in, measured from the rear axle)", toLoc: "To location (in, measured from the rear axle)"}[className] || placeholder);
 
       ["input", "change", "keyup", "blur"].forEach(function(evt) {
         input.addEventListener(evt, calculate);

@@ -458,5 +458,5 @@ def build(page):
          + card(*QUESTIONS['performance'], '../experience/#performance','performance')
          + card(*QUESTIONS['balance'], '../tools/cg-builder/','balance')
          + card(*QUESTIONS['spring-rate'], '../tools/spring-rate/','spring-rate')
-         + card('Suspension geometry', 'Move the suspension and examine how geometry changes as the wheel travels.', '../experience/#suspension','suspension')
+         + card('Suspension geometry', 'Move the suspension and examine how geometry changes as the wheel travels.', '../suspension-v2/','suspension')
          + '</div></section></main>')
