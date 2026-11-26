@@ -38,7 +38,9 @@ export const brakingDefaults = {
   riseTime: .15,
   rollResistance: .015,
   sensitivity: LOAD_SENSITIVITY,
-  bias: null, // front share of brake force for the no-ABS mode; null → installedBias(v)
+  // front share of brake force for the no-ABS mode; null → installedBias(v). When comparing a change (tires, CG),
+  // pass the STOCK car's installedBias: the split is fixed hardware and does not follow the tire or CG being tried.
+  bias: null,
   brakeTorque: null, // {front, rear} lb-ft per axle at max pedal; null → not limited by the brake hardware
   dt: .002,
 };
