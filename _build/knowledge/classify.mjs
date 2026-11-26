@@ -1,8 +1,9 @@
 // Fact normalization shared by the knowledge build and its tests: label/unit → quantity key, unit quantity, definition.
 // ---- fact normalization: label/unit → canonical quantity key, unit-system quantity and definition (basis) ----
 const RULES = [
-  [/rated power|^power$|peak power/i, 'power', 'power'], [/rated torque|peak torque/i, 'torque', 'torque'],
-  [/^power peak/i, 'powerRpm', null], [/^torque peak/i, 'torqueRpm', null], [/redline|maximum engine speed/i, 'redline', null],
+  // Engine-speed labels first: "Peak torque rpm max" must never be read as a torque value (B1, 26 Nov).
+  [/^power peak|peak power rpm/i, 'powerRpm', null], [/^torque peak|peak torque rpm/i, 'torqueRpm', null],
+  [/rated power|^power$|peak power/i, 'power', 'power'], [/rated torque|peak torque/i, 'torque', 'torque'], [/redline|maximum engine speed/i, 'redline', null],
   [/^displacement/i, 'displacement', null],
   [/static weight on front|front share/i, 'front', null],
   [/as tested weight|test weight/i, 'weight', 'weight', 'as tested'], [/curb weight|kerb weight/i, 'weight', 'weight', 'curb'],
@@ -20,7 +21,9 @@ const RULES = [
 export const TO_CANON = { kW: 1 / 0.745699872, PS: 0.98632, bhp: 1, hp: 1, 'N·m': 0.737562149, 'lbs-ft': 1, 'lb-ft': 1, kg: 2.20462262, lb: 1,
   mm: 1 / 25.4, in: 1, mph: 1, 'km/h': 1 / 1.609344 };
 export function classify(label, unit = '', note = '') {
-  const hit = RULES.find(([re]) => re.test(label));
+  let hit = RULES.find(([re]) => re.test(label));
+  // A value in rpm is an engine speed, whatever the label says.
+  if (hit && unit === 'rpm' && (hit[1] === 'power' || hit[1] === 'torque')) hit = [null, hit[1] + 'Rpm', null];
   if (!hit) return { key: null };
   const [, key, quantity, basis] = hit;
   const out = { key, quantity };

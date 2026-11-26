@@ -24831,9 +24831,8 @@
      "unit": "rpm",
      "note": "",
      "evidence": "manufacturer",
-     "key": "torque",
-     "quantity": "torque",
-     "standard": "as published",
+     "key": "torqueRpm",
+     "quantity": null,
      "source": {
       "url": "https://hondanews.com/en-US/releases/2023-honda-civic-type-r-specifications-features",
       "publisher": "American Honda",
@@ -24848,9 +24847,8 @@
      "unit": "rpm",
      "note": "",
      "evidence": "manufacturer",
-     "key": "torque",
-     "quantity": "torque",
-     "standard": "as published",
+     "key": "torqueRpm",
+     "quantity": null,
      "source": {
       "url": "https://hondanews.com/en-US/releases/2023-honda-civic-type-r-specifications-features",
       "publisher": "American Honda",
@@ -25098,38 +25096,7 @@
      "publish": "public"
     }
    ],
-   "conflicts": [
-    {
-     "key": "torque",
-     "kind": "source disagreement",
-     "values": [
-      {
-       "label": "Rated torque",
-       "value": 310,
-       "unit": "lb-ft",
-       "basis": "as published",
-       "evidence": "manufacturer",
-       "publisher": "American Honda"
-      },
-      {
-       "label": "Peak torque rpm min",
-       "value": 2600,
-       "unit": "rpm",
-       "basis": "as published",
-       "evidence": "manufacturer",
-       "publisher": "American Honda"
-      },
-      {
-       "label": "Peak torque rpm max",
-       "value": 4000,
-       "unit": "rpm",
-       "basis": "as published",
-       "evidence": "manufacturer",
-       "publisher": "American Honda"
-      }
-     ]
-    }
-   ],
+   "conflicts": [],
    "key": {
     "power": {
      "value": 315,
@@ -25141,10 +25108,10 @@
      "publish": "public"
     },
     "torque": {
-     "value": 4000,
-     "sourceValue": 4000,
-     "sourceUnit": "rpm",
-     "label": "Peak torque rpm max",
+     "value": 310,
+     "sourceValue": 310,
+     "sourceUnit": "lb-ft",
+     "label": "Rated torque",
      "evidence": "manufacturer",
      "basis": "as published",
      "publish": "public"
@@ -30775,9 +30742,8 @@
      "unit": "rpm",
      "note": "",
      "evidence": "manufacturer",
-     "key": "torque",
-     "quantity": "torque",
-     "standard": "as published",
+     "key": "torqueRpm",
+     "quantity": null,
      "source": {
       "url": "https://usa.nissannews.com/en-US/releases/us-2017-nissan-gt-r-press-kit",
       "publisher": "Nissan North America",
@@ -30792,9 +30758,8 @@
      "unit": "rpm",
      "note": "",
      "evidence": "manufacturer",
-     "key": "torque",
-     "quantity": "torque",
-     "standard": "as published",
+     "key": "torqueRpm",
+     "quantity": null,
      "source": {
       "url": "https://usa.nissannews.com/en-US/releases/us-2017-nissan-gt-r-press-kit",
       "publisher": "Nissan North America",
@@ -30934,38 +30899,7 @@
      "publish": "public"
     }
    ],
-   "conflicts": [
-    {
-     "key": "torque",
-     "kind": "source disagreement",
-     "values": [
-      {
-       "label": "Rated torque",
-       "value": 467,
-       "unit": "lb-ft",
-       "basis": "as published",
-       "evidence": "manufacturer",
-       "publisher": "Nissan North America"
-      },
-      {
-       "label": "Peak torque rpm min",
-       "value": 3300,
-       "unit": "rpm",
-       "basis": "as published",
-       "evidence": "manufacturer",
-       "publisher": "Nissan North America"
-      },
-      {
-       "label": "Peak torque rpm max",
-       "value": 5800,
-       "unit": "rpm",
-       "basis": "as published",
-       "evidence": "manufacturer",
-       "publisher": "Nissan North America"
-      }
-     ]
-    }
-   ],
+   "conflicts": [],
    "key": {
     "power": {
      "value": 565,
@@ -30977,10 +30911,10 @@
      "publish": "public"
     },
     "torque": {
-     "value": 5800,
-     "sourceValue": 5800,
-     "sourceUnit": "rpm",
-     "label": "Peak torque rpm max",
+     "value": 467,
+     "sourceValue": 467,
+     "sourceUnit": "lb-ft",
+     "label": "Rated torque",
      "evidence": "manufacturer",
      "basis": "as published",
      "publish": "public"
@@ -36777,9 +36711,8 @@
      "unit": "rpm",
      "note": "",
      "evidence": "manufacturer",
-     "key": "torque",
-     "quantity": "torque",
-     "standard": "as published",
+     "key": "torqueRpm",
+     "quantity": null,
      "source": {
       "url": "https://s3.amazonaws.com/subarumedia.iconicweb.com/mediasite/specs/2022_WRX_Specs-FINAL.pdf",
       "publisher": "Subaru of America",
@@ -36794,9 +36727,8 @@
      "unit": "rpm",
      "note": "",
      "evidence": "manufacturer",
-     "key": "torque",
-     "quantity": "torque",
-     "standard": "as published",
+     "key": "torqueRpm",
+     "quantity": null,
      "source": {
       "url": "https://s3.amazonaws.com/subarumedia.iconicweb.com/mediasite/specs/2022_WRX_Specs-FINAL.pdf",
       "publisher": "Subaru of America",
@@ -37028,38 +36960,7 @@
      "publish": "public"
     }
    ],
-   "conflicts": [
-    {
-     "key": "torque",
-     "kind": "source disagreement",
-     "values": [
-      {
-       "label": "Rated torque",
-       "value": 258,
-       "unit": "lb-ft",
-       "basis": "as published",
-       "evidence": "manufacturer",
-       "publisher": "Subaru of America"
-      },
-      {
-       "label": "Peak torque rpm min",
-       "value": 2000,
-       "unit": "rpm",
-       "basis": "as published",
-       "evidence": "manufacturer",
-       "publisher": "Subaru of America"
-      },
-      {
-       "label": "Peak torque rpm max",
-       "value": 5200,
-       "unit": "rpm",
-       "basis": "as published",
-       "evidence": "manufacturer",
-       "publisher": "Subaru of America"
-      }
-     ]
-    }
-   ],
+   "conflicts": [],
    "key": {
     "power": {
      "value": 271,
@@ -37071,10 +36972,10 @@
      "publish": "public"
     },
     "torque": {
-     "value": 5200,
-     "sourceValue": 5200,
-     "sourceUnit": "rpm",
-     "label": "Peak torque rpm max",
+     "value": 258,
+     "sourceValue": 258,
+     "sourceUnit": "lb-ft",
+     "label": "Rated torque",
      "evidence": "manufacturer",
      "basis": "as published",
      "publish": "public"
@@ -37908,9 +37809,8 @@
      "unit": "rpm",
      "note": "",
      "evidence": "manufacturer",
-     "key": "torque",
-     "quantity": "torque",
-     "standard": "as published",
+     "key": "torqueRpm",
+     "quantity": null,
      "source": {
       "url": "https://www.toyota.com/content/dam/toyota/brochures/pdf/2023/gr-corolla_ebrochure.pdf",
       "publisher": "Toyota Motor Sales, USA",
@@ -37925,9 +37825,8 @@
      "unit": "rpm",
      "note": "",
      "evidence": "manufacturer",
-     "key": "torque",
-     "quantity": "torque",
-     "standard": "as published",
+     "key": "torqueRpm",
+     "quantity": null,
      "source": {
       "url": "https://www.toyota.com/content/dam/toyota/brochures/pdf/2023/gr-corolla_ebrochure.pdf",
       "publisher": "Toyota Motor Sales, USA",
@@ -38067,38 +37966,7 @@
      "publish": "public"
     }
    ],
-   "conflicts": [
-    {
-     "key": "torque",
-     "kind": "source disagreement",
-     "values": [
-      {
-       "label": "Rated torque",
-       "value": 273,
-       "unit": "lb-ft",
-       "basis": "as published",
-       "evidence": "manufacturer",
-       "publisher": "Toyota Motor Sales, USA"
-      },
-      {
-       "label": "Peak torque rpm min",
-       "value": 3000,
-       "unit": "rpm",
-       "basis": "as published",
-       "evidence": "manufacturer",
-       "publisher": "Toyota Motor Sales, USA"
-      },
-      {
-       "label": "Peak torque rpm max",
-       "value": 5500,
-       "unit": "rpm",
-       "basis": "as published",
-       "evidence": "manufacturer",
-       "publisher": "Toyota Motor Sales, USA"
-      }
-     ]
-    }
-   ],
+   "conflicts": [],
    "key": {
     "power": {
      "value": 300,
@@ -38110,10 +37978,10 @@
      "publish": "public"
     },
     "torque": {
-     "value": 5500,
-     "sourceValue": 5500,
-     "sourceUnit": "rpm",
-     "label": "Peak torque rpm max",
+     "value": 273,
+     "sourceValue": 273,
+     "sourceUnit": "lb-ft",
+     "label": "Rated torque",
      "evidence": "manufacturer",
      "basis": "as published",
      "publish": "public"
@@ -38704,9 +38572,8 @@
      "unit": "rpm",
      "note": "",
      "evidence": "manufacturer",
-     "key": "torque",
-     "quantity": "torque",
-     "standard": "as published",
+     "key": "torqueRpm",
+     "quantity": null,
      "source": {
       "url": "https://www.toyota.com/content/dam/toyota/brochures/pdf/2024/grsupra_ebrochure.pdf",
       "publisher": "Toyota Motor Sales, USA",
@@ -38721,9 +38588,8 @@
      "unit": "rpm",
      "note": "",
      "evidence": "manufacturer",
-     "key": "torque",
-     "quantity": "torque",
-     "standard": "as published",
+     "key": "torqueRpm",
+     "quantity": null,
      "source": {
       "url": "https://www.toyota.com/content/dam/toyota/brochures/pdf/2024/grsupra_ebrochure.pdf",
       "publisher": "Toyota Motor Sales, USA",
@@ -38847,38 +38713,7 @@
      "publish": "public"
     }
    ],
-   "conflicts": [
-    {
-     "key": "torque",
-     "kind": "source disagreement",
-     "values": [
-      {
-       "label": "Rated torque",
-       "value": 368,
-       "unit": "lb-ft",
-       "basis": "as published",
-       "evidence": "manufacturer",
-       "publisher": "Toyota Motor Sales, USA"
-      },
-      {
-       "label": "Peak torque rpm min",
-       "value": 1800,
-       "unit": "rpm",
-       "basis": "as published",
-       "evidence": "manufacturer",
-       "publisher": "Toyota Motor Sales, USA"
-      },
-      {
-       "label": "Peak torque rpm max",
-       "value": 5000,
-       "unit": "rpm",
-       "basis": "as published",
-       "evidence": "manufacturer",
-       "publisher": "Toyota Motor Sales, USA"
-      }
-     ]
-    }
-   ],
+   "conflicts": [],
    "key": {
     "power": {
      "value": 382,
@@ -38890,10 +38725,10 @@
      "publish": "public"
     },
     "torque": {
-     "value": 5000,
-     "sourceValue": 5000,
-     "sourceUnit": "rpm",
-     "label": "Peak torque rpm max",
+     "value": 368,
+     "sourceValue": 368,
+     "sourceUnit": "lb-ft",
+     "label": "Rated torque",
      "evidence": "manufacturer",
      "basis": "as published",
      "publish": "public"

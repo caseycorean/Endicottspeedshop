@@ -80,3 +80,16 @@ test('static page answers without JavaScript: title, canonical, facts and embedd
   assert.equal(data.id, 'sx-1991-ferrari-f40');
   assert.ok(existsSync(new URL('vehicles/data/index.json', root)));
 });
+
+// B1 (26 Nov evaluation): a displayed quantity must be physically plausible for its unit.
+// Engine speeds (rpm) must never be classified as power or torque, and rated torque must fit the rated power.
+test('published facts: torque and power values are plausible (no rpm read as lb-ft)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const kn = JSON.parse(readFileSync(new URL('./vehicle-knowledge.json', import.meta.url))).records;
+  const bad = [];
+  for (const r of kn) for (const f of r.facts) {
+    if ((f.key === 'torque' || f.key === 'power') && f.unit === 'rpm') bad.push(`${r.slug}: ${f.label} ${f.value} rpm as ${f.key}`);
+    if (f.key === 'torque' && /lb/.test(f.unit ?? '') && typeof f.value === 'number' && f.value > 1500) bad.push(`${r.slug}: torque ${f.value}`);
+  }
+  assert.deepEqual(bad, []);
+});
