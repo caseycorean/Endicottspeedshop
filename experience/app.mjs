@@ -13,7 +13,7 @@ import { components, componentOverrides } from './components.mjs';
 import { mountCamber } from './diagrams.mjs';
 import { mountFrontGeometry, frontGeometry } from './front-geometry.mjs';
 import { studies, missingFor } from './readiness.mjs';
-import { performanceView, performanceExplain, loadPerf, savePerf, perfDefaults, summaryHtml, tractionHtml, gearTableHtml, tireTableHtml, feedbackHtml, perfModel } from './performance-view.mjs';
+import { performanceView, performanceExplain, loadPerf, savePerf, perfDefaults, summaryHtml, tractionHtml, tireTableHtml, feedbackHtml, perfModel, snapshot } from './performance-view.mjs';
 
 const app = document.querySelector('#app');
 installCatalog();
@@ -135,7 +135,13 @@ function render(next = view, restoreDetails = false) {
     case 'performance-math': {
       const setup = active();
       if (perf.vehicle !== setup.id) { perf = {...perfDefaults(), surface: perf.surface, vehicle: setup.id}; savePerf(perf); }
-      app.innerHTML = view === 'performance' ? performanceView(state, perf, perfLinks()) :
+      // Before/after for the feedback line: compare with what was on screen before this render.
+      const sig = JSON.stringify([setup, perf.tire, perf.surface, perf.customMu]);
+      if (!perfShown || perfShown.id !== setup.id) perfLast = null;
+      else if (perfShown.sig !== sig) perfLast = {label: perfLabel || 'Your change', et: perfShown.et, launch: perfShown.launch};
+      perfLabel = null;
+      perfShown = {sig, id: setup.id, ...snapshot(setup, perf)};
+      app.innerHTML = view === 'performance' ? performanceView(state, perf, perfLinks(), perfLast) :
         performanceExplain(state, perf, view === 'performance-why' ? 'why' : 'math');
       break;
     }
@@ -143,6 +149,7 @@ function render(next = view, restoreDetails = false) {
   }
   mountCamber(app);
   mountFrontGeometry(app);
+  watchPerfSticky();
   rememberDraft();
   notice.textContent = sharedLinkNotice;
   notice.classList.toggle('link-notice', Boolean(sharedLinkNotice));
@@ -306,6 +313,7 @@ app.addEventListener('change', event => {
     const before = next.components?.[kind];
     if (before === el.value) return;
     const specs = components[kind][el.value] ?? components[kind][before];
+    if (perfViews.includes(view)) perfLabel = (specs?.name ?? 'Transmission') + (el.value ? '' : ' removed');
     const config = {...next.components};
     if (el.value) config[kind] = el.value;
     else delete config[kind];
@@ -314,10 +322,12 @@ app.addEventListener('change', event => {
     commitExperiment(next, specs ? specs.name + (el.value ? ' applied.' : ' removed.') : '');
   } else if (el.hasAttribute('data-perf-tire')) {
     perf = {...perf, tire: el.value};
-    perfCommit('Tire class: ' + el.selectedOptions[0].textContent.trim() + '.');
+    perfLabel = 'Tire: ' + el.selectedOptions[0].textContent.trim();
+    perfCommit(perfLabel + '.');
   } else if (el.hasAttribute('data-perf-surface')) {
     perf = {...perf, surface: el.value};
-    perfCommit('Surface: ' + el.selectedOptions[0].textContent.trim() + '.');
+    perfLabel = 'Surface: ' + el.selectedOptions[0].textContent.trim();
+    perfCommit(perfLabel + '.');
   } else if (el.hasAttribute('data-perf-fd')) {
     perfFinalDrive(Number(el.value), true);
   } else if (el.dataset.mode) {
@@ -502,6 +512,14 @@ function carryLane(key, selection = modeOf(state, key)) {
 
 
 // ---- Performance page (gearing and traction) ----
+let perfObserver;
+function watchPerfSticky() {
+  perfObserver?.disconnect();
+  const slip = app.querySelector('#perf-summary .ig-slip'), bar = app.querySelector('.perf-sticky');
+  if (!slip || !bar || !('IntersectionObserver' in window)) return;
+  perfObserver = new IntersectionObserver(([entry]) => bar.classList.toggle('show', !entry.isIntersecting && entry.boundingClientRect.top < 0));
+  perfObserver.observe(slip);
+}
 function perfLinks() {
   return {loadTransfer: '../tools/load-transfer/' + shareFragment(state, 'tools')};
 }
@@ -513,25 +531,31 @@ function perfCommit(message) {
 }
 
 let perfFrame = 0;
+let perfShown = null, perfLast = null, perfLabel = null;
 let perfPendingRef = null;
 function perfFinalDrive(value, final) {
   const current = active();
   if (!Number.isFinite(value) || value < 2 || value > 6) return;
   const original = resolve(current, false).finalDrive;
+  const before = resolve(current, true).finalDrive;
   if (value === original && !Object.hasOwn(componentOverrides(current), 'finalDrive')) delete current.tune.finalDrive;
   else current.tune.finalDrive = value;
   state[state.focus + 'Mode'] = modified(current) ? 'after' : 'before';
-  if (final) { perfCommit('Final drive ' + fmt(value, 2) + '.'); return; }
-  byId('perf-fd').textContent = fmt(value, 2);
+  const label = 'Final drive ' + (Number.isFinite(perfShown?.fd ?? before) ? fmt(perfShown?.fd ?? before, 2) + ' → ' : '') + fmt(value, 2);
+  if (final) { perfLabel = label; if (perfShown) delete perfShown.fd; perfCommit(label + '.'); return; }
+  if (perfShown && perfShown.fd === undefined) perfShown.fd = before;
+  for (const out of app.querySelectorAll('#perf-controls output')) out.textContent = fmt(value, 2);
   cancelAnimationFrame(perfFrame);
   perfFrame = requestAnimationFrame(() => {
     // Live update while dragging: recompute only the result regions so the slider keeps focus.
     const m = perfModel(active(), perf);
     byId('perf-summary').outerHTML = summaryHtml(m, state.focus);
+    watchPerfSticky();
     byId('perf-traction').outerHTML = tractionHtml(m, state.focus);
-    byId('perf-gearing').outerHTML = gearTableHtml(m);
+    const tiresOpen = byId('perf-tires')?.open;
     byId('perf-tires').outerHTML = tireTableHtml(m);
-    byId('perf-feedback').outerHTML = feedbackHtml(m);
+    if (tiresOpen) byId('perf-tires').open = true;
+    byId('perf-feedback').outerHTML = feedbackHtml(m, perfShown && {label, et: perfShown.et, launch: perfShown.launch});
     const next = byId('perf-next');
     if (next) next.setAttribute('aria-busy', 'true'); // suggestions refresh when the slider is released
     for (const chip of app.querySelectorAll('#perf-controls [data-axle-ratio]'))
@@ -563,11 +587,12 @@ function perfClick(el) {
   if (d.perfGear !== undefined) { perf = {...perf, gear: Number(d.perfGear)}; perfCommit('Traction check in gear ' + (perf.gear + 1) + '.'); return true; }
   if (d.perfApplyTire) {
     perf = {...perf, tire: d.perfApplyTire, surface: d.perfApplySurface || perf.surface};
-    perfCommit('Trying ' + el.querySelector('strong').textContent + '.');
+    perfLabel = 'Tried ' + el.querySelector('strong').textContent;
+    perfCommit(perfLabel + '.');
     byId('perf-feedback')?.scrollIntoView({block: 'center'});
     return true;
   }
-  if (d.perfPickTire) { perf = {...perf, tire: d.perfPickTire}; perfCommit('Tire class changed.'); return true; }
+  if (d.perfPickTire) { perf = {...perf, tire: d.perfPickTire}; perfLabel = 'Tire: ' + el.querySelector('span').textContent.trim(); perfCommit(perfLabel + '.'); return true; }
   if (el.hasAttribute('data-perf-tire-reset')) { perf = {...perf, tire: null}; perfCommit('Back to tire classes.'); return true; }
   if (el.hasAttribute('data-perf-reset')) {
     const current = active();

@@ -9,7 +9,7 @@ export const mark = (size = 24, label = '') => `<svg class="ig-mark" width="${si
 
 /** Status vocabulary, shared by every page. Colour is never the only signal: each light has a word. */
 export const lights = {
-  green: { word: 'Grip to spare', short: 'Hooks' },
+  green: { word: 'Grip to spare', short: 'Grips' },
   yellow: { word: 'On the edge', short: 'Edge' },
   red: { word: 'Wheelspin likely', short: 'Spins' },
   missing: { word: 'Needs data', short: '—' },
@@ -46,3 +46,23 @@ export function slip(title, rows, footer = '') {
 
 export const ordinal = n => n + (n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th');
 export const secs = (n, p = 2) => Number.isFinite(n) ? fmt(n, p) + '<small> s</small>' : '—';
+
+/**
+ * Gear chart (owner reference, 25 Nov): one compact vertical bar per gear, a common 100%-of-grip line, the selected
+ * gear emphasised. Bars are byGear() utilisation (drive force at peak torque ÷ typical grip), drawn 0–200%.
+ * Each bar carries its percentage and a status word, so colour is never the only signal.
+ * `interactive`: bars are buttons (data-perf-gear) for selecting the gear; otherwise a static figure.
+ */
+export function gearChart(rows, { selected = 0, interactive = true, compact = false, label = 'Share of tire grip used by each gear' } = {}) {
+  if (!rows?.length) return '';
+  const h = u => Math.min(100, Math.max(2, u * 50)).toFixed(1) + '%';
+  const tag = interactive ? 'button' : 'span';
+  return `<div class="gc${compact ? ' gc-compact' : ''}" role="${interactive ? 'group' : 'img'}" aria-label="${escape(label)}${interactive ? '. Choose a gear.' : ': ' + rows.map(r => `${ordinal(r.gear)} ${fmt(r.utilization * 100)}%`).join(', ')}">
+    <div class="gc-plot" style="--n:${rows.length}">
+      <span class="gc-limit" aria-hidden="true"><em>100% of grip</em></span>
+      ${rows.map((r, i) => `<${tag} ${interactive ? `type="button" data-perf-gear="${i}" aria-pressed="${i === selected}" aria-label="${ordinal(r.gear)} gear: ${fmt(r.utilization * 100)}% of grip, ${escape(lights[r.status].word.toLowerCase())}"` : 'aria-hidden="true"'}
+        class="gc-col${i === selected && interactive ? ' on' : ''}" data-level="${r.status}" style="--h:${h(r.utilization)}">
+        <span class="gc-bar"><span class="gc-fill"></span><span class="gc-val">${fmt(r.utilization * 100)}%${r.utilization > 2 ? '↑' : ''}</span></span>
+        <span class="gc-g">${ordinal(r.gear)}</span><span class="gc-s">${escape(lights[r.status].short)}</span></${tag}>`).join('')}
+    </div></div>`;
+}

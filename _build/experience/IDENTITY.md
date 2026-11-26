@@ -54,3 +54,21 @@ ESS is a speed shop that measures. The site behaves like a drag-strip timing sys
 - Every number shown comes from the shared engine. Figures say what they are (class estimates, ranges).
 - Colour plus a word for status. Touch targets ≥ 44 px. No sideways scroll at 320 px.
 - Dark bands are for things that are running (results, live data); paper is for reading and controls.
+
+## v3 refinement (owner review, 25 Nov evening)
+Branch `experiment/experience-refinement-claude`, built on v2 `7e0fb90`. v2 and the first slice are kept on their own branches.
+- **Restraint.** The identity is the palette, type, spacing and interaction rules, not a motif to repeat.
+  - The timeslip appears once, in the tool, where a drag-strip result belongs.
+  - Each page has one dark band.
+  - Anton is for page titles only. Section headings are Fira Sans 700 in sentence case.
+- **Palette** moves from warm brown to neutral: ground `#f4f3ef`, cards `#ffffff`, asphalt `#16191c`, ink `#17191b`, line `#dcdad3`. Amber and the light colours are unchanged.
+- **Gear chart (`gearChart()`)** is the shared result graphic on all three pages. It follows the owner's reference:
+  - one bar per gear, byGear share of typical grip, drawn 0–200%
+  - a dashed common 100% line
+  - each bar labelled with its percentage and a status word (SPINS / EDGE / GRIPS), and red bars hatched, so colour is not the only signal
+  - the selected gear outlined and underlined
+  - in the tool, a single large percentage for the selected gear, and engineering details on tap: ratio, force, grip range, and theoretical speed at the shift rpm, labelled as gearing-only and not the achievable top speed
+- **Launch is separate from the inspected gear.** The slip's launch status is always the standing-start check (1st gear at the launch rpm). The chart is torque-peak per gear. When they differ in 1st, the readout states both.
+- **Last-change feedback** sits beside the controls: "Final drive 3.42 → 4.10: quarter mile 12.98 → 13.xx s; launch 155% → 186% of grip". Both sides are model runs.
+- **Progressive disclosure that still informs.** Closed panels summarise their content, for example "Every tire, same car: 0 of 9 classes have grip to spare". Nothing was removed.
+- **Overflow rules.** Grid tracks and label grids use `minmax(0, 1fr)`, selects get `max-width: 100%`, and `body` has `overflow-x: clip` as a guard. Checked by forcing Safari-style intrinsic select widths.

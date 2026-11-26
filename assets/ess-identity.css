@@ -1,4 +1,6 @@
 /* ESS identity proposal · "Proving Ground" (Claude visual-identity slice, 25 Nov 2026)
+   v3 (owner review 25 Nov): calmer palette, Anton for page titles only, one dark band per page, the timeslip
+   only where a drag-strip result lives, the compact gear chart as the shared result graphic.
    VOICE   a speed shop that measures: plain, confident, numbers first.
    IDEA    the drag-strip timing system: every result is a timeslip, every status a starting-light tree.
    MARK    the traction circle: grip limit, axes, and the demand dot sitting on the limit.
@@ -15,14 +17,14 @@
 @font-face { font-family: "ESS Slip"; src: url("fonts/anonymous-bold.woff") format("woff"); font-weight: 700; font-display: swap; }
 
 :root {
-  --ig-asphalt: #1b1e1a;      /* dominant dark: header, hero bands */
-  --ig-asphalt-2: #272b25;
-  --ig-paper: #f3eee3;        /* page ground */
-  --ig-card: #fffcf4;
-  --ig-slip: #fbf8ef;         /* timeslip stock */
-  --ig-ink: #1b1d1a;
-  --ig-muted: #5a5f56;
-  --ig-line: #d6cebd;
+  --ig-asphalt: #16191c;      /* dominant dark: header, one hero band per page */
+  --ig-asphalt-2: #23272b;
+  --ig-paper: #f4f3ef;        /* page ground: neutral warm grey */
+  --ig-card: #ffffff;
+  --ig-slip: #fbfaf5;         /* timeslip stock */
+  --ig-ink: #17191b;
+  --ig-muted: #575c60;
+  --ig-line: #dcdad3;
   --ig-amber: #f2a81d;        /* staging amber: the one accent (fills, marks, focus on dark) */
   --ig-amber-ink: #8a5400;    /* amber for text on paper (≥ 4.5:1) */
   --ig-green: #2fae5b; --ig-green-ink: #1b7339;
@@ -33,7 +35,7 @@
   --ig-mono: "ESS Slip", "Anonymous Pro", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --ig-radius: 6px;
   /* Vehicle Lab and editorial tokens mapped onto the identity */
-  --ess-bg: var(--ig-paper); --ess-panel: var(--ig-card); --ess-raised: #e9e2d3; --ess-line: var(--ig-line);
+  --ess-bg: var(--ig-paper); --ess-panel: var(--ig-card); --ess-raised: #eceae4; --ess-line: var(--ig-line);
   --ess-text: var(--ig-ink); --ess-muted: var(--ig-muted); --ess-accent: var(--ig-amber-ink); --ess-mint: var(--ig-green-ink);
   --ess-warning: var(--ig-red-ink); --ess-header: var(--ig-asphalt); --ess-header-text: var(--ig-paper);
   --ess-header-accent: var(--ig-amber); --ess-focus: #2a6fd6; --ess-display: var(--ig-display); --ess-body: var(--ig-body); --ess-mono: var(--ig-mono);
@@ -274,3 +276,164 @@ body.ess-theme, body.ig { background: var(--ig-paper); color: var(--ig-ink); fon
   .ig-slip .big dd { font-size: 1.5rem; }
   .ig-slip { padding-inline: .8rem; }
 }
+
+/* =========================================================================================
+   v3 · restraint, compactness, gear chart
+   ========================================================================================= */
+/* Overflow safety: Safari sizes a <select> to its longest option; grid tracks must be allowed to shrink. */
+body.ess-theme, body.ig { overflow-x: clip; }
+.ig select, .ess-theme select { max-width: 100%; min-width: 0; }
+.ig label, .ig .pair-grid > *, .ig-ctl-pair > * { min-width: 0; }
+.ig .pair-grid, .ig .tool-controls { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 621px) { .ig .pair-grid { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); } }
+
+/* Type: Anton is the page-title voice only; everything else is Fira, sentence case. */
+.ess-theme h2, .ig h2, .ig .perf-workspace .panel h2, .ig-section > h2, .ig-article h2, .ig-next h2 {
+  font-family: var(--ig-body) !important; font-weight: 700 !important; text-transform: none !important; letter-spacing: -.01em !important; line-height: 1.2 !important; }
+.ig .perf-workspace .panel h2 { font-size: 1.12rem !important; margin: 0 0 .5rem !important; }
+.ig-section > h2 { font-size: clamp(1.4rem, 5.5vw, 1.9rem) !important; margin: 0 0 .8rem !important; }
+.ig-article h2 { font-size: clamp(1.35rem, 5vw, 1.7rem) !important; margin-top: 2rem !important; }
+.ig-article h1, .ig .perf-workspace .page-title h1, .ig-hero h1 { text-transform: none; letter-spacing: .005em; }
+.ig .perf-workspace .page-title h1 { font-size: clamp(2.1rem, 9.5vw, 3.2rem); }
+.ig-article h1 { font-size: clamp(2.3rem, 10vw, 3.6rem); }
+.ig-path strong, .ig-feature h3 { font: 700 1.05rem/1.25 var(--ig-body) !important; text-transform: none !important; }
+.ig .page-title { padding: .7rem 0 .4rem; }
+.ig .perf-workspace .lede { font-size: .98rem; margin: 0; }
+
+/* Car choice: chooser and reference cars in one compact block */
+.ig-car { display: grid; gap: .45rem; margin: .4rem 0 .6rem; }
+.ig-car .vehicle-select { display: grid; gap: .2rem; }
+.ig-car .vehicle-select > span { font-size: .8rem; font-weight: 700; color: var(--ig-muted); }
+.ig .perf-refs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .35rem; margin: 0; }
+@media (min-width: 560px) { .ig .perf-refs { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.ig .perf-refs .button { min-height: 44px; padding: .3rem .4rem; font-size: .86rem; }
+
+/* Compact wide timeslip (the tool's single drag-strip result) */
+.ig-slip-wide { padding: .65rem .8rem .7rem; }
+.ig-slip-wide .ig-slip-head { display: flex; justify-content: space-between; gap: .6rem; align-items: center; flex-wrap: wrap; padding-bottom: .35rem; }
+.ig-slip-launch { display: inline-flex; align-items: center; gap: .35rem; font: 700 .74rem var(--ig-body); text-transform: none; letter-spacing: 0; color: var(--level-ink); }
+.ig-slip-launch .ig-tree { grid-auto-flow: column; padding: 2px; } .ig-slip-launch .ig-lamp { width: 8px; height: 8px; }
+.ig-slip-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: .1rem .9rem; margin-top: .4rem; }
+.ig-slip-grid > div { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; }
+.ig-slip-grid > div > span { font-size: .74rem; text-transform: uppercase; letter-spacing: .03em; color: #55554c; white-space: nowrap; }
+.ig-slip-grid b { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ig-slip-grid b small { font-weight: 400; font-size: .78em; }
+.ig-slip-grid .big { grid-row: span 3; flex-direction: column; align-items: flex-start; justify-content: center; gap: 0; border-right: 1px dashed #8d8775; padding-right: .6rem; }
+.ig-slip-grid .big b { font-size: clamp(1.7rem, 8vw, 2.1rem); line-height: 1.05; }
+.ig-slip-grid .big small { font-size: .72rem; color: #55554c; white-space: normal; }
+.ig-slip-wide .ig-slip-foot { margin-top: .4rem; padding-top: .3rem; font-size: .72rem; }
+.perf-run-note { font-size: .84rem; color: var(--ig-muted); margin: .4rem 0 0; }
+.perf-run-note b { color: var(--ig-ink); }
+
+/* Gear chart */
+.gc { margin: .2rem 0 .4rem; }
+.gc-plot { --top: 1.1rem; --foot: 2.6rem; position: relative; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: .3rem; height: 168px; padding-top: var(--top);
+  border-bottom: 1px solid var(--ig-line); }
+.gc-compact .gc-plot { height: 124px; gap: .25rem; }
+.gc-limit { position: absolute; left: 0; right: 0; bottom: calc((100% - var(--top) - var(--foot)) / 2 + var(--foot)); border-top: 2px dashed var(--ig-ink); pointer-events: none; z-index: 1; }
+.gc-limit em { position: absolute; right: 0; top: -1.15rem; font: 600 .68rem var(--ig-body); font-style: normal; color: var(--ig-ink); background: var(--ig-card); padding: 0 .2rem; }
+.ig-hero .gc-limit, .ig-next .gc-limit { border-color: var(--ig-paper); }
+.ig-hero .gc-limit em, .ig-next .gc-limit em { color: var(--ig-paper); background: #1f2327; }
+.gc-col { display: grid; grid-template-rows: minmax(0, 1fr) 1.45rem 1.15rem; min-width: 0; height: 100%; padding: 0; margin: 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; border-radius: 4px; }
+span.gc-col { cursor: default; }
+.gc-bar { position: relative; display: block; border-radius: 3px 3px 0 0; background: #eceae4; }
+.ig-hero .gc-bar, .ig-next .gc-bar { background: #2c3136; }
+.gc-fill { position: absolute; left: 12%; right: 12%; bottom: 0; height: var(--h); background: var(--level); border-radius: 3px 3px 0 0; }
+.gc-col[data-level="red"] .gc-fill { background: repeating-linear-gradient(135deg, var(--ig-red) 0 6px, #c23a22 6px 9px); }
+.gc-val { position: absolute; left: 0; right: 0; bottom: calc(var(--h) + 2px); text-align: center; font: 700 .72rem var(--ig-mono); color: var(--ig-ink); white-space: nowrap; }
+.ig-hero .gc-val, .ig-next .gc-val, .ig-hero .gc-g, .ig-next .gc-g { color: var(--ig-paper); }
+.gc-g { font: 700 .82rem/1.45rem var(--ig-body); text-align: center; }
+.gc-s { font: 700 .62rem/1.15rem var(--ig-body); text-align: center; color: var(--level-ink); text-transform: uppercase; letter-spacing: .04em; }
+.ig-hero .gc-s, .ig-next .gc-s { color: var(--level); }
+.gc-col.on { background: #fdf1d8; box-shadow: inset 0 0 0 2px var(--ig-asphalt); }
+.gc-col.on .gc-g { text-decoration: underline; text-decoration-thickness: 3px; text-decoration-color: var(--ig-amber); text-underline-offset: 3px; }
+.gc-col:focus-visible { outline: 3px solid var(--ess-focus); outline-offset: 1px; }
+.gc-readout { display: grid; gap: .2rem; margin: .3rem 0 .2rem; }
+.gc-big { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; }
+.gc-big > b { font: 400 2.5rem/1 var(--ig-display); color: var(--level-ink); }
+.gc-big > span { display: inline-flex; align-items: center; gap: .45rem; }
+.gc-big .ig-tree { grid-auto-flow: column; padding: 3px; } .gc-big .ig-lamp { width: 11px; height: 11px; }
+.gc-big strong { color: var(--level-ink); font-size: 1.05rem; }
+.gc-readout p { margin: 0; font-size: .92rem; }
+.gc-facts { display: grid; gap: .15rem; margin: .5rem 0; font-size: .9rem; }
+.gc-facts > div { display: flex; justify-content: space-between; gap: .6rem; border-bottom: 1px solid var(--ig-line); padding: .2rem 0; }
+.gc-facts dt { color: var(--ig-muted); } .gc-facts dd { margin: 0; text-align: right; font-weight: 600; }
+.gc-facts small { display: block; font-weight: 400; color: var(--ig-muted); }
+.ig .perf-traction { border-top-width: 4px; }
+
+/* Controls: final drive row + tire/surface pair, feedback directly under them */
+.ig-ctl-row { display: grid; gap: .25rem; }
+.ig-ctl-label { font: 700 .85rem var(--ig-body); color: var(--ig-muted); display: flex; justify-content: space-between; }
+.ig-ctl-label output { font-family: var(--ig-mono); color: var(--ig-ink); }
+.ig .axle-ratio-picks { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(3.4rem, 1fr)); gap: .3rem; }
+.ig .axle-ratio-picks .button { padding: .2rem; min-height: 44px; display: grid; place-content: center; line-height: 1.1; }
+.ig .axle-ratio-picks .button small { display: block; font-size: .62rem; }
+.ig-ctl-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .45rem; margin-top: .55rem; }
+.ig-ctl-pair label { display: grid; gap: .2rem; font: 700 .85rem var(--ig-body); color: var(--ig-muted); }
+.ig-ctl-pair select { width: 100%; min-height: 44px; font-size: 1rem; }
+.ig .ig-feedback { background: #fdf6e6; color: var(--ig-ink); border: 1px solid #ecd9ae; }
+.ig .ig-feedback b { font-family: var(--ig-body); }
+.ig .perf-controls .explain { margin-top: .5rem; }
+
+/* Next experiment rows */
+.ig-step { grid-template-columns: minmax(0, 1fr) auto; padding: .45rem .65rem; border-left-width: 4px; }
+.ig-step b { grid-row: 1; grid-column: 2; font-size: 1rem; }
+.ig-step span { grid-column: 1 / -1; font-size: .8rem; }
+.ig-steps { gap: .35rem; }
+.ig-step-why { margin-bottom: .35rem; font-size: .86rem; }
+
+/* Disclosure panels that still say something useful when closed */
+.perf-tires-panel > summary { display: grid; gap: .1rem; cursor: pointer; min-height: 44px; padding: .1rem 0; }
+.ig-sum-title { font-weight: 700; font-size: 1.05rem; }
+.ig-sum-note { font-size: .84rem; color: var(--ig-muted); }
+.ig-tire-list button { min-height: 44px; padding: .3rem .5rem; }
+.ig-links { display: flex; flex-wrap: wrap; gap: .2rem 1rem; margin: .5rem 0; }
+.ig-links a { min-height: 44px; display: inline-flex; align-items: center; }
+.ig .perf-learn .route-card { margin-top: 0; }
+
+/* Homepage v3: one dark band; the hero carries a compact gear chart instead of a slip */
+.ig-hero { padding: 1.1rem max(1rem, 5vw) 1.4rem; }
+.ig-hero h1 { font-size: clamp(2.6rem, 11vw, 5rem); margin: .3rem 0 .5rem; }
+.ig-hero p.ig-lede { font-size: 1rem; margin-bottom: .7rem; }
+.ig-hero .ig-invite { margin-bottom: .6rem; }
+.ig-live, .ig-live-card { background: #1f2327; border: 1px solid #30353a; border-radius: var(--ig-radius); padding: .7rem .8rem .8rem; display: grid; gap: .35rem; color: var(--ig-paper); }
+.ig-live-head { display: flex; justify-content: space-between; gap: .5rem; align-items: baseline; flex-wrap: wrap; }
+.ig-live-head strong { font-size: .98rem; } .ig-live-head span { font: 700 .95rem var(--ig-mono); color: var(--ig-amber); white-space: nowrap; }
+.ig-live-cap { margin: 0; font-size: .74rem; }
+.ig-live .ig-hero-actions, .ig-live-card .ig-hero-actions { margin-top: .2rem; }
+.ig-paths { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: .45rem; }
+@media (min-width: 1020px) { .ig-paths { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; } }
+.ig-path { grid-template-columns: minmax(0, 1fr); padding: .7rem; border-left-width: 4px; gap: .15rem; }
+.ig-path svg { grid-row: auto; width: 24px; height: 24px; }
+.ig-path span { font-size: .84rem; line-height: 1.35; }
+.ig-section { padding: 1.3rem max(1rem, 5vw) .6rem; }
+.ig-feature { grid-template-columns: 96px minmax(0, 1fr) !important; gap: .8rem; padding: .8rem; align-items: start; }
+.ig-feature svg { max-width: 96px; }
+.ig-feature p { font-size: .92rem; margin-bottom: .5rem; }
+.ig-feature .ig-btn { padding: .5rem .8rem; font-size: .92rem; }
+@media (max-width: 380px) { .ig-feature { grid-template-columns: 72px minmax(0, 1fr) !important; } }
+
+/* Article v3: lighter callouts, early "try it" links, compact closing card */
+.ig-article .callout { background: var(--ig-card); color: var(--ig-ink); border: 1px solid var(--ig-line); border-left: 4px solid var(--ig-ink); }
+.ig-article .callout::before { filter: invert(1); }
+.ig-article .callout em { color: var(--ig-amber-ink); }
+.ig-jump { display: flex; flex-wrap: wrap; gap: .4rem; margin: .4rem 0 1rem; }
+.ig-jump a { display: inline-flex; align-items: center; min-height: 44px; padding: .2rem .8rem; border: 1px solid var(--ig-ink); border-radius: 999px; text-decoration: none; font-weight: 600; font-size: .92rem; }
+.ig-jump a.go { background: var(--ig-amber); border-color: var(--ig-amber); color: var(--ig-asphalt) !important; }
+.ig-next { padding: .9rem; gap: .5rem; }
+.ig-next p { font-size: .95rem; }
+.gc-val { padding: 0 2px; } .gc-val::before { content: ""; position: absolute; inset: 0 18%; background: var(--ig-card); z-index: -1; border-radius: 3px; }
+.gc-val { z-index: 2; isolation: isolate; }
+.ig-hero .gc-val::before, .ig-next .gc-val::before { background: #1f2327; }
+/* Sticky result appears only after the timeslip scrolls out of view (no duplicate at the top). */
+@media (max-width: 899px) {
+  .ig .perf-sticky { display: grid; position: fixed; top: 0; left: 0; right: 0; margin: 0; border-radius: 0; z-index: 20;
+    transform: translateY(-110%); transition: transform .18s ease; padding-inline: max(1rem, 4vw); }
+  .ig .perf-sticky.show { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .ig .perf-sticky { transition: none; } }
+.ig-article .callout::before { filter: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9.5' fill='none' stroke='%2317191b' stroke-width='2'/%3E%3Cpath d='M12 4.5v15M4.5 12h15' stroke='%2317191b' stroke-width='1' opacity='.5'/%3E%3Ccircle cx='18.7' cy='5.3' r='2.7' fill='%23f2a81d'/%3E%3C/svg%3E"); }
+.ig-slip-grid > div { min-width: 0; }
+.ig-slip-grid > div > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 360px) { .ig-slip-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: .1rem .6rem; } .ig-slip-grid > div > span { font-size: .68rem; } }
+.ig label, .ess-theme label { grid-template-columns: minmax(0, 1fr); }

@@ -43,3 +43,35 @@ test('finding sentence reads the gear-by-gear result', () => {
   assert.match(finding(z), new RegExp(`${Math.round(z.gearRows[0].utilization * 100)}%`));
   assert.match(finding(z), /grip-limited/);
 });
+
+import { gearChart } from '../../experience/identity.mjs';
+import { snapshot, launchCheck } from '../../experience/performance-view.mjs';
+import { byGear, tractionCheck } from '../../engine/traction.mjs';
+import { resolve } from '../../experience/models.mjs';
+
+test('gear chart shows byGear utilisation for every gear (owner Z06 reference)', () => {
+  const s = newSetup('corvette');
+  const m = perfModel(s, perfDefaults());
+  const html = gearChart(m.gearRows, { selected: 1 });
+  const shown = [...html.matchAll(/class="gc-val">(\d+)%/g)].map(x => +x[1]);
+  assert.deepEqual(shown, byGear(resolve(s), { tire: 'extremeSummer', surface: 'dryAsphalt' }).map(r => Math.round(r.utilization * 100)));
+  assert.deepEqual(shown, [155, 108, 75, 52, 44, 29]);
+  assert.equal((html.match(/aria-pressed="true"/g) ?? []).length, 1);
+  assert.match(html, /2nd gear: 108% of grip, on the edge/);
+});
+
+test('launch check is always 1st gear at the launch rpm, whatever gear is inspected', () => {
+  const s = newSetup('firebird'); // torque peak 2,400 rpm is below the 3,000 rpm manual launch
+  const v = resolve(s);
+  const m = perfModel(s, { ...perfDefaults(), gear: 2 });
+  assert.deepEqual(launchCheck(m), tractionCheck(v, { tire: 'radial70s', surface: 'dryAsphalt', gear: 0 }));
+});
+
+test('feedback snapshot equals the page result', () => {
+  for (const id of ['corvette', 'gto']) {
+    const s = newSetup(id); const m = perfModel(s, perfDefaults());
+    const snap = snapshot(s, perfDefaults());
+    assert.equal(snap.et, m.accel.et);
+    assert.equal(snap.launch, launchCheck(m).utilization);
+  }
+});

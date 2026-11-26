@@ -5,7 +5,7 @@ import { getActive, useConfig } from './configuration.mjs';
 import { newSetup } from './models.mjs';
 import { setupName } from './matchup.mjs';
 import { escape, fmt } from './ui.mjs';
-import { slip, tree, lamp, lights, ordinal, secs } from './identity.mjs';
+import { lights, ordinal, gearChart } from './identity.mjs';
 
 /** Tire classes in period order for the "the circle got bigger" figure. Lateral grip = class typical × lateral ratio. */
 export const circleClasses = ['bias', 'radial70s', 'perf80s', 'maxSummer', 'extremeSummer'].map((id, i) => {
@@ -46,21 +46,20 @@ export function finding(m) {
   return `Even in 1st it uses only <b>${fmt(first.utilization * 100)}%</b> of the grip: the engine and gearing, not the tires, set the pace.`;
 }
 
-/** Live slip card for the homepage hero and article endings. `labRoot` is the path to /experience/. */
-export function liveCard(labRoot, { dark = true } = {}) {
+/**
+ * Live result card for the homepage hero and the article ending: the visitor's car (or the public Z06 reference),
+ * its quarter mile, and the compact gear chart. The timeslip stays in the tool, where a drag-strip result lives.
+ */
+export function liveCard(labRoot) {
   const { setup, example } = liveSetup();
   const m = perfModel(setup, perfDefaults());
   const name = escape(setupName(setup));
-  const lightsRow = m.gearRows.length ? `<div class="ig-live-gears" aria-label="Traction by gear">${m.gearRows.map(r =>
-    `<span data-level="${r.status}">${lamp(r.status)}${ordinal(r.gear)}</span>`).join('')}</div>` : '';
-  const ticket = m.accel ? slip(`${name}${example ? ' · example' : ''}`, [
-    ['Quarter mile', secs(m.accel.et), 'big'], ['Finish speed', fmt(m.accel.trap) + '<small> mph</small>'], ['0–60 mph', secs(m.accel.zeroTo60, 1)],
-    ['Launch', escape(lights[m.check.status].word)],
-  ], `${escape(m.tire === 'setup' ? 'Vehicle grip input' : tireClasses[m.tire].label)} · dry`)
-    : slip(name, [['Quarter mile', '—', 'big'], ['Needs', escape((m.quarterMissing.length ? m.quarterMissing : ['data']).join(', '))]]);
-  return { m, example, setup, html: `${ticket}${lightsRow}
+  const chart = gearChart(m.gearRows, { interactive: false, compact: true, label: `${setupName(setup)}: share of tire grip used in each gear` });
+  return { m, example, setup, html: `<div class="ig-live-head"><strong>${name}${example ? ' · example' : ''}</strong>
+      <span>${m.accel ? 'Quarter mile ' + fmt(m.accel.et, 2) + ' s' : 'Needs ' + escape((m.quarterMissing.length ? m.quarterMissing : ['data']).join(', '))}</span></div>
+    ${chart}
     <p class="ig-live-find" data-level="${m.gearRows[0]?.status ?? 'missing'}">${finding(m)}</p>
-    <div class="ig-hero-actions"><a class="ig-btn ${dark ? 'go' : 'go'}" href="${labRoot}#performance" data-live-open>Change the gear or tire →</a></div>` };
+    <div class="ig-hero-actions"><a class="ig-btn go" href="${labRoot}#performance" data-live-open>Change the gear or tire →</a></div>` };
 }
 
 /** Make sure the lab opens on the car the card showed (the example car becomes the active car only on tap). */
