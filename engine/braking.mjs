@@ -144,11 +144,12 @@ export function brakingStop(v, { from = 60, to = 0, ...options } = {}) {
     // during the ramp only the resistance is at full strength; the brakes build linearly
     const brakeLb = (d.front + d.rear) * ramp;
     const a = (brakeLb + d.resistance) / v.weight * G; // ft/s²
-    let dt = o.dt;
-    if (speed - a * dt < end) dt = (speed - end) / a;
+    let dt = o.dt, last = false;
+    if (speed - a * dt <= end) { dt = (speed - end) / a; last = true; }
     x += speed * dt - a * dt * dt / 2;
     energyF += d.front * ramp * speed * dt; energyR += d.rear * ramp * speed * dt;
-    speed -= a * dt; t += dt;
+    // Land exactly on the end speed: floating point could otherwise leave a tiny positive speed and loop forever.
+    speed = last ? end : speed - a * dt; t += dt;
     if (trace.length === 0 || t - trace[trace.length - 1].t >= .05) trace.push({ t: +t.toFixed(3), mph: speed / MPH, ft: x, g: a / G });
   }
   const mean = ((from * MPH) ** 2 - end ** 2) / (2 * x) / G;
