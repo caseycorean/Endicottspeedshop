@@ -6,24 +6,24 @@
 <div class="panel"><h2>1 · Your car now</h2>
 <div class="fields">
 <div><label for="mode">Start from</label><select id="mode"><option value="corners">Four corner weights</option><option value="total" selected>Total weight + front %</option></select></div>
-<div><label for="wb">Wheelbase (in)</label><input id="wb" inputmode="decimal" value="108"></div>
-<div><label for="tf">Front track (in)</label><input id="tf" inputmode="decimal" value="61"></div>
-<div><label for="tr">Rear track (in)</label><input id="tr" inputmode="decimal" value="60"></div>
+<div><label for="wb">Wheelbase (in)</label><input id="wb" inputmode="decimal" value="104"></div>
+<div><label for="tf">Front track (in)</label><input id="tf" inputmode="decimal" value="62"></div>
+<div><label for="tr">Rear track (in)</label><input id="tr" inputmode="decimal" value="61"></div>
 </div>
 <div class="fields" id="totalFields" style="margin-top:12px">
-<div><label for="tot">Total weight (lb)</label><input id="tot" inputmode="decimal" value="2786"></div>
-<div><label for="fpct">Front weight (%)</label><input id="fpct" inputmode="decimal" value="51"></div>
+<div><label for="tot">Total weight (lb)</label><input id="tot" inputmode="decimal" value="3200"></div>
+<div><label for="fpct">Front weight (%)</label><input id="fpct" inputmode="decimal" value="54"></div>
 <div><label for="lpct">Left side weight (%)</label><input id="lpct" inputmode="decimal" value="50"></div>
 <div><label for="hcg">CG height (in, optional)</label><input id="hcg" inputmode="decimal" placeholder="e.g. 19"></div>
 </div>
 <div class="fields" id="cornerFields" style="margin-top:12px;display:none">
-<div><label for="lf">Left front (lb)</label><input id="lf" inputmode="decimal" value="710"></div>
-<div><label for="rf">Right front (lb)</label><input id="rf" inputmode="decimal" value="711"></div>
-<div><label for="lr">Left rear (lb)</label><input id="lr" inputmode="decimal" value="682"></div>
-<div><label for="rr">Right rear (lb)</label><input id="rr" inputmode="decimal" value="683"></div>
+<div><label for="lf">Left front (lb)</label><input id="lf" inputmode="decimal" value="880"></div>
+<div><label for="rf">Right front (lb)</label><input id="rf" inputmode="decimal" value="848"></div>
+<div><label for="lr">Left rear (lb)</label><input id="lr" inputmode="decimal" value="720"></div>
+<div><label for="rr">Right rear (lb)</label><input id="rr" inputmode="decimal" value="752"></div>
 <div><label for="hcg2">CG height (in, optional)</label><input id="hcg2" inputmode="decimal" placeholder="e.g. 19"></div>
 </div>
-<p class="hint">Example values: the ESS green car, July 2026 (2,786 lb, 51% front, not yet complete). CG height can't be found from flat scales alone; enter an estimate (or a value from a tilt test) to see how parts move it. Leave it blank to skip height.</p>
+<p class="hint">Illustrative starting values for a 3,200 lb car. Replace them with your own scale readings. CG height can't be found from flat scales alone; enter an estimate (or a value from a tilt test) to see how parts move it. Leave it blank to skip height.</p>
 </div>
 
 <div class="panel"><h2>2 · Changes</h2>
@@ -65,7 +65,7 @@
 
 <div class="section narrow"><div class="section-label">How it works</div>
 <p>Each part's weight times its distance from the front axle is a moment. Removing a part takes its moment away; adding one puts a moment in; moving one does both; replacing one removes the old part and adds the new one. The new center of gravity is the total moment divided by the new total weight; front weight follows from where that center sits between the axles. The same arithmetic gives side-to-side balance and, when you supply a starting height, CG height.</p>
-<p>Part weights marked <span class="badge">measured</span> were weighed by ESS (see <a href="../../articles/measured-firebird-weights/">what each includes</a>); <span class="badge">typical</span> values are reasonable starting points, not measurements. Locations in the list are typical estimates for a second-gen F-body — edit them for your car. Measured weights include different hardware (for example, the stock subframe was weighed on its wheels and the C5 assembly without), so when you replace one with another, make sure the two include the same parts.</p></div>
+<p>Part weights marked <span class="badge">measured</span> were weighed by ESS (see <a href="../../build/">how ESS records measurements</a>); <span class="badge">typical</span> values are reasonable starting points, not measurements. Locations in the list are typical estimates for a second-gen F-body — edit them for your car. Measured weights include different hardware (for example, the stock subframe was weighed on its wheels and the C5 assembly without), so when you replace one with another, make sure the two include the same parts.</p></div>
 </main>
 <script>
 (function(){

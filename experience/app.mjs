@@ -1,3 +1,5 @@
+import "./lab-measurement.mjs";
+import { track } from './measurement.mjs';
 import { vehicles, vehicleIds, customEstimates } from './vehicles.mjs';
 import { resolve, massIssue, choices, cleanSetup, newSetup, presets, validValue, usableSetup } from './models.mjs';
 import { example, clone, modified, shareFragment, readFragment, getSaved, saveBuild, getGarage, saveToGarage, removeFromGarage, shareResult, getActive, useConfig, laneKeys, lanes, labelLane, modeOf } from './configuration.mjs';
@@ -19,6 +21,14 @@ import { labJourneyHtml, experiments as journeyExperiments } from './journey.mjs
 import { performanceView, performanceExplain, loadPerf, savePerf, perfDefaults, cleanPerf, shareSummary, summaryHtml, tractionHtml, tireTableHtml, feedbackHtml, perfModel, snapshot, launchPanelHtml, withConditions, effectivePerf } from './performance-view.mjs';
 
 const app = document.querySelector('#app');
+const raceCapability = event => event === 'oval' ? 'oval' : 'strip';
+const query = new URLSearchParams(location.search);
+try {
+  if (!sessionStorage.getItem('ess.visit.v1')) {
+    sessionStorage.setItem('ess.visit.v1', '1');
+    if (getGarage().length) track('return_visit', {capability:'garage'});
+  }
+} catch { /* Storage may be unavailable. */ }
 installCatalog();
 const notice = document.querySelector('#link-notice');
 const status = document.querySelector('#status');
@@ -75,6 +85,7 @@ const withPerf = () => ({...state, perf: {tire: perf.tire, surface: perf.surface
 
 function experimentUrl(page = 'compare') {
   const url = new URL('./', location.href);
+  url.searchParams.set('via', 'share');
   url.hash = shareFragment(page.startsWith('performance') ? withPerf() : page === 'suspension' ? withSusp() : state, page);
   return url.href;
 }
@@ -89,6 +100,7 @@ function navigate(next) {
   window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
+let openedShare = false;
 function applyLocation() {
   const route = readFragment(location.hash);
   if (route.state) {
@@ -102,13 +114,20 @@ function applyLocation() {
         state[state.focus + 'Mode'] = 'after';
       }
     }
-    sharedLinkNotice = route.view === 'suspension' ? 'Shared suspension experiment: same car, springs and geometry, shown in your units. Move one thing to see what it does.' : perfViews.includes(route.view) ? 'Shared experiment: same car, gearing, tire and surface. Change one thing to see what it does.'
+    if (!openedShare && query.get('via') === 'share') {
+      openedShare = true;
+      track('share_open', {capability: route.view === 'compare' ? raceCapability(state.event) : route.view});
+    }
+    sharedLinkNotice = query.get('via') === 'reference' ? 'Factory reference loaded. Add a measurement or try a change.' : route.view === 'suspension' ? 'Shared suspension experiment: same car, springs and geometry, shown in your units. Move one thing to see what it does.' : perfViews.includes(route.view) ? 'Shared experiment: same car, gearing, tire and surface. Change one thing to see what it does.'
       : 'Shared experiment. Try a change or run the comparison to see it play out.';
   } else if (route.invalid) {
+    track('invalid_setup', {outcome:'blocked'});
     state = initialState(false);
     sharedLinkNotice = 'This experiment link could not be restored. The default matchup is ready to try.';
   } else {
     sharedLinkNotice = '';
+    if (query.get('custom') === '1' && route.view === 'build') state = {...example(), a:newSetup('custom')};
+    if (route.view === 'compare' && query.get('event') === 'oval') state.event = 'oval';
   }
   render(route.view);
   if (route.view === 'build') {
@@ -210,10 +229,15 @@ function changeFocused(next) {
 }
 
 function commitExperiment(next, message) {
-  if (!usableSetup(next)) return false;
+  track('experiment_start', {capability:view});
+  if (!usableSetup(next)) {
+    track('missing_inputs', {capability:view, outcome:'blocked'});
+    return false;
+  }
   changeFocused(next);
   render(view, true);
   speak(message);
+  if (!massIssue(resolve(next))) track('experiment_result', {capability:view, outcome:'ready'});
   return true;
 }
 
@@ -375,6 +399,7 @@ app.addEventListener('change', event => {
 });
 
 function stopReplay() {
+  recordReplayExit();
   if (replay?.frame) cancelAnimationFrame(replay.frame);
   replay = null;
 }
@@ -382,6 +407,7 @@ function stopReplay() {
 function setReplay(entries) {
   stopReplay();
   const playable = entries.filter(e => e.run.trace);
+  if (playable.length < entries.length) track('missing_inputs', {capability:raceCapability(state.event), outcome:'blocked'});
   replay = {entries, playable, event: state.event ?? 'strip', elapsed: 0,
     duration: Math.max(0, ...playable.map(e => e.run.trace.at(-1).t))};
   updateReplay(0);
@@ -412,10 +438,15 @@ function play(button) {
     button.textContent = 'Resume comparison';
     return;
   }
-  if (replay.elapsed >= replay.duration) updateReplay(0);
+  if (replay.elapsed === 0 || replay.elapsed >= replay.duration) {
+    track('simulator_start', {capability:raceCapability(replay.event)});
+    updateReplay(0);
+  }
+  replay.attempted = true;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     updateReplay(replay.duration);
     button.textContent = 'Show final result';
+    recordReplayResult();
     return;
   }
   let lastFrame = performance.now();
@@ -426,13 +457,24 @@ function play(button) {
     lastFrame = now;
     updateReplay(t);
     if (t < replay.duration) replay.frame = requestAnimationFrame(tick);
-    else { replay.frame = null; button.textContent = 'Replay comparison'; }
+    else { replay.frame = null; button.textContent = 'Replay comparison'; recordReplayResult(); }
   };
   replay.frame = requestAnimationFrame(tick);
 }
 
+function recordReplayResult() {
+  track('simulator_result', {capability:raceCapability(replay.event), outcome:'ready'});
+  replay.attempted = false;
+}
+function recordReplayExit() {
+  if (!replay?.attempted) return;
+  track('experiment_exit', {capability:raceCapability(replay.event), outcome:'no_result'});
+  replay.attempted = false;
+}
+window.addEventListener('pagehide', recordReplayExit);
 function resetProgress() {
   if (!replay) return;
+  recordReplayExit();
   if (replay.frame) cancelAnimationFrame(replay.frame);
   replay.frame = null;
   updateReplay(0);
@@ -468,6 +510,7 @@ function refreshComparison() {
   const playable = Boolean(replay.duration);
   for (const action of ['play', 'share', 'restart']) app.querySelector(`[data-action="${action}"]`).disabled = !playable;
   app.querySelector('[data-action="play"]').textContent = 'Run comparison';
+  app.querySelector('[data-action="reveal-replay"]').disabled = !playable;
   byId('scrubber').disabled = !playable;
   rememberDraft();
 }
@@ -475,7 +518,9 @@ function refreshComparison() {
 async function perfShare() {
   const url = experimentUrl('performance');
   const target = byId('perf-share-feedback');
+  track('share_attempt', {capability:'performance'});
   const result = await shareResult(url, 'ESS gearing and traction experiment', shareSummary(perfModel(active(), perf)));
+  track('share_outcome', {capability:'performance', outcome:result});
   if (!target?.isConnected || result === 'cancelled') return;
   target.replaceChildren();
   if (result === 'copied') target.append('Link copied. ');
@@ -519,7 +564,10 @@ async function share() {
   });
   const summary = 'Estimated ' + currentEvent + ' · ' + results.join(' vs. ');
   const target = byId('share-feedback');
+  const capability = raceCapability(replay.event);
+  track('share_attempt', {capability});
   const result = await shareResult(url, title, summary);
+  track('share_outcome', {capability, outcome:result});
   if (!target.isConnected || result === 'cancelled') return;
   target.replaceChildren();
   if (result === 'copied') target.append('Link copied. ');
@@ -780,7 +828,7 @@ document.addEventListener('click', event => {
     speak('The listed model estimates have been applied to this setup.');
     return;
   }
-  if (el.dataset.event) { state.event = el.dataset.event; render(view, true); return; }
+  if (el.dataset.event) { state.event = el.dataset.event; track('simulator_discovery', {capability:raceCapability(state.event)}); render(view, true); return; }
   if (el.dataset.focusLane) { state.focus = el.dataset.focusLane; render(view, true); return; }
   if (el.dataset.useLane) { carryLane(el.dataset.useLane); return; }
   if (el.dataset.dropLane) {
@@ -858,6 +906,7 @@ document.addEventListener('click', event => {
         saved = clone(active());
         render(view, true);
         speak('Variant saved to My Garage.');
+        track('configuration_save', {capability:'garage', outcome:'saved'});
       }
       else speak('This browser could not save the build. The temporary experiment is still open.');
       break;
@@ -872,6 +921,16 @@ document.addEventListener('click', event => {
       break;
     }
     case 'same-change': sameChange(); break;
+    case 'reveal-replay': {
+      const details = byId('replay-details');
+      details.open = true;
+      const button = details.querySelector('[data-action="play"]');
+      button.focus({preventScroll:true});
+      details.scrollIntoView({block:'start'});
+      track('simulator_discovery', {capability:raceCapability(replay.event)});
+      play(button);
+      break;
+    }
     case 'play': play(el); break;
     case 'share': share(); break;
   }

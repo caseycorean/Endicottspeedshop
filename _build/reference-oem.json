@@ -1,0 +1,332 @@
+{
+  "sx-2004-porsche-carrera-gt": {
+    "url": "https://newsroom.porsche.com/en_AU/2020/history/porsche-klassik-20-years-carrera-gt-22826.html",
+    "publisher": "Porsche Newsroom",
+    "scope": "2004 example in the 2003–06 production series. Factory series specifications; market-specific test conditions are unspecified.",
+    "fields": {
+      "engine": [
+        [
+          "Engine",
+          "Naturally aspirated V10"
+        ],
+        [
+          "Displacement",
+          5733,
+          "cc"
+        ],
+        [
+          "Rated power",
+          450,
+          "kW"
+        ],
+        [
+          "Rated power (metric horsepower)",
+          612,
+          "PS"
+        ],
+        [
+          "Power peak",
+          8000,
+          "rpm"
+        ],
+        [
+          "Rated torque",
+          590,
+          "N·m"
+        ],
+        [
+          "Torque peak",
+          5750,
+          "rpm"
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual with ceramic clutch"
+        ]
+      ],
+      "weight": [
+        [
+          "Factory kerb weight",
+          1380,
+          "kg"
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          2730,
+          "mm"
+        ],
+        [
+          "Length",
+          4613,
+          "mm"
+        ],
+        [
+          "Width",
+          1921,
+          "mm"
+        ],
+        [
+          "Height",
+          1166,
+          "mm"
+        ]
+      ],
+      "performance": [
+        [
+          "0–100 km/h (manufacturer)",
+          3.9,
+          "s"
+        ],
+        [
+          "Top speed (manufacturer)",
+          330,
+          "km/h"
+        ]
+      ]
+    }
+  },
+  "sx-2002-aston-martin-vanquish": {
+    "url": "https://www.astonmartin.com/en-gb/models/past-models/vanquish-vanquish-s",
+    "publisher": "Aston Martin",
+    "scope": "2002 original V12 Vanquish. Manufacturer series specifications for the original powertrain; Vanquish S figures are excluded.",
+    "fields": {
+      "engine": [
+        [
+          "Engine",
+          "V12"
+        ],
+        [
+          "Displacement",
+          5935,
+          "cc"
+        ],
+        [
+          "Rated power",
+          460,
+          "bhp"
+        ],
+        [
+          "Power peak",
+          6500,
+          "rpm"
+        ],
+        [
+          "Rated torque",
+          400,
+          "lbs-ft"
+        ],
+        [
+          "Torque peak",
+          5000,
+          "rpm"
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed automated manual, electro-hydraulic paddle control"
+        ]
+      ],
+      "weight": [
+        [
+          "Manufacturer weight",
+          1835,
+          "kg"
+        ]
+      ],
+      "dimensions": [
+        [
+          "Length",
+          4665,
+          "mm"
+        ],
+        [
+          "Width",
+          1923,
+          "mm"
+        ],
+        [
+          "Height",
+          1318,
+          "mm"
+        ]
+      ],
+      "brakes": [
+        [
+          "Front brakes",
+          "Ventilated discs"
+        ],
+        [
+          "Rear brakes",
+          "Ventilated discs"
+        ]
+      ]
+    }
+  },
+  "sx-2005-ford-gt": {
+    "title": "2005 Ford GT · six-speed manual",
+    "url": "https://ponynsnake.com/wp-content/uploads/2023/07/Brochure-2005-Ford-GT.pdf",
+    "publisher": "Ford Motor Company brochure, archived copy",
+    "scope": "US 2005 production coupe with the six-speed manual. Standard wheels and tires shown.",
+    "fields": {
+      "engine": [
+        [
+          "Engine",
+          "Supercharged DOHC V8"
+        ],
+        [
+          "Displacement",
+          5.4,
+          "L"
+        ],
+        [
+          "Rated power",
+          550,
+          "hp"
+        ],
+        [
+          "Power peak",
+          6500,
+          "rpm"
+        ],
+        [
+          "Rated torque",
+          500,
+          "lb-ft"
+        ],
+        [
+          "Torque peak",
+          3750,
+          "rpm"
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual"
+        ],
+        [
+          "Final drive ratio",
+          3.36,
+          "ratio"
+        ]
+      ],
+      "tires": [
+        [
+          "Front tire size",
+          "235/45ZR18"
+        ],
+        [
+          "Rear tire size",
+          "315/40ZR19"
+        ],
+        [
+          "Front wheel diameter",
+          18,
+          "in"
+        ],
+        [
+          "Rear wheel diameter",
+          19,
+          "in"
+        ]
+      ],
+      "suspension": [
+        [
+          "Front suspension",
+          "Double wishbone"
+        ],
+        [
+          "Rear suspension",
+          "Double wishbone"
+        ]
+      ]
+    }
+  },
+  "sx-2005-corvette-coupe": {
+    "title": "2005 Chevrolet Corvette Coupe · six-speed manual",
+    "url": "https://www.gm.com/content/dam/company/no_search/heritage-archive-docs/vehicle-information-kits/chevrolet/2005-Chevrolet-Corvette.pdf",
+    "publisher": "GM Heritage Archive",
+    "scope": "US 2005 C6 coupe with the six-speed manual. Base coupe dimensions and weight shown. The archive does not identify the Z51 option, so package-specific gearing and test figures are omitted.",
+    "fields": {
+      "engine": [
+        [
+          "Engine",
+          "LS2 V8"
+        ],
+        [
+          "Displacement",
+          6.0,
+          "L"
+        ],
+        [
+          "Rated power",
+          400,
+          "hp"
+        ],
+        [
+          "Rated torque",
+          400,
+          "lb-ft"
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual"
+        ]
+      ],
+      "weight": [
+        [
+          "Base coupe curb weight",
+          3179,
+          "lb"
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          105.75,
+          "in"
+        ],
+        [
+          "Length",
+          174.6,
+          "in"
+        ],
+        [
+          "Width without mirrors",
+          72.6,
+          "in"
+        ],
+        [
+          "Height",
+          49.0,
+          "in"
+        ],
+        [
+          "Front track",
+          62.1,
+          "in"
+        ],
+        [
+          "Rear track",
+          60.7,
+          "in"
+        ]
+      ],
+      "capacities": [
+        [
+          "Fuel tank capacity",
+          18,
+          "US gal",
+          "Approximate, per January 2005 GM specifications."
+        ]
+      ]
+    }
+  }
+}

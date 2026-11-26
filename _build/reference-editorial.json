@@ -1,0 +1,180 @@
+{
+  "curated": {
+    "chevrolet-c10-1st-gen--1963-c10-283-m3-short-fleetside": {
+      "disposition": "candidate",
+      "title": "1963 Chevrolet C10 · short-wheelbase chassis",
+      "scope": "1963 short-wheelbase C10 pickup. Chassis specifications apply to the standard front coil configuration. Engine-specific output and 1964–66 applicability remain open.",
+      "reason": "Factory series documentation establishes a useful 1963 chassis and standard front wheel rate. The legacy 283 rating and broader model-year range are omitted.",
+      "publisher": "Chevrolet truck specifications · GM Heritage",
+      "url": "https://news.chevrolet.com/content/dam/company/no_search/heritage-archive-docs/vehicle-information-kits/chevrolet-trucks/1963-Chevrolet-Truck.pdf",
+      "evidence": "manufacturer",
+      "fields": {
+        "chassis": [
+          [
+            "Drive layout",
+            "C10 two-wheel drive",
+            ""
+          ]
+        ],
+        "dimensions": [
+          [
+            "Wheelbase",
+            115,
+            "in"
+          ]
+        ],
+        "suspension": [
+          [
+            "Front spring type",
+            "Coil",
+            ""
+          ],
+          [
+            "Front deflection rate at the wheel",
+            173,
+            "lb/in",
+            "Standard coil spring table, per wheel. Excludes panels, carryalls and cowl models."
+          ]
+        ]
+      },
+      "additional": [
+        [
+          "Chevrolet light-duty brochure · Canadian chassis selector",
+          "https://xr793.com/wp-content/uploads/2021/08/1963-Chevrolet-Light-Duty-Trucks-CN.pdf",
+          [
+            "Wheelbase"
+          ]
+        ]
+      ],
+      "route": "1963-chevrolet-c10-short-wheelbase"
+    },
+    "chevrolet-c10-3rd-gen--1978-c10-350-a3-short-fleetside": {
+      "disposition": "candidate",
+      "title": "1978 Chevrolet C10 · short-bed Fleetside",
+      "scope": "1978 US regular-cab, two-wheel-drive short-bed Fleetside. The factory order guide verifies the body and chassis. Weight and precise powertrain ratings can vary by equipment.",
+      "reason": "GM order guide verifies the short Fleetside configuration. Replaces the adjacent-year weight and suspension claims with the matched 1978 specifications.",
+      "publisher": "Chevrolet 1978 truck specification kit · GM Heritage",
+      "url": "https://www.gm.com/content/dam/company/no_search/heritage-archive-docs/vehicle-information-kits/chevrolet-trucks/1978-Chevrolet-Truck.pdf",
+      "evidence": "manufacturer",
+      "fields": {
+        "chassis": [
+          [
+            "Model number",
+            "CC10703",
+            ""
+          ],
+          [
+            "Fleetside body code",
+            "E63",
+            ""
+          ],
+          [
+            "Driven wheels",
+            "Rear",
+            ""
+          ]
+        ],
+        "dimensions": [
+          [
+            "Wheelbase",
+            117.5,
+            "in"
+          ],
+          [
+            "Bed length",
+            6.5,
+            "ft"
+          ]
+        ]
+      },
+      "route": "1978-chevrolet-c10-short-bed-fleetside"
+    },
+    "ford-f100-5th-gen--1967-f100-352-m3-115wb-styleside": {
+      "disposition": "candidate",
+      "title": "1967 Ford F-100 · 115-inch Styleside",
+      "scope": "Short-wheelbase two-wheel-drive Styleside. The reproduced Ford data are for the base chassis, with its engine unspecified. VIN code Y identifies the optional 352 V8.",
+      "reason": "Ford’s sales data reproduce the exact Styleside wheelbase and base axle weights. The base curb number is excluded from the 352-specific setup.",
+      "publisher": "Ford sales literature · Fordification transcription",
+      "url": "https://www.lmctruck.fordification.com/tech/dimensions.htm",
+      "evidence": "published",
+      "fields": {
+        "dimensions": [
+          [
+            "Wheelbase",
+            115,
+            "in"
+          ],
+          [
+            "Overall length",
+            191.3,
+            "in"
+          ]
+        ],
+        "weight": [
+          [
+            "Base front axle weight",
+            2010,
+            "lb",
+            "Ford’s base chassis figure; engine unspecified."
+          ],
+          [
+            "Base rear axle weight",
+            1450,
+            "lb",
+            "Same base chassis and load state."
+          ],
+          [
+            "Base curb weight",
+            3460,
+            "lb",
+            "Same base chassis and load state."
+          ]
+        ],
+        "engine": [
+          [
+            "Optional 352 V8 engine code",
+            "Y",
+            "",
+            "VIN engine position. This engine is not established for the base weights."
+          ]
+        ]
+      },
+      "additional": [
+        [
+          "Ford truck VIN reference · Fordification",
+          "https://extension.fordification.com/tech/VIN67.htm",
+          [
+            "Optional 352 V8 engine code"
+          ]
+        ]
+      ],
+      "route": "1967-ford-f-100-115-inch-styleside"
+    }
+  },
+  "archive_holds": {
+    "sx-2005-ferrari-575-gtc": {
+      "class": "Unresolved version",
+      "reason": "Capture title says 2005 but the April 2004 capture and numerical signature resemble the original 2003–04 F133 575 GTC. The 2005 Evoluzione is separately documented. Need chassis or source evidence before assigning this entry to either version."
+    },
+    "sx-1970-mercury-cougar-eliminator": {
+      "class": "Unresolved engine and transmission",
+      "reason": "The archived 290 hp and 385 lb-ft pair matches the registry’s 1969 Windsor column. The 1970 Cleveland row differs and early 1970 material also mentions Windsor substitutions. Need engine family and four-speed evidence before publishing this exact record."
+    },
+    "sx-1986-porsche-959": {
+      "class": "Unresolved year and version",
+      "reason": "Porsche’s public heritage material identifies the 1987 museum Coupé and 1987–88 series. The archive’s 1986 designation does not identify the prototype, press car, Sport or Komfort version. Need original test or chassis context."
+    },
+    "sx-1998-dodge-viper-gts-acr": {
+      "class": "Conflicting model-year identity",
+      "reason": "Contemporary and marque sources report the ACR launch in the 1999 model year. The 1998 label may refer to another GTS or a package applied later; need VIN or the original test before renaming or merging."
+    },
+    "sx-1970-dodge-challenger-r-t": {
+      "class": "Conflicting configuration identity",
+      "reason": "Archived 275 hp, 340 lb-ft and 110-inch wheelbase point away from the indexed Challenger R/T and look more like a 340 E-body. Need source or vehicle identification. Keep separate from the curated automatic Hemi."
+    },
+    "sx-pontiac-v8-archie-fiero-v8": {
+      "class": "Modified build provenance",
+      "reason": "The archived kit conversion omits a model year and traceable engine, transaxle and performance test provenance. Need a build record or exact period feature before attributing 300 hp or other hardware to a specific car."
+    }
+  }
+}

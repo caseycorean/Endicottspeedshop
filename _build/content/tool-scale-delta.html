@@ -3,17 +3,17 @@
 <h1>Part Weight from Corner Scales</h1>
 <p class="lede">Weigh the car on four corner scales, remove a part (or install one), and weigh again. The difference tells you the part's weight — and how it splits between the axles tells you where it sat. No need to lift an engine onto a bathroom scale.</p>
 <div class="panel"><h2>Before</h2><div class="fields">
-<div><label for="b_lf">Left front</label><input id="b_lf" inputmode="decimal" value="582"></div><div><label for="b_rf">Right front</label><input id="b_rf" inputmode="decimal" value="608"></div>
-<div><label for="b_lr">Left rear</label><input id="b_lr" inputmode="decimal" value="760"></div><div><label for="b_rr">Right rear</label><input id="b_rr" inputmode="decimal" value="716"></div></div></div>
+<div><label for="b_lf">Left front</label><input id="b_lf" inputmode="decimal" value="810"></div><div><label for="b_rf">Right front</label><input id="b_rf" inputmode="decimal" value="790"></div>
+<div><label for="b_lr">Left rear</label><input id="b_lr" inputmode="decimal" value="743"></div><div><label for="b_rr">Right rear</label><input id="b_rr" inputmode="decimal" value="757"></div></div></div>
 <div class="panel"><h2>After</h2><div class="fields">
-<div><label for="a_lf">Left front</label><input id="a_lf" inputmode="decimal" value="355"></div><div><label for="a_rf">Right front</label><input id="a_rf" inputmode="decimal" value="370"></div>
-<div><label for="a_lr">Left rear</label><input id="a_lr" inputmode="decimal" value="709"></div><div><label for="a_rr">Right rear</label><input id="a_rr" inputmode="decimal" value="674"></div></div></div>
+<div><label for="a_lf">Left front</label><input id="a_lf" inputmode="decimal" value="788"></div><div><label for="a_rf">Right front</label><input id="a_rf" inputmode="decimal" value="770"></div>
+<div><label for="a_lr">Left rear</label><input id="a_lr" inputmode="decimal" value="720"></div><div><label for="a_rr">Right rear</label><input id="a_rr" inputmode="decimal" value="732"></div></div></div>
 <div class="panel"><h2>Car and scales</h2><div class="fields">
-<div><label for="wb">Wheelbase (in)</label><input id="wb" inputmode="decimal" value="108"></div>
+<div><label for="wb">Wheelbase (in)</label><input id="wb" inputmode="decimal" value="104"></div>
 <div><label for="tw">Track width (in)</label><input id="tw" inputmode="decimal" value="61"></div>
 <div><label for="res">Scale reading step (lb)</label><input id="res" inputmode="decimal" value="1"></div>
 <div><label for="dir">Change made</label><select id="dir"><option value="rem" selected>Part removed</option><option value="add">Part added</option></select></div></div>
-<p class="hint">Example values: an ESS weighing in March 2026 before and after pulling an LS1/T5 package (totals and front/rear split as recorded; the left/right split of the "after" readings is illustrative). Keep fuel, tire pressures, the car's position on the scales and anything sitting in the car the same for both weighings — every pound you forget lands in the answer.</p></div>
+<p class="hint">Illustrative before and after readings for a 90 lb assembly. Keep fuel, tire pressures, the car's position on the scales and anything sitting in the car the same for both weighings — every pound you forget lands in the answer.</p></div>
 <div class="panel"><h2>Result</h2><div class="results">
 <div class="result"><div class="l">Part weight</div><div class="v" id="w">–</div><div class="d" id="wu"></div></div>
 <div class="result"><div class="l">Location behind front axle</div><div class="v" id="x">–</div><div class="d" id="xu"></div></div>
@@ -24,7 +24,7 @@
 <div class="section narrow"><div class="section-label">How it works</div>
 <p>The part's weight is the change in the total. Its fore-aft location follows from how that change divides between the front and rear axles: if the rear scales lost 20% of it, the part sat 20% of the wheelbase behind the front axle. Side-to-side works the same way across the track.</p>
 <p>Each scale reading is rounded, so the result has an uncertainty. This tool assumes each of the eight readings can be off by up to half a reading step and shows the worst case. That covers rounding only — it is not the scales' accuracy or repeatability, which you should check by weighing the car more than once. Small parts on big scales give large location uncertainty — use this method for heavy assemblies and a component scale for small parts.</p>
-<p>Part weights ESS measured this way are in <a href="../../articles/measured-firebird-weights/">the measured weights reference</a>; use them in the <a href="../cg-builder/">Balance &amp; CG Builder</a>.</p></div>
+<p>Carry your measured weight and location into the <a href="../cg-builder/">Balance &amp; CG Builder</a>. See <a href="../../build/">how ESS records measurements</a>.</p></div>
 </main>
 <script>
 (function(){

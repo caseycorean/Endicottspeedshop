@@ -1,0 +1,2904 @@
+{
+  "sx-2000-ford-svt-cobra-r": {
+    "title": "2000 Ford Mustang SVT Cobra R",
+    "publisher": "MotorTrend · 5.0 Mustang & Super Fords",
+    "url": "https://www.motortrend.com/reviews/m5lp-0401-mustang-cobra-comparison",
+    "scope": "US SVT Cobra R coupe. Ford’s rated crank output, as reported by the test publication.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          385,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          5700,
+          "rpm",
+          ""
+        ],
+        [
+          "Rated torque",
+          385,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Torque peak",
+          4500,
+          "rpm",
+          ""
+        ],
+        [
+          "Induction",
+          "Naturally aspirated",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2003-ford-svt-cobra": {
+    "title": "2003 Ford Mustang SVT Cobra",
+    "publisher": "MotorTrend · 5.0 Mustang & Super Fords",
+    "url": "https://www.motortrend.com/reviews/m5lp-0401-mustang-cobra-comparison",
+    "scope": "US SVT Cobra coupe. Ford’s ratings are distinguished from the article’s chassis-dyno run.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          390,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          6000,
+          "rpm",
+          ""
+        ],
+        [
+          "Rated torque",
+          390,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Torque peak",
+          3500,
+          "rpm",
+          ""
+        ],
+        [
+          "Induction",
+          "Supercharged",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2000-mercedes-benz-e55-amg": {
+    "publisher": "Edmunds",
+    "url": "https://www.edmunds.com/mercedes-benz/e55-amg/2000/features-specs/",
+    "scope": "US-market W210 AMG sedan.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          349,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          5500,
+          "rpm",
+          ""
+        ],
+        [
+          "Rated torque",
+          391,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Torque peak",
+          3000,
+          "rpm",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "5-speed automatic",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          111.5,
+          "in",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2000-jaguar-xjr": {
+    "publisher": "Edmunds",
+    "url": "https://www.edmunds.com/jaguar/xjr/2000/features-specs/",
+    "scope": "US-market X308 supercharged sedan.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          370,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          6150,
+          "rpm",
+          ""
+        ],
+        [
+          "Rated torque",
+          387,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Torque peak",
+          3600,
+          "rpm",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "5-speed automatic",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          113.0,
+          "in",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2003-dodge-viper-srt-10": {
+    "title": "2003 Dodge Viper SRT-10 Roadster",
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15136532/dodge-viper-srt-10-road-test/",
+    "scope": "US SRT-10 roadster with six-speed manual. The weight is for the road-test example.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          500,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          525,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          98.8,
+          "in",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "As tested weight",
+          3408,
+          "lb",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2004-corvette-zo6": {
+    "title": "2004 Chevrolet Corvette Z06",
+    "publisher": "Edmunds",
+    "url": "https://www.edmunds.com/chevrolet/corvette/2004/z06/features-specs/",
+    "scope": "US C5 Z06 fixed-roof coupe. The 2002 Z06 remains a separate year-specific entry.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          405,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          6000,
+          "rpm",
+          ""
+        ],
+        [
+          "Rated torque",
+          400,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Torque peak",
+          4800,
+          "rpm",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          104.5,
+          "in",
+          ""
+        ]
+      ],
+      "suspension": [
+        [
+          "2004 damper change",
+          "Revised shock valving",
+          "",
+          "GM Media model-year highlights."
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included.",
+    "additional": [
+      [
+        "GM Media · 2004 release mirror",
+        "https://www.corvetteactioncenter.com/specs/c5/2004/overview.html",
+        [
+          "2004 damper change"
+        ],
+        "manufacturer"
+      ]
+    ]
+  },
+  "sx-2005-porsche-911-carrera-s": {
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15132417/porsche-911-carrera-s-road-test/",
+    "scope": "997 Carrera S manual coupe in the US road test.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          350,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          295,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          92.5,
+          "in",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "As tested weight",
+          3290,
+          "lb",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2002-ferrari-360-modena-f1": {
+    "publisher": "Cars.com · period model review",
+    "url": "https://www.cars.com/research/ferrari-360_modena-2002/",
+    "scope": "360 Modena coupe with the paddle-operated F1 transmission. Spider dimensions are excluded.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          400,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          8500,
+          "rpm",
+          ""
+        ],
+        [
+          "Displacement",
+          3.6,
+          "L",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed automated manual",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          102.3,
+          "in",
+          ""
+        ],
+        [
+          "Length",
+          176.3,
+          "in",
+          ""
+        ],
+        [
+          "Height",
+          46.6,
+          "in",
+          ""
+        ]
+      ],
+      "chassis": [
+        [
+          "Body material",
+          "Aluminum",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2005-ferrari-f430-f1": {
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/comparison-test/a15385739/aston-martin-db9-vs-ferrari-f430-ford-gt-lamborghini-gallardo-m-b-sl65-amg-porsche-911-turbo-s-cabriolet-comparison-tests/",
+    "scope": "F430 F1 coupe in the US comparison. US road-test ratings are kept in the publication’s units.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          483,
+          "hp",
+          ""
+        ],
+        [
+          "Engine architecture",
+          "V8",
+          "",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed paddle-shift automated manual",
+          "",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "As tested weight",
+          3380,
+          "lb",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2003-ferrari-575m-maranello-f1": {
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15135548/ferrari-575m-maranello-f1-road-test/",
+    "scope": "575M road car with the optional F1 gearbox. This road test and the competition 575 GTC are separate sources.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          508,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          7250,
+          "rpm",
+          ""
+        ],
+        [
+          "Rated torque",
+          434,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Displacement",
+          5.7,
+          "L",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "F1 paddle-shift automated manual",
+          "",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "As tested weight",
+          4085,
+          "lb",
+          ""
+        ]
+      ],
+      "performance": [
+        [
+          "0–60 mph",
+          4.2,
+          "s",
+          "Independent standing-start test. Launch-control attempt was not the successful run."
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2005-ferrari612-scaglietti-f1": {
+    "title": "2005 Ferrari 612 Scaglietti F1",
+    "publisher": "Edmunds",
+    "url": "https://www.edmunds.com/ferrari/612-scaglietti/2005/coupe/features-specs/",
+    "scope": "2005 Ferrari 612 coupe. Ratings and wheelbase are common model specifications. Ferrari’s US recall RCRIT-08V214-5176 confirms the F1 configuration; Edmunds’ manual curb figure is excluded.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          532,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          7250,
+          "rpm",
+          ""
+        ],
+        [
+          "Rated torque",
+          434,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Torque peak",
+          5250,
+          "rpm",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          116.1,
+          "in",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "F1 paddle-shift automated manual",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included.",
+    "additional": [
+      [
+        "Ferrari recall notice via NHTSA",
+        "https://static.nhtsa.gov/odi/rcl/2008/RCRIT-08V214-5176.pdf",
+        [
+          "Transmission"
+        ]
+      ]
+    ]
+  },
+  "sx-2005-bmw-645-ci": {
+    "title": "2005 BMW 645Ci Coupe · six-speed manual",
+    "publisher": "Edmunds",
+    "url": "https://www.edmunds.com/bmw/6-series/2005/coupe/features-specs/",
+    "scope": "US 645Ci six-speed coupe. The 109.4-inch reference replaces the 108.4-inch legacy figure.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          325,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          6100,
+          "rpm",
+          ""
+        ],
+        [
+          "Rated torque",
+          330,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Torque peak",
+          3600,
+          "rpm",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          109.4,
+          "in",
+          ""
+        ]
+      ],
+      "capacities": [
+        [
+          "Fuel tank capacity",
+          18.5,
+          "US gal",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-1970-chevrolet-camaro-z-28": {
+    "title": "1970 Chevrolet Camaro Z/28 · automatic",
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15141878/1970-chevrolet-camaro-z-28-road-test-review/",
+    "scope": "Early second-generation Z/28 with a three-speed automatic. Engine ratings are period gross figures. Curb figure is the road-test car.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power (gross)",
+          360,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          5600,
+          "rpm",
+          ""
+        ],
+        [
+          "Rated torque (gross)",
+          370,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Torque peak",
+          4000,
+          "rpm",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "3-speed automatic",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          108.0,
+          "in",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "As tested weight",
+          3640,
+          "lb",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2001-porsche-911-turbo": {
+    "publisher": "Excellence",
+    "url": "https://www.excellence-mag.com/resources/specs/72",
+    "scope": "996 Turbo coupe with six-speed manual. The manual curb value is reported separately from the Tiptronic S.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          415,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          415,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          92.52,
+          "in",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "Published curb weight",
+          3395,
+          "lb",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2005-mercedes-benz-c55-amg": {
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/comparison-test/a15132359/2005-audi-s4-vs-cadillac-cts-v-m-b-c55-amg-comparison-tests/",
+    "scope": "US AMG sedan in a period comparison. The later tuner 55S8 is a separate configuration.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          362,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          376,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Displacement",
+          5.4,
+          "L",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "5-speed automatic",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2005-kleemann-mercedes-benz-55s8-c55": {
+    "title": "2005 Kleemann 55S8 · Mercedes-Benz C55 AMG",
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15132090/kleemann-55s8-specialty-file/",
+    "scope": "C55-based Kleemann test car. These results describe the reviewed build and equipment.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          570,
+          "bhp",
+          ""
+        ],
+        [
+          "Rated torque",
+          580,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "5-speed automatic",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          106.9,
+          "in",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "As tested weight",
+          3830,
+          "lb",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2003-mercedes-benz-cl55-amg": {
+    "publisher": "Edmunds",
+    "url": "https://www.edmunds.com/mercedes-benz/cl-class/2003/cl55-amg/features-specs/",
+    "scope": "US C215 AMG coupe. The tuning differs from contemporary E55 and SL55 models.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          493,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          516,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "5-speed shiftable automatic",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          113.6,
+          "in",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2005-cadillac-cts-v": {
+    "publisher": "GM Media technical specifications · Cadillac V-Net mirror",
+    "url": "https://www.cadillacvnet.com/tech-center/cts-v/2005/2005_cadillac_cts-v_specifications.html",
+    "scope": "First-generation CTS-V sedan, LS6. Later LS2 cars have a different engine.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          400,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          6000,
+          "rpm",
+          ""
+        ],
+        [
+          "Rated torque",
+          395,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Displacement",
+          5665,
+          "cc",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "capacities": [
+        [
+          "Fuel tank capacity",
+          17.5,
+          "US gal",
+          "GM Media also lists 66.2 L."
+        ]
+      ]
+    },
+    "evidence": "manufacturer",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2005-aston-martin-db9": {
+    "publisher": "Kelley Blue Book",
+    "url": "https://www.kbb.com/aston-martin/db9/2005/specs/",
+    "scope": "Early DB9 V12 coupe with automatic. Later DB9 power revisions and Volante are excluded.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          450,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          420,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Displacement",
+          6.0,
+          "L",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "Automatic",
+          "",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "Published curb weight",
+          3880,
+          "lb",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2001-lamborghini-diablo-6-0": {
+    "title": "2001 Lamborghini Diablo VT 6.0",
+    "publisher": "Edmunds",
+    "url": "https://www.edmunds.com/lamborghini/diablo/2001/st-100002083/features-specs/",
+    "scope": "Diablo VT 6.0 production coupe. Earlier Diablo and SE variants have separate equipment.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          550,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          7100,
+          "rpm",
+          ""
+        ],
+        [
+          "Rated torque",
+          457,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "5-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          104.3,
+          "in",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2003-mercedes-benz-e55-amg": {
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15135684/mercedes-benz-e55-amg-road-test/",
+    "scope": "US W211 sedan tested with the supercharged V8.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          469,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          516,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "5-speed automatic",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          112.4,
+          "in",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "As tested weight",
+          4243,
+          "lb",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2003-ferrari-enzo-ferrari": {
+    "title": "2003 Ferrari Enzo",
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a71175169/2003-ferrari-enzo-ferrari-archive-test/",
+    "scope": "Enzo road car. The test publication’s horsepower and test weight use its published units and conditions.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          650,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          7800,
+          "rpm",
+          ""
+        ],
+        [
+          "Rated torque",
+          485,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed automated manual",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          104.3,
+          "in",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "As tested weight",
+          3262,
+          "lb",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-1994-mclaren-f1": {
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15142653/mclaren-f1-supercar-road-test-review/",
+    "scope": "1994 McLaren F1 road car as reported in the period road test. Keep the LM and GTR separate.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          618,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          479,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          107.0,
+          "in",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "As tested weight",
+          2579,
+          "lb",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-1996-mclaren-f1-lm": {
+    "title": "McLaren F1 LM · 1995–96",
+    "publisher": "McLaren F1 Road Car · documented specialist reference",
+    "url": "https://www.f1roadcar.com/specifications/",
+    "scope": "F1 LM road-going edition. Values are from the LM column of the specialist reference and are kept distinct from the GTR and standard F1.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          680,
+          "bhp",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          107,
+          "in",
+          ""
+        ]
+      ],
+      "chassis": [
+        [
+          "Chassis structure",
+          "Carbon-fibre composite monocoque",
+          "",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "Published weight",
+          1062,
+          "kg",
+          "Loading convention is not stated by this source."
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "Transverse six-speed with limited-slip differential",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-1991-ferrari-f40": {
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a32983963/tested-1991-ferrari-f40/",
+    "scope": "1991 F40 road-test car. Weight is the publication’s test-car value.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          478,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          424,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "5-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          96.5,
+          "in",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "As tested weight",
+          3018,
+          "lb",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2004-ford-frs-focus-rs8": {
+    "title": "Ford Racing Focus RS8 · development car",
+    "publisher": "PistonHeads",
+    "url": "https://www.pistonheads.com/news/general-pistonheads/focus-rs8/7564",
+    "scope": "Ford Racing Focus RS8 development car, shown as a one-off configuration. The press description does not establish a production Ford Focus variant.",
+    "fields": {
+      "engine": [
+        [
+          "Displacement",
+          5.0,
+          "L",
+          ""
+        ],
+        [
+          "Engine architecture",
+          "Ford Racing Cammer V8",
+          "",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Driven wheels",
+          "Rear",
+          "",
+          ""
+        ]
+      ],
+      "chassis": [
+        [
+          "Original platform",
+          "Ford Focus",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-1977-pontiac-firebird-formula": {
+    "title": "1977 Pontiac Firebird Formula W72 · four-speed",
+    "publisher": "John M. Witzke · W72 technical research",
+    "url": "https://wallaceracing.com/W72TECH06.pdf",
+    "scope": "1977 W72 400 Formula with the Borg-Warner manual. The dimensions and alignment use the Pontiac factory reference. The original archive car’s test state remains unresolved.",
+    "fields": {
+      "engine": [
+        [
+          "Engine package",
+          "W72 T/A 6.6",
+          "",
+          ""
+        ],
+        [
+          "Displacement",
+          400,
+          "cu in",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "Borg-Warner Super T-10, four-speed",
+          "",
+          ""
+        ],
+        [
+          "Gear ratios",
+          [
+            2.43,
+            1.61,
+            1.23,
+            1.0
+          ],
+          "ratio",
+          "ZT code."
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          108.1,
+          "in",
+          "Factory MVMA L101."
+        ],
+        [
+          "Front track",
+          61.3,
+          "in",
+          "W101 tread at nominal camber."
+        ]
+      ],
+      "suspension": [
+        [
+          "Factory alignment at curb",
+          "Caster 0° ±1° · camber +1° ±0.75° · total toe-in 3/16 in ±1/8 in",
+          "",
+          "Historical factory specification, not a modified-car setup recommendation."
+        ],
+        [
+          "Steering axis inclination",
+          10.35,
+          "°",
+          "At 1° camber."
+        ],
+        [
+          "Full front jounce",
+          3,
+          "in",
+          "Published factory travel."
+        ],
+        [
+          "Full front rebound",
+          3.75,
+          "in",
+          "Published factory travel."
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included.",
+    "additional": [
+      [
+        "Pontiac factory MVMA · 1977 Firebird",
+        "https://auctions-media.hemmings.com/3150577/1977-FIREBIRD-MVMA.pdf",
+        [
+          "Wheelbase",
+          "Front track",
+          "Factory alignment at curb",
+          "Steering axis inclination",
+          "Full front jounce",
+          "Full front rebound"
+        ],
+        "manufacturer"
+      ]
+    ]
+  },
+  "sx-2000-ford-frs-mustang-fr500": {
+    "title": "Ford Racing Mustang FR500 · 2000 development car",
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15141649/ford-mustang-fr500-road-test/",
+    "scope": "Ford Racing FR500 development Mustang as tested. The long-wheelbase mule is separate from later FR500 race derivatives.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          415,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          365,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "Tremec T56 six-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase extension",
+          5,
+          "in",
+          "Relative to the donor Mustang."
+        ]
+      ],
+      "weight": [
+        [
+          "Static weight on front axle",
+          0.5,
+          "fraction",
+          "Road-test scales for the FR500 mule."
+        ]
+      ],
+      "capacities": [
+        [
+          "Engine oil pan capacity",
+          8,
+          "US qt",
+          "Oil-pan specification for the conversion."
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included.",
+    "additional": []
+  },
+  "sx-2003-infinity-g35-sport-coupe": {
+    "title": "2003 Infiniti G35 Sport Coupe · six-speed manual",
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15135855/infiniti-g35-coupe-road-test/",
+    "scope": "US sport coupe with six-speed manual. Automatic, sedan and Nissan 350Z records are separate.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          280,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          270,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          112.2,
+          "in",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "As tested weight",
+          3485,
+          "lb",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2004-lamborghini-gallardo": {
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15133329/lamborghini-gallardo-road-test-driving-impression-page-1/",
+    "scope": "Early Gallardo production coupe. The manual configuration is described by the period test.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          493,
+          "hp",
+          ""
+        ],
+        [
+          "Engine architecture",
+          "V10",
+          "",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ],
+        [
+          "Driven wheels",
+          "All-wheel drive",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2004-porsche-911-gt3": {
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15135084/2004-porsche-911-gt3-first-drive-review/",
+    "scope": "US 996 GT3 road car. Early US test publication quotes 375 hp; competing metric and later ratings may use a different convention.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          375,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          7400,
+          "rpm",
+          ""
+        ],
+        [
+          "Rated torque",
+          284,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          92.7,
+          "in",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2000-porsche-fia-911-gtr3": {
+    "title": "2000 Porsche 911 GT3 R · 996 race car",
+    "publisher": "Ultimatecarpage · historic racing reference",
+    "url": "https://www.ultimatecarpage.com/spec/2305/Porsche-911-GT3-R.html",
+    "scope": "996 GT3 R customer race car, 1999–2000 spec. This source identifies G96/61 gearing family. Retain the legacy test claims only as research leads.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          420,
+          "bhp",
+          ""
+        ],
+        [
+          "Displacement",
+          3598,
+          "cc",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "G96/61 six-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          2350,
+          "mm",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2002-bmw-m3-coupe": {
+    "title": "2002 BMW M3 Coupe · six-speed manual",
+    "publisher": "BMW of North America · 2002 specifications",
+    "url": "https://www.press.bmwgroup.com/usa/article/attachment/T0022127EN_US/41385",
+    "scope": "US 2002 E46 M3 coupe. BMW’s model-year sheet identifies the coupe separately from the convertible. Published figures use BMW’s curb-weight convention.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          333,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          262,
+          "lb-ft",
+          "BMW U.S. production rating."
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "chassis": [
+        [
+          "Generation",
+          "E46",
+          "",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "Curb weight",
+          3415,
+          "lb",
+          "Factory coupe figure."
+        ],
+        [
+          "Static weight on front axle",
+          0.503,
+          "fraction",
+          "Factory curb figure for the coupe."
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          107.5,
+          "in",
+          ""
+        ],
+        [
+          "Front track",
+          59.4,
+          "in",
+          ""
+        ],
+        [
+          "Rear track",
+          60.0,
+          "in",
+          ""
+        ]
+      ],
+      "aero": [
+        [
+          "Drag coefficient (Cd)",
+          0.33,
+          "",
+          "Factory figure; load and test conditions not stated in the summary."
+        ]
+      ]
+    },
+    "evidence": "manufacturer",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2001-bmw-m3-gtr": {
+    "title": "2001 BMW M3 GTR · ALMS race car",
+    "publisher": "BMW Group",
+    "url": "https://newsroom.bmwgroup.com/americas/2001-bmw-m3-gtr-race-and-road-cars-to-be-presented-at-legends-of-the-autobahn-concours-delegance/",
+    "scope": "BMW Motorsport ALMS race specification. This is the GTR race car, distinct from the Straßenversion.",
+    "fields": {
+      "engine": [
+        [
+          "Engine code",
+          "P60",
+          "",
+          ""
+        ],
+        [
+          "Displacement",
+          4.0,
+          "L",
+          ""
+        ],
+        [
+          "Engine architecture",
+          "Motorsport V8",
+          "",
+          ""
+        ]
+      ],
+      "chassis": [
+        [
+          "Competition series",
+          "American Le Mans Series",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "manufacturer",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2000-bmw-m5": {
+    "publisher": "BMW Group",
+    "url": "https://newsroom.bmwgroup.com/americas/the-2020-bmw-m5-edition-35-years",
+    "scope": "E39 M5 sedan. BMW’s US-market generation summary supplies the ratings.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          394,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          6600,
+          "rpm",
+          ""
+        ],
+        [
+          "Rated torque",
+          368,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Torque peak",
+          3800,
+          "rpm",
+          ""
+        ],
+        [
+          "Engine architecture",
+          "Naturally aspirated V8",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "manufacturer",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2005-bmw-m5": {
+    "title": "BMW M5 E60 V10 SMG · 2005 launch series",
+    "publisher": "BMW Group",
+    "url": "https://newsroom.bmwgroup.com/americas/the-2020-bmw-m5-edition-35-years",
+    "scope": "E60 M5 launch series, 2005 European introduction. The US retrospective gives SAE-style figures and describes the same V10 and seven-speed SMG; US model-year labeling differs.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          500,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          383,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Redline",
+          8250,
+          "rpm",
+          ""
+        ],
+        [
+          "Displacement",
+          5.0,
+          "L",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "7-speed SMG automated manual",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "manufacturer",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2003-maserati-coupe-cambiocorsa": {
+    "publisher": "Maserati",
+    "url": "https://www.maserati.com/us/en/brand/maserati-classic-cars/gran-turismo/coupe",
+    "scope": "Original Maserati Coupé Cambiocorsa. The factory heritage page describes the production-series V8 and the selected paddle-shift transaxle.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          390,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          7000,
+          "rpm",
+          ""
+        ],
+        [
+          "Engine architecture",
+          "Naturally aspirated V8",
+          "",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "Electrohydraulic paddle-shift transaxle",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "manufacturer",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2002-mosler-mt900-photon": {
+    "publisher": "Corvette Action Center · period technical archive",
+    "url": "https://www.corvetteactioncenter.com/specs/prototypes/2002photon.html",
+    "scope": "2002 Photon specification as documented in the specialty archive. Road and track variants differ.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          435,
+          "hp",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          109.0,
+          "in",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed sequential manual",
+          "",
+          ""
+        ]
+      ],
+      "chassis": [
+        [
+          "Configuration",
+          "Photon",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2003-lamborghini-murcielago": {
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a35686262/2003-lamborghini-murcielago-by-the-numbers/",
+    "scope": "Early Murciélago in the US road test with six-speed manual.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          572,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          479,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2003-audi-rs6": {
+    "title": "2003 Audi RS 6 Sedan",
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15135911/audi-rs-6-first-drive-review/",
+    "scope": "C5 RS 6 sedan as described in the period first drive. Avant equipment and later generations differ.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          450,
+          "bhp",
+          ""
+        ],
+        [
+          "Rated torque",
+          415,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "5-speed automatic",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          108.6,
+          "in",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2002-dinan-s2-m5": {
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15135920/dinan-s2-m5-specialty-file/",
+    "scope": "Modified E39 M5 evaluated by Car and Driver. Figures describe this S2 setup.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          470,
+          "bhp",
+          ""
+        ],
+        [
+          "Rated torque",
+          419,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          111.4,
+          "in",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "As tested weight",
+          3995,
+          "lb",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2004-audi-s4": {
+    "title": "2004 Audi S4 Sedan · six-speed manual",
+    "publisher": "Audi technical specifications · AudiWorld mirror",
+    "url": "https://www.audiworld.com/model/s4/04/s4sedan.pdf",
+    "scope": "B6 S4 sedan with quattro six-speed manual. Automatic and Avant equipment are excluded.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          340,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          302,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Displacement",
+          4163,
+          "cc",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ],
+        [
+          "Driven wheels",
+          "Quattro all-wheel drive",
+          "",
+          ""
+        ]
+      ],
+      "capacities": [
+        [
+          "Fuel tank capacity",
+          17.4,
+          "US gal",
+          "Audi lists 66 L in its metric column."
+        ],
+        [
+          "Engine oil capacity",
+          11.3,
+          "US qt",
+          "Audi lists 10.7 L. The specification table does not identify a service-fill condition."
+        ],
+        [
+          "Cooling system capacity",
+          12.9,
+          "US qt",
+          "Audi lists 12.2 L."
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          104.3,
+          "in",
+          ""
+        ],
+        [
+          "Front track",
+          60.2,
+          "in",
+          ""
+        ],
+        [
+          "Rear track",
+          60.1,
+          "in",
+          ""
+        ]
+      ]
+    },
+    "evidence": "manufacturer",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2003-saleen-s7": {
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15134966/saleen-s7-road-test/",
+    "scope": "Naturally aspirated S7 in the period test. Later Twin Turbo specifications are separate.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          550,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          5900,
+          "rpm",
+          ""
+        ],
+        [
+          "Rated torque",
+          525,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Torque peak",
+          4000,
+          "rpm",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2003-mercedes-benz-sl55-amg": {
+    "title": "2003 Mercedes-Benz SL55 AMG · early European press specification",
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15137023/2003-mercedes-benz-sl55-amg-first-drive-review/",
+    "scope": "Early SL55 roadster in the European press drive. It reports the launch rating; higher later ratings and other markets require their own source.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          469,
+          "bhp",
+          ""
+        ],
+        [
+          "Rated torque",
+          516,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Displacement",
+          5439,
+          "cc",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "5-speed automatic",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          100.8,
+          "in",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2005-mercedes-benz-slr-mclaren": {
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15131765/mercedes-benz-slr-mclaren-road-test/",
+    "scope": "Original 2005 SLR McLaren coupe. Test-car curb weight differs from some published model figures.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          617,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          575,
+          "lb-ft",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "5-speed automatic",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          106.3,
+          "in",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "As tested weight",
+          3858,
+          "lb",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2004-ferrari-360-challenge-stradale": {
+    "title": "2004 Ferrari Challenge Stradale",
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/comparison-test/a15133465/2004-ferrari-challenge-stradale-vs-ford-gt-porsche-911-gt3-comparison-tests/",
+    "scope": "Road-going Challenge Stradale. Its F1 gearbox and test state are distinct from the 360 Challenge competition car.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          425,
+          "hp",
+          ""
+        ],
+        [
+          "Compression ratio",
+          "11.2:1",
+          "",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "F1 paddle-shift automated manual",
+          "",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "As tested weight",
+          3152,
+          "lb",
+          ""
+        ]
+      ],
+      "performance": [
+        [
+          "0–60 mph",
+          4.0,
+          "s",
+          "Standing start with the publication’s test car and launch control."
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2003-dodge-viper-competition-coupe": {
+    "publisher": "Dodge release · Auto123 archive",
+    "url": "https://www.auto123.com/en/news/dodge-to-begin-taking-orders-for-2003-viper-competition-coupe/20889/?page=2",
+    "scope": "2003 customer Competition Coupe. Quoted engine ratings are factory launch estimates for the race configuration.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power (launch estimate)",
+          520,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque (launch estimate)",
+          540,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Displacement",
+          505,
+          "cu in",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "suspension": [
+        [
+          "Front anti-roll bar",
+          "Driver-adjustable",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "manufacturer",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2004-jaguar-xjr": {
+    "publisher": "Car and Driver",
+    "url": "https://www.caranddriver.com/reviews/a15134243/2004-jaguar-xjr-road-test/",
+    "scope": "X350 XJR sedan. The aluminum body and air springs identify the newer generation, separate from the 2000 XJR.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          390,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          399,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Displacement",
+          4.2,
+          "L",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed automatic",
+          "",
+          ""
+        ]
+      ],
+      "chassis": [
+        [
+          "Body material",
+          "Aluminum",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-1968-chevrolet-camaro-z-28": {
+    "title": "1968 Chevrolet Camaro Z/28 · 302",
+    "publisher": "Camaro Research Group",
+    "url": "https://www.camaros.org/Z28.shtml",
+    "scope": "1968 first-generation Z/28 with the 302. The period engine rating is gross.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power (gross)",
+          290,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          5800,
+          "rpm",
+          ""
+        ],
+        [
+          "Displacement",
+          302,
+          "cu in",
+          ""
+        ],
+        [
+          "Bore",
+          4.002,
+          "in",
+          ""
+        ],
+        [
+          "Stroke",
+          3.005,
+          "in",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2002-pagani-zonda-s7-3": {
+    "title": "2002 Pagani Zonda S 7.3",
+    "publisher": "Pagani",
+    "url": "https://www.pagani.com/zonda-s/",
+    "scope": "Zonda S 7.3 factory specification. Published dry weight is kept separate from a curb or test weight.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          555,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          5900,
+          "rpm",
+          ""
+        ],
+        [
+          "Rated torque",
+          750,
+          "N·m",
+          ""
+        ],
+        [
+          "Displacement",
+          7.3,
+          "L",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          2730,
+          "mm",
+          ""
+        ],
+        [
+          "Length",
+          4395,
+          "mm",
+          ""
+        ],
+        [
+          "Width",
+          2055,
+          "mm",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "Dry weight",
+          1280,
+          "kg",
+          ""
+        ]
+      ],
+      "performance": [
+        [
+          "0–100 km/h (manufacturer)",
+          3.7,
+          "s",
+          ""
+        ]
+      ],
+      "tires": [
+        [
+          "Tire size front",
+          "255/40R18",
+          "",
+          ""
+        ],
+        [
+          "Tire size rear",
+          "345/35R18",
+          "",
+          ""
+        ]
+      ],
+      "brakes": [
+        [
+          "Rotor diameter front",
+          355,
+          "mm",
+          "Factory Brembo ventilated disc."
+        ],
+        [
+          "Rotor diameter rear",
+          335,
+          "mm",
+          "Factory Brembo ventilated disc."
+        ]
+      ],
+      "chassis": [
+        [
+          "Chassis structure",
+          "Carbon-fibre central structure with steel subframes",
+          "",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "Six-speed manual",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "manufacturer",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-1985-pontiac-fiero-sport-coupe": {
+    "title": "1985 Pontiac Fiero Sport Coupe · 2.5 five-speed",
+    "publisher": "Pontiac 1985 brochure · Canadian edition",
+    "url": "https://www.centuryu.com/uploads/1/4/4/6/144698822/1985_fiero.pdf",
+    "scope": "1985 Sport Coupe with the standard 2.5 L four-cylinder and five-speed. The linked Canadian brochure specifies this combination. Market-dependent items and V6 options are excluded.",
+    "fields": {
+      "engine": [
+        [
+          "Displacement",
+          2.5,
+          "L",
+          ""
+        ],
+        [
+          "Engine architecture",
+          "Inline four, electronic fuel injection",
+          "",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "5-speed overdrive manual",
+          "",
+          ""
+        ]
+      ],
+      "chassis": [
+        [
+          "Engine placement",
+          "Mid-engine",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "manufacturer",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-1985-pontiac-fiero-gt": {
+    "title": "1985 Pontiac Fiero GT · V6 four-speed",
+    "publisher": "Pontiac 1985 brochure · Canadian edition",
+    "url": "https://www.centuryu.com/uploads/1/4/4/6/144698822/1985_fiero.pdf",
+    "scope": "1985 GT with the 2.8 L V6 and factory four-speed. Automatic is a separate transmission option.",
+    "fields": {
+      "engine": [
+        [
+          "Displacement",
+          2.8,
+          "L",
+          ""
+        ],
+        [
+          "Engine architecture",
+          "V6, multi-port fuel injection",
+          "",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "4-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "chassis": [
+        [
+          "Engine placement",
+          "Mid-engine",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "manufacturer",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2002-ferrari-360-gt": {
+    "title": "2002 Ferrari 360 GT · race car",
+    "publisher": "FerrariModena.com · model history",
+    "url": "https://ferrarimodena.com/Ferrari_360_GT.html",
+    "scope": "FIA/ACO 360 GT race configuration. Ballasted minimum and unballasted mass are separate. The original 360 Challenge and road Modena are separate.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          430,
+          "hp",
+          ""
+        ],
+        [
+          "Displacement",
+          3.6,
+          "L",
+          ""
+        ]
+      ],
+      "weight": [
+        [
+          "Unballasted weight",
+          1070,
+          "kg",
+          ""
+        ],
+        [
+          "Ballasted regulation minimum",
+          1100,
+          "kg",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2002-ferrari-360-challenge": {
+    "title": "2002 Ferrari 360 Challenge · race car",
+    "publisher": "Ultimatecarpage · period race specification",
+    "url": "https://www.ultimatecarpage.com/spec/710/Ferrari-360-Challenge.html",
+    "scope": "360 Challenge one-make race car, as documented for the 1999–2004 series. The source does not establish an individual car’s race or ballast state.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          400,
+          "bhp",
+          ""
+        ],
+        [
+          "Displacement",
+          3586,
+          "cc",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "Paddle-operated six-speed sequential",
+          "",
+          ""
+        ]
+      ],
+      "suspension": [
+        [
+          "Front suspension",
+          "Double wishbone",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          2600,
+          "mm",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-1967-pontiac-firebird-326-ho": {
+    "publisher": "First Generation Firebird · drivetrain identification",
+    "url": "https://firstgenfirebird.org/1967-info/1967-drivetrain-id-number-information/",
+    "scope": "1967 Firebird 326 H.O. with four-barrel and manual gearbox, engine code WK. This source does not establish the original car’s exact gearing or running mass.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power (gross)",
+          285,
+          "hp",
+          ""
+        ],
+        [
+          "Displacement",
+          326,
+          "cu in",
+          ""
+        ],
+        [
+          "Engine code",
+          "WK",
+          "",
+          ""
+        ],
+        [
+          "Compression ratio",
+          "10.5:1",
+          "",
+          ""
+        ],
+        [
+          "Carburetor",
+          "Four-barrel",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-1969-pontiac-firebird-400-ho": {
+    "publisher": "Hagerty · 1969 Firebird configurations",
+    "url": "https://www.hagerty.com/valuation-tools/pontiac/firebird/1969",
+    "scope": "1969 400 H.O. hardtop configuration. The source lists the 335-hp Ram Air III configuration separately from the 330-hp Firebird 400 and 345-hp Ram Air IV.",
+    "fields": {
+      "engine": [
+        [
+          "Displacement",
+          400,
+          "cu in",
+          ""
+        ],
+        [
+          "Rated power (gross)",
+          335,
+          "hp",
+          ""
+        ],
+        [
+          "Carburetor",
+          "Four-barrel",
+          "",
+          ""
+        ]
+      ],
+      "chassis": [
+        [
+          "Body style",
+          "Hardtop coupe",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-1970-pontiac-firebird-formula": {
+    "title": "1970 Pontiac Firebird Formula 400 · 330 hp",
+    "publisher": "Hagerty · 1970 Firebird configurations",
+    "url": "https://www.hagerty.com/valuation-tools/pontiac/firebird/1970",
+    "scope": "1970 Formula 400 with the 330-hp four-barrel configuration; the higher-rated Ram Air alternatives are separate. Final drive and running weight remain unresolved.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power (gross)",
+          330,
+          "hp",
+          ""
+        ],
+        [
+          "Displacement",
+          400,
+          "cu in",
+          ""
+        ],
+        [
+          "Carburetor",
+          "Four-barrel",
+          "",
+          ""
+        ]
+      ],
+      "chassis": [
+        [
+          "Body style",
+          "Hardtop coupe",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2002-pontiac-slp-firebird-firehawk": {
+    "title": "2002 Pontiac SLP Firebird Firehawk · WU6",
+    "publisher": "SLP Engineering · 2002 Firehawk brochure",
+    "url": "https://www.firehawk.org/images/lit/2002/2002Firehawk.pdf",
+    "scope": "SLP WU6 Firehawk equipment shared across eligible 2002 Formula and Trans Am bodies. SLP’s brochure rates this version at 345 hp; archive 335-hp and running-weight claims are excluded.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          345,
+          "hp",
+          ""
+        ],
+        [
+          "Rated torque",
+          345,
+          "lb-ft",
+          ""
+        ],
+        [
+          "Engine code",
+          "LS1",
+          "",
+          ""
+        ]
+      ],
+      "tires": [
+        [
+          "Factory tire size",
+          "275/40ZR17",
+          "",
+          ""
+        ]
+      ],
+      "chassis": [
+        [
+          "Required order code",
+          "WU6",
+          "",
+          ""
+        ]
+      ]
+    },
+    "evidence": "manufacturer",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  },
+  "sx-2002-porsche-911-gt2": {
+    "publisher": "Excellence",
+    "url": "https://www.excellence-mag.com/resources/specs/79",
+    "scope": "2002 996 GT2 road car with the six-speed manual, distinct from the contemporary all-wheel-drive Turbo and naturally aspirated GT3.",
+    "fields": {
+      "engine": [
+        [
+          "Rated power",
+          456,
+          "hp",
+          ""
+        ],
+        [
+          "Power peak",
+          5700,
+          "rpm",
+          ""
+        ]
+      ],
+      "transmission": [
+        [
+          "Transmission",
+          "6-speed manual",
+          "",
+          ""
+        ]
+      ],
+      "dimensions": [
+        [
+          "Wheelbase",
+          92.52,
+          "in",
+          ""
+        ]
+      ]
+    },
+    "evidence": "published",
+    "reason": "The named archive configuration is independently supported. Only selected source-checked facts are included."
+  }
+}

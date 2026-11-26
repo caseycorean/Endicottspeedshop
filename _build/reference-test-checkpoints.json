@@ -1,0 +1,172 @@
+{
+  "chevrolet-corvette-c6--2006-z06-ls7-m6-coupe": [
+    {
+      "source_url": "https://www.caranddriver.com/reviews/a18201273/chevrolet-corvette-z06-road-test/",
+      "test_id": "cd-2006-z06",
+      "unit": "s",
+      "label": "0–100 mph",
+      "value": 7.9,
+      "conditions": "Publisher-reported test-car curb weight; running load, atmosphere and rollout details unresolved. Tires: Goodyear F1 Supercar EMT.",
+      "publisher": "Car and Driver",
+      "title": "Instrumented road-test checkpoints"
+    },
+    {
+      "source_url": "https://www.caranddriver.com/reviews/a18201273/chevrolet-corvette-z06-road-test/",
+      "test_id": "cd-2006-z06",
+      "unit": "s",
+      "label": "0–130 mph",
+      "value": 12.8,
+      "conditions": "Publisher-reported test-car curb weight; running load, atmosphere and rollout details unresolved. Tires: Goodyear F1 Supercar EMT.",
+      "publisher": "Car and Driver",
+      "title": "Instrumented road-test checkpoints"
+    },
+    {
+      "source_url": "https://www.caranddriver.com/reviews/a18201273/chevrolet-corvette-z06-road-test/",
+      "test_id": "cd-2006-z06",
+      "unit": "s",
+      "label": "5–60 mph (rolling)",
+      "value": 4.3,
+      "conditions": "Publisher-reported test-car curb weight; running load, atmosphere and rollout details unresolved. Tires: Goodyear F1 Supercar EMT.",
+      "publisher": "Car and Driver",
+      "title": "Instrumented road-test checkpoints"
+    },
+    {
+      "source_url": "https://www.caranddriver.com/reviews/a18201273/chevrolet-corvette-z06-road-test/",
+      "test_id": "cd-2006-z06",
+      "unit": "s",
+      "label": "50–70 mph (top gear)",
+      "value": 10.6,
+      "conditions": "Publisher-reported test-car curb weight; running load, atmosphere and rollout details unresolved. Tires: Goodyear F1 Supercar EMT.",
+      "publisher": "Car and Driver",
+      "title": "Instrumented road-test checkpoints"
+    }
+  ],
+  "pontiac-gto-v2--2004-gto-ls1-m6-coupe": [
+    {
+      "source_url": "https://www.caranddriver.com/reviews/a15134185/2004-pontiac-gto-road-test/",
+      "test_id": "cd-2004-gto",
+      "unit": "s",
+      "label": "0–100 mph",
+      "value": 13.4,
+      "conditions": "Publisher-reported test-car curb weight; running load, atmosphere and rollout details unresolved. Tires: BFG g-Force T/A KDWS.",
+      "publisher": "Car and Driver",
+      "title": "Instrumented road-test checkpoints"
+    },
+    {
+      "source_url": "https://www.caranddriver.com/reviews/a15134185/2004-pontiac-gto-road-test/",
+      "test_id": "cd-2004-gto",
+      "unit": "s",
+      "label": "0–130 mph",
+      "value": 23.4,
+      "conditions": "Publisher-reported test-car curb weight; running load, atmosphere and rollout details unresolved. Tires: BFG g-Force T/A KDWS.",
+      "publisher": "Car and Driver",
+      "title": "Instrumented road-test checkpoints"
+    },
+    {
+      "source_url": "https://www.caranddriver.com/reviews/a15134185/2004-pontiac-gto-road-test/",
+      "test_id": "cd-2004-gto",
+      "unit": "s",
+      "label": "5–60 mph (rolling)",
+      "value": 5.8,
+      "conditions": "Publisher-reported test-car curb weight; running load, atmosphere and rollout details unresolved. Tires: BFG g-Force T/A KDWS.",
+      "publisher": "Car and Driver",
+      "title": "Instrumented road-test checkpoints"
+    },
+    {
+      "source_url": "https://www.caranddriver.com/reviews/a15134185/2004-pontiac-gto-road-test/",
+      "test_id": "cd-2004-gto",
+      "unit": "s",
+      "label": "50–70 mph (top gear)",
+      "value": 10.4,
+      "conditions": "Publisher-reported test-car curb weight; running load, atmosphere and rollout details unresolved. Tires: BFG g-Force T/A KDWS.",
+      "publisher": "Car and Driver",
+      "title": "Instrumented road-test checkpoints"
+    }
+  ],
+  "ford-mustang-s197--2005-gt-4.6-m5-3.55-coupe": [
+    {
+      "source_url": "https://www.caranddriver.com/reviews/a15132034/ford-mustang-gt-road-test/",
+      "test_id": "cd-2005-gt",
+      "unit": "s",
+      "label": "0–100 mph",
+      "value": 13.2,
+      "conditions": "Publisher-reported test-car curb weight; running load, atmosphere and rollout details unresolved. Tires: Pirelli P Zero Nero.",
+      "publisher": "Car and Driver",
+      "title": "Instrumented road-test checkpoints"
+    },
+    {
+      "source_url": "https://www.caranddriver.com/reviews/a15132034/ford-mustang-gt-road-test/",
+      "test_id": "cd-2005-gt",
+      "unit": "s",
+      "label": "0–120 mph",
+      "value": 20.1,
+      "conditions": "Publisher-reported test-car curb weight; running load, atmosphere and rollout details unresolved. Tires: Pirelli P Zero Nero.",
+      "publisher": "Car and Driver",
+      "title": "Instrumented road-test checkpoints"
+    },
+    {
+      "source_url": "https://www.caranddriver.com/reviews/a15132034/ford-mustang-gt-road-test/",
+      "test_id": "cd-2005-gt",
+      "unit": "s",
+      "label": "5–60 mph (rolling)",
+      "value": 5.8,
+      "conditions": "Publisher-reported test-car curb weight; running load, atmosphere and rollout details unresolved. Tires: Pirelli P Zero Nero.",
+      "publisher": "Car and Driver",
+      "title": "Instrumented road-test checkpoints"
+    },
+    {
+      "source_url": "https://www.caranddriver.com/reviews/a15132034/ford-mustang-gt-road-test/",
+      "test_id": "cd-2005-gt",
+      "unit": "s",
+      "label": "50–70 mph (top gear)",
+      "value": 9.5,
+      "conditions": "Publisher-reported test-car curb weight; running load, atmosphere and rollout details unresolved. Tires: Pirelli P Zero Nero.",
+      "publisher": "Car and Driver",
+      "title": "Instrumented road-test checkpoints"
+    }
+  ],
+  "nissan-350z-z33--2003-track-3.5-m6-coupe": [
+    {
+      "source_url": "https://www.caranddriver.com/reviews/a15136959/nissan-350z-road-test/",
+      "test_id": "cd-2003-350z",
+      "unit": "s",
+      "label": "0–100 mph",
+      "value": 13.9,
+      "conditions": "Publisher-reported test-car curb weight; running load, atmosphere and rollout details unresolved. Tires: See original 2003 Track test.",
+      "publisher": "Car and Driver",
+      "title": "Instrumented road-test checkpoints"
+    },
+    {
+      "source_url": "https://www.caranddriver.com/reviews/a15136959/nissan-350z-road-test/",
+      "test_id": "cd-2003-350z",
+      "unit": "s",
+      "label": "5–60 mph (rolling)",
+      "value": 5.7,
+      "conditions": "Publisher-reported test-car curb weight; running load, atmosphere and rollout details unresolved. Tires: See original 2003 Track test.",
+      "publisher": "Car and Driver",
+      "title": "Instrumented road-test checkpoints"
+    },
+    {
+      "source_url": "https://www.caranddriver.com/reviews/a15136959/nissan-350z-road-test/",
+      "test_id": "cd-2003-350z",
+      "unit": "s",
+      "label": "50–70 mph (top gear)",
+      "value": 8.6,
+      "conditions": "Publisher-reported test-car curb weight; running load, atmosphere and rollout details unresolved. Tires: See original 2003 Track test.",
+      "publisher": "Car and Driver",
+      "title": "Instrumented road-test checkpoints"
+    }
+  ],
+  "pontiac-firebird-2nd-gen--1977-trans-am-w72-400-m4-coupe": [
+    {
+      "source_url": "https://www.caranddriver.com/reviews/comparison-test/a15142491/chevrolet-camaro-z-28-vs-pontiac-firebird-trans-am-archived-comparison-test/",
+      "test_id": "cd-1977-trans-am",
+      "unit": "s",
+      "label": "0–100 mph",
+      "value": 29.3,
+      "conditions": "Period C/D 4MT, 3.23 axle. Published test-car curb weight; exact fuel or driver inclusion and rollout unresolved. Tires: Uniroyal GR70-15.",
+      "publisher": "Car and Driver",
+      "title": "Instrumented road-test checkpoints"
+    }
+  ]
+}

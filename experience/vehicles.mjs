@@ -153,7 +153,7 @@ const provisionVehicle = (entry, ref) => {
   return {name: entry.name, trim: entry.body, ref, data, choices: resolved.choices,
     ...Object.fromEntries(['make','generation','category','layout','history','model','year'].map(k => [k, entry[k]]))};
 };
-const full = Object.fromEntries(Object.entries(catalog).filter(([ref]) => !oldAlias[ref])
+const full = Object.fromEntries(Object.entries(catalog)
   .map(([ref, entry]) => [ref, provisionVehicle(entry, ref)]));
 for (const id of vehicleIds) {
   const entry = catalog[demoVehicles[id].ref] ?? (id === 'camaro' ?
@@ -177,16 +177,9 @@ export function architectureLabel(key, code) {
   return (key === 'archFront' ? frontArchitectures : rearArchitectures)[code]?.name ?? code;
 }
 
-export const browseIds = Object.keys(vehicles).filter(id => id !== 'custom')
+export const browseIds = Object.keys(vehicles).filter(id => id !== 'custom' && !oldAlias[id])
   .sort((a,b) => vehicles[a].make.localeCompare(vehicles[b].make) || vehicles[a].name.localeCompare(vehicles[b].name));
 
 export function stock(id) {
   return Object.fromEntries(Object.entries(vehicles[id].data).map(([key, info]) => [key, info[0]]));
 }
-
-export const firebirdEvidence = [
-  ['3,578 lb · 58% front', 'Historical Formula W72 reference. Configuration and original weight source remain unconfirmed.'],
-  ['3,240 lb · 60.5% front', 'Historical modified / stripped Formula, owner truck-scale record.'],
-  ['2,786 lb · 51% front', 'ESS corner scales, July 18. LS1/T5 installed. Nose, hood, radiator, exhaust, fuel and coolant absent.'],
-  ['2,988 lb · 53.5% front', 'Study 9 finished dry projection. Full four-corner measurement is pending.'],
-];
