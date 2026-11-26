@@ -12,6 +12,8 @@
 import { supercarx, exactMatches } from './data/supercarx.mjs';
 import { supercarxSuspension } from './data/supercarx-suspension.mjs';
 import { resolveVehicle } from './resolve.mjs';
+import { archiveCorrections } from './data/archive-corrections.mjs';
+import { notPublishable } from './data/publication.mjs';
 
 const slug = s => s.toLowerCase().replace(/specifications$/i, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 export const archiveId = title => 'sx-' + slug(title);
@@ -61,6 +63,11 @@ export function archiveRecord(r) {
     test60: F(plausible(r.t60, 2, 20), 'Archive road-test 0–60 mph (source test and rollout convention not recorded).'),
     testEt: F(plausible(r.et, 8, 25), 'Archive road-test quarter mile.'), testTrap: F(plausible(r.trap, 50, 220), 'Archive road-test trap speed.'),
   }).filter(([, x]) => x));
+  // Manufacturer-sourced values (Work's reviewed reference, 47501c2) take precedence; the archive value is kept for audit.
+  for (const [key, [value, evidence, url, note]] of Object.entries(archiveCorrections[archiveId(r.title)] ?? {})) {
+    const was = fields[key]?.[0];
+    fields[key] = [value, evidence, url, note + (was != null && was !== value ? ` Supercar X published ${was}.` : '')];
+  }
   const competition = r.sub === 'Race vehicles';
   return { name: displayName(r.title), year: +(r.title.match(/^(19|20)\d{2}/)?.[0] ?? 0) || null, layout: LAYOUT(r.layout),
     category: CATEGORY[r.sub] ?? 'Coupe / performance car', transmission: transmissionCode(r.trans), transmissionText: r.trans ?? null,
@@ -94,8 +101,12 @@ archiveCatalog = Object.fromEntries(supercarx.map(r => {
   return [id, { id, name: record.name, record, mergedInto: mergedFor[r.title] ?? null, ...t, missing: pick('missing'), estimated: pick('estimated') }];
 }));
 
+for (const x of Object.values(archiveCatalog)) x.publishable = !x.mergedInto && !notPublishable(x.id);
+
 /** Archive entries not already represented by a curated vehicle. */
 export const archiveVehicles = Object.values(archiveCatalog).filter(x => !x.mergedInto);
+/** Archive entries the Lab and specification pages may offer (identity resolved, not withheld). */
+export const publishableArchive = archiveVehicles.filter(x => x.publishable);
 
 const norm = s => s.toLowerCase().replace(/[^a-z0-9/]+/g, ' ').trim();
 

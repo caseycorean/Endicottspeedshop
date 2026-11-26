@@ -1,3 +1,5 @@
+import { publishableArchive } from '../../engine/archive.mjs';
+import { archiveHolds, archiveWithheld } from '../../engine/data/publication.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { catalog } from '../../experience/catalog-data.mjs';
@@ -11,7 +13,9 @@ const near = (a, b, epsilon = 1e-5) => assert.ok(Math.abs(a - b) < epsilon, `${a
 
 test('every catalog reference has a browse identity and old links still keep their IDs', () => {
   assert.equal(Object.keys(catalog).length, 53);
-  assert.equal(browseIds.length, 55);
+  // 55 curated/demo identities plus every publishable Supercar X configuration (engine/data/publication.mjs).
+  assert.equal(browseIds.length, 55 + publishableArchive.length);
+  for (const id of [...Object.keys(archiveHolds), ...Object.keys(archiveWithheld)]) assert.ok(!browseIds.includes(id), id);
   assert.ok(browseIds.includes('firebird'));
   assert.equal(browseIds.filter(id => vehicles[id].ref === vehicles.firebird.ref).length, 1);
   assert.ok(findVehicles({query:'Civic Type R',layout:'FF',make:'Honda'}).length);

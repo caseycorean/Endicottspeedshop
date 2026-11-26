@@ -2,6 +2,7 @@ import { reference } from './reference.mjs';
 import { catalog, sources } from './catalog-data.mjs';
 import { tireGrip } from '../engine/acceleration.mjs';
 import { labVehicle } from '../engine/garage-adapter.mjs';
+import { publishableArchive } from '../engine/archive.mjs';
 import { frontArchitectures, rearArchitectures } from '../engine/data/architectures.mjs';
 
 const tireProfiles = {firebird: 'radial70s', mustang: 'perf80s', camaro: 'perf80s', fiero: 'perf80s',
@@ -155,6 +156,17 @@ const provisionVehicle = (entry, ref) => {
 };
 const full = Object.fromEntries(Object.entries(catalog)
   .map(([ref, entry]) => [ref, provisionVehicle(entry, ref)]));
+// Supercar X archive configurations whose identity is resolved (engine/data/publication.mjs) join the same registry,
+// so a specification page, shared link or Garage entry can carry an 'sx-…' id into every tool. Values come from the
+// shared resolver with archive / manufacturer / estimate provenance; nothing is re-entered here.
+const archiveMake = name => name.replace(/^\d{4}\s+/, '').split(' ')[0];
+for (const x of publishableArchive) {
+  const rec = x.record;
+  full[x.id] = provisionVehicle({name: rec.name, body: rec.archive.sub, layout: rec.layout, category: rec.category,
+    make: archiveMake(rec.name), generation: 'Supercar X archive', year: rec.year, fields: {},
+    history: [[rec.archive.title, rec.archive.capture, 'archive']]}, x.id);
+  full[x.id].archive = {tier: x.tier, competition: rec.archive.competition, modified: rec.archive.modified, capture: rec.archive.capture};
+}
 for (const id of vehicleIds) {
   const entry = catalog[demoVehicles[id].ref] ?? (id === 'camaro' ?
     {make:'Chevrolet', generation:'Third generation', category:'Coupe / performance car', layout:'FR'} :

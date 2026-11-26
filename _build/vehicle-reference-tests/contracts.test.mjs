@@ -7,8 +7,9 @@ import { eventParameters } from '../../experience/measurement.mjs';
 import { receive } from '../feedback/receiver.mjs';
 
 const runtime = JSON.parse(execFileSync('node', ['_build/reference-inputs.mjs'], {encoding:'utf8'}));
-test('all 53 curated references round-trip exact builds, comparison lanes and tool routes', () => {
-  assert.equal(Object.keys(runtime.fixtures).length, 53);
+test('all 53 curated references and the runnable publishable archive configurations round-trip exact builds, comparison lanes and tool routes', () => {
+  assert.equal(Object.keys(runtime.fixtures).filter(id => !id.startsWith('sx-')).length, 53);
+  assert.equal(Object.keys(runtime.fixtures).filter(id => id.startsWith('sx-')).length, 58);
   for (const [id, f] of Object.entries(runtime.fixtures)) {
     for (const [name, view] of Object.entries({build:'build', strip:'compare', oval:'compare', tools:'tools', performance:'performance', suspension:'suspension'})) {
       const result = readFragment(f[name]);

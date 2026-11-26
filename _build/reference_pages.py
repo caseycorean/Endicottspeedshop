@@ -214,7 +214,17 @@ def experiment_panel(fixture, rid, actions):
             f'<button type="button" class="vr-button" data-share-reference="../../experience/{h(fixture["build"])}" hidden>Share the stock setup</button>'
             '<a href="../../experience/#garage">Open My Garage</a></div><p role="status" class="vr-status" data-reference-status></p></section>')
 
+_PENDING = None
+
 def vehicle_page(page, path, title, variant, kind, groups, sources, fixture, rid, indexable=True, note_html=''):
+    """Collect during build(); pages render after the shared knowledge record is built (spec_page.py)."""
+    if _PENDING is not None:
+        _PENDING.append(dict(path=path, title=title, variant=variant, kind=kind, groups=groups, sources=sources,
+                             fixture=fixture, rid=rid, indexable=indexable, note_html=note_html))
+        return
+    reference_page(page, path, title, variant, kind, groups, sources, fixture, rid, indexable, note_html)
+
+def reference_page(page, path, title, variant, kind, groups, sources, fixture, rid, indexable=True, note_html=''):
     source_ids = list(dict.fromkeys(f['source'] for g in GROUPS for f in groups.get(g, [])))
     source_numbers = {key: i for i, key in enumerate(source_ids, 1)}
     section_nav = ''.join(f'<a href="#{g}">{h(label)}</a>' for g, label in GROUPS.items() if groups.get(g))
@@ -308,6 +318,10 @@ def catalogue(page, entries, history=False):
          f'<script type="module" src="{"../../" if history else "../"}experience/reference-page.mjs"></script>', indexable=not history)
 
 def build(page):
+    global _PENDING
+    # One editorial decision set for the Lab and the pages (engine/data/publication.mjs, archive-corrections.mjs).
+    subprocess.run(['node', str(HERE/'knowledge'/'engine-data.mjs')], check=True, stdout=subprocess.DEVNULL)
+    _PENDING = []
     data = json.loads((HERE/'vehicle-reference-data.json').read_text())
     source = {s['id']: s for s in data['sources'] if s.get('url', '').startswith('https://')}
     runtime = json.loads(subprocess.check_output(['node', str(HERE/'reference-inputs.mjs')], text=True))
@@ -398,10 +412,11 @@ def build(page):
             used.add(path)
             state, reason, url = 'candidate', review.get('reason', 'Independent source supports the exact factory configuration.'), '/vehicles/'+path+'/'
             count = sum(map(len, groups.values()))
-            handoff = 'exact specification comparison; simulator setup pending'
+            fixture = runtime['fixtures'].get(rid)  # Lab registry includes publishable archive ids (Claude, 25 Nov)
+            handoff = 'exact Lab and specification comparison' if available_experiments(fixture) else 'exact specification comparison; simulator setup pending'
             note = f'<p>Historical discovery source: <a href="{h(rec["capture"])}" rel="noreferrer">Original Supercar X capture</a>.</p>'
             label = {'stock':'factory configuration', 'competition':'race configuration', 'modified':'modified or development configuration'}[kind]
-            vehicle_page(page,path,title,review['scope'],f'Supercar X heritage · {label}',groups,src,None,rid, note_html=note)
+            vehicle_page(page,path,title,review['scope'],f'Supercar X heritage · {label}',groups,src,fixture,rid, note_html=note)
             entries.append((title,'Supercar X heritage · ' + label,path+'/',groups,src))
         else:
             state = 'hold'
@@ -421,6 +436,9 @@ def build(page):
                          rec['capture'],' | '.join([promoted[rid]['url']]+[x[1] for x in promoted[rid].get('additional',[])]) if rid in promoted else '',json.dumps(a.get('missing') or {},ensure_ascii=False)])
     if unresolved or new_curated or removed:
         raise ValueError(f'Unused editorial decisions: {unresolved | new_curated | removed}')
+    pending, _PENDING = _PENDING, None
+    import spec_page
+    spec_page.render_all(page, pending, data, runtime, private, reference_page)
     catalogue(page, entries)
     build_comparison(page, entries, GROUPS)
     if private:

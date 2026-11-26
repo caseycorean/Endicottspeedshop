@@ -1,13 +1,16 @@
 // Serialize the existing Lab and archive APIs for the static page generator.
 import { readFileSync } from 'node:fs';
-import { archiveCatalog, archiveResolveOptions } from '../engine/archive.mjs';
+import { archiveCatalog, archiveResolveOptions, publishableArchive } from '../engine/archive.mjs';
 import { example, shareFragment } from '../experience/configuration.mjs';
 import { newSetup, resolve } from '../experience/models.mjs';
 import { estimatedFor, missingFor, missingText, studies } from '../experience/readiness.mjs';
 import { vehicles } from '../experience/vehicles.mjs';
 
 const {records} = JSON.parse(readFileSync(new URL('./vehicle-reference-data.json', import.meta.url), 'utf8'));
-const candidates = records.filter(r => Object.hasOwn(vehicles, r.config_id));
+// Curated records plus the publishable Supercar X configurations the street models cover (competition cars stay
+// specification-only: racing tires and aero are outside the models).
+const candidates = [...records.filter(r => Object.hasOwn(vehicles, r.config_id)),
+  ...publishableArchive.filter(x => x.tier !== 'historical-reference' && Object.hasOwn(vehicles, x.id)).map(x => ({config_id: x.id}))];
 const balanceInputs = new Set();
 const available = candidates.map(({config_id: id}) => {
   const value = resolve(newSetup(id), false);

@@ -1,3 +1,4 @@
+import { archiveCorrections } from '../data/archive-corrections.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { archiveCatalog, archiveVehicles, validGears } from '../archive.mjs';
@@ -21,8 +22,12 @@ test('every archive vehicle resolves with historical provenance pointing at its 
   for (const x of archiveVehicles) {
     const r = labVehicle(x.id);
     assert.ok(r, x.id);
-    assert.equal(r.provenance.weight.evidence, 'historical', x.id);
-    assert.match(r.provenance.weight.source, /^https:\/\/web\.archive\.org\//, x.id);
+    // Manufacturer-sourced corrections (engine/data/archive-corrections.mjs) replace an archive value with its own source.
+    if (archiveCorrections[x.id]?.weight) assert.equal(r.provenance.weight.evidence, 'manufacturer', x.id);
+    else {
+      assert.equal(r.provenance.weight.evidence, 'historical', x.id);
+      assert.match(r.provenance.weight.source, /^https:\/\/web\.archive\.org\//, x.id);
+    }
     assert.equal(r.archive.tier, x.tier);
   }
 });
