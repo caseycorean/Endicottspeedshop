@@ -291,10 +291,13 @@ def render_all(page, pending, data, runtime, private, reference_page):
     print('knowledge', summary.strip())
     records = {r['id']: r for r in json.loads((HERE / 'knowledge' / 'vehicle-knowledge.json').read_text())['records']}
     template = os.environ.get('ESS_SPEC_TEMPLATE', 'spec')
+    from spec_discovery import DISCOVERY_SLUGS, render as discovery_page
     for p in pending:
         r = records.get(p['rid'])
         if template == 'reference' or not p['indexable'] or r is None:
             reference_page(page, p['path'], p['title'], p['variant'], p['kind'], p['groups'], p['sources'], p['fixture'], p['rid'],
                            p['indexable'], p['note_html'])
+        elif os.environ.get('ESS_SPEC_DISCOVERY') == '1' and r['slug'] in DISCOVERY_SLUGS:
+            discovery_page(page, r, private)  # owner-review demonstration only (F40); off in the public build
         else:
             spec_page(page, r, private)
