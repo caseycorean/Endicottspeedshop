@@ -2,6 +2,8 @@ import { linkLayout, layouts, solveRearLinks, stages } from './rear-links.mjs';
 import { architectureLabel } from './vehicles.mjs';
 import { escape, fmt } from './ui.mjs';
 import { rearLinkInsights, rollSteerMeaning } from './rear-link-insights.mjs';
+import { attachHandles } from './manipulate.mjs';
+import { format } from './units.mjs';
 
 const colors = {lower: '#b3a487', upper: '#ffb971', lateral: '#8bcdb7', slider: '#9fc8ed'};
 const dimensions = [
@@ -15,14 +17,17 @@ function dial(id, name, min, max, step, value) {
     <input type="range" data-link-input="${id}" min="${min}" max="${max}" step="${step}" value="${value}"></label>`;
 }
 
-export function suspensionView(activeName, reference) {
-  const activeLayout = {threeLink:'three', fourLinkParallel:'parallel', fourLinkTriangulated:'triangulated', torqueArm:'torque', fiveLink:'parallel'}[reference?.archRear];
+export function suspensionView(activeName, reference, {embedded = false, initial = null} = {}) {
+  const archLayout = {threeLink:'three', fourLinkParallel:'parallel', fourLinkTriangulated:'triangulated', torqueArm:'torque', fiveLink:'parallel'}[reference?.archRear];
+  const activeLayout = initial?.layout ?? archLayout;
   const dimensions = initialDimensions(reference);
   const context = reference?.archRear ? `Active vehicle rear: ${architectureLabel('archRear', reference.archRear)}${activeLayout ? '. The starting layout uses example mounts.' : '. Working examples below use linked live axles.'}` : '';
 
   return `<section class="shell workspace suspension-workspace" data-suspension-lab>
-    <header class="page-title"><p class="eyebrow">Engineering experiments</p><h1>Rear suspension</h1>
-      <p class="lede">Move a mount. Raise or roll the axle. Watch the links and the constraint change together.</p></header>
+    ${embedded ? `<header class="susp-sub"><h2>Rear: live-axle links, anti-squat, roll steer and pinion angle</h2>
+      <p class="quiet">Drag a link end in the side view, or pick a link and type its mounts. Raise or roll the axle and watch the constraints solve. <b data-prov="example">Generic example</b> mounts unless you change them.</p></header>` :
+    `<header class="page-title"><p class="eyebrow">Engineering experiments</p><h1>Rear suspension</h1>
+      <p class="lede">Move a mount. Raise or roll the axle. Watch the links and the constraint change together.</p></header>`}
     <div class="susp-controller panel content-panel">
       <label><span>Link layout</span><select data-link-layout>${Object.entries(layouts).map(([id, l]) => `<option value="${id}" ${activeLayout === id ? 'selected' : ''}>${l.name}</option>`).join('')}</select></label>
       <div class="tool-controls">
@@ -33,7 +38,7 @@ export function suspensionView(activeName, reference) {
       <p data-link-status class="link-status" role="status"></p>
       <dl class="link-readout" data-link-readout></dl>
       <div class="link-canvas-grid"><figure><figcaption>Side view · front to the right</figcaption>
-        <canvas width="580" height="225" data-link-canvas="side" role="img" aria-label="Side projection of axle and link positions"></canvas></figure>
+        <div class="dm-stage"><canvas width="580" height="225" data-link-canvas="side" role="img" aria-label="Side projection of axle and link positions"></canvas><div class="dm-layer" data-rear-layer></div></div></figure>
         <figure><figcaption>Top view · front to the right</figcaption>
         <canvas width="580" height="225" data-link-canvas="top" role="img" aria-label="Plan projection of axle and link positions"></canvas></figure></div>
     </div>
@@ -79,6 +84,7 @@ function draw(canvas, view, links, result, selected) {
   const x = n => 21 + (n - xMin) / (xMax - xMin) * (width - 42);
   const y = view === 'side' ? z => height - 26 - z * 5.5 : q => height / 2 + q * 3.12;
   const point = p => [x(p[0]), y(p[view === 'side' ? 2 : 1])];
+  canvas._map = {x, y, xi: px => xMin + (px - 21) / (width - 42) * (xMax - xMin), yi: view === 'side' ? py => (height - 26 - py) / 5.5 : py => (py - height / 2) / 3.12};
   const line = (a, b, color, size = 1) => {
     ctx.strokeStyle = color; ctx.lineWidth = size;
     ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke();
@@ -124,7 +130,27 @@ function draw(canvas, view, links, result, selected) {
   ctx.fillText(view === 'side' ? 'ROAD DATUM' : 'CENTERLINE', 15, height - 8);
 }
 
-export function mountSuspension(root, reference) {
+/** Validate a shared/stored rear-lab state {layout, links:[{axle,chassis}], heave, roll}. Null when invalid. */
+export function cleanRear(raw) {
+  if (!raw || typeof raw !== 'object' || !Object.hasOwn(layouts, raw.layout)) return null;
+  const base = linkLayout(raw.layout);
+  const ok = (n, lo, hi) => Number.isFinite(n) && n >= lo && n <= hi;
+  const heave = raw.heave ?? 0, roll = raw.roll ?? 0;
+  if (!ok(heave, stages[0].min, stages[0].max) || !ok(roll, stages[1].min, stages[1].max)) return null;
+  if (raw.links !== undefined) {
+    if (!Array.isArray(raw.links) || raw.links.length !== base.length) return null;
+    for (const [i, l] of raw.links.entries()) {
+      for (const end of ['axle', 'chassis']) {
+        const p = l?.[end];
+        if (!Array.isArray(p) || p.length !== 3 || !p.every((n, k) => ok(n, dimensions[k].min, dimensions[k].max))) return null;
+        base[i][end] = [...p];
+      }
+    }
+  }
+  return {layout: raw.layout, links: base.map(l => ({axle: l.axle, chassis: l.chassis})), heave, roll};
+}
+
+export function mountSuspension(root, reference, {initial = null, onChange = null} = {}) {
   const panel = root.querySelector('[data-suspension-lab]');
   if (!panel) return;
   const layout = panel.querySelector('[data-link-layout]');
@@ -133,8 +159,43 @@ export function mountSuspension(root, reference) {
   const axes = panel.querySelector('[data-mount-inputs]');
   const status = panel.querySelector('[data-link-status]');
   const readout = panel.querySelector('[data-link-readout]');
-  let links = linkLayout(layout.value);
-  let state = {heave: 0, roll: 0, ...initialDimensions(reference)};
+  const start = cleanRear(initial);
+  let links = linkLayout(start?.layout ?? layout.value);
+  if (start) { layout.value = start.layout; start.links.forEach((l, i) => { links[i].axle = [...l.axle]; links[i].chassis = [...l.chassis]; }); }
+  let state = {heave: start?.heave ?? 0, roll: start?.roll ?? 0, ...initialDimensions(reference)};
+  let lastResult = null;
+  const sideCanvas = panel.querySelector('[data-link-canvas="side"]');
+  const rearLayer = panel.querySelector('[data-rear-layer]');
+  const fmtSide = p => `${format('length', p[0], {digits: 1, metricDigits: 0})} forward of the axle, ${format('length', p[1], {digits: 1, metricDigits: 0})} high`;
+  const dm = rearLayer && attachHandles(rearLayer, {
+    handles() {
+      const map = sideCanvas?._map, i = Number(pick.value), link = links[i];
+      if (!map || !link) return [];
+      const cur = lastResult?.current?.[i]?.current ?? link.axle;
+      const out = [{id: 'chassis', point: [link.chassis[0], link.chassis[2]], label: `${link.name} chassis end`, axes: link.group === 'slider' ? 'y' : 'xy', step: [.25, .25], describe: fmtSide}];
+      if (link.group !== 'slider') out.push({id: 'axle', point: [cur[0], cur[2]], label: `${link.name} axle end`, axes: 'xy', step: [.25, .25], describe: fmtSide});
+      return out;
+    },
+    toScreen: ([n, z]) => { const m = sideCanvas._map; return [m.x(n), m.y(z)]; },
+    toModel: ([px, py]) => { const m = sideCanvas._map; return [m.xi(px), m.yi(py)]; },
+    clamp: (id, [n, z]) => [Math.min(dimensions[0].max, Math.max(dimensions[0].min, n)), Math.min(dimensions[2].max, Math.max(dimensions[2].min, z))],
+    onMove(id, [n, z]) {
+      const link = links[Number(pick.value)];
+      if (id === 'chassis') { link.chassis[0] = +n.toFixed(2); link.chassis[2] = +z.toFixed(2); if (link.group === 'slider') link.axle[2] = link.chassis[2]; }
+      else {
+        const cur = lastResult?.current?.[Number(pick.value)]?.current ?? link.axle;
+        link.axle[0] = +Math.min(dimensions[0].max, Math.max(dimensions[0].min, link.axle[0] + n - cur[0])).toFixed(2);
+        link.axle[2] = +Math.min(dimensions[2].max, Math.max(dimensions[2].min, link.axle[2] + z - cur[2])).toFixed(2);
+      }
+      pickFields();
+      update();
+    },
+    onReset(id) {
+      const i = Number(pick.value), fresh = linkLayout(layout.value)[i];
+      links[i][id] = [...fresh[id]];
+      pickFields(); update();
+    },
+  });
   function pickFields(refreshOptions = false) {
     if (refreshOptions) pick.innerHTML = links.map((l, i) => `<option value="${i}">${l.name}</option>`).join('');
     const current = links[Number(pick.value)];
@@ -144,6 +205,7 @@ export function mountSuspension(root, reference) {
   }
   function update() {
     const result = solveRearLinks(links, state);
+    lastResult = result;
     const insight = rearLinkInsights(links, state);
     status.dataset.level = result.level;
     status.textContent = result.message + (Number.isFinite(result.residual) ? ' Max mismatch ' + fmt(result.residual, 3) + ' in.' : '');
@@ -159,7 +221,13 @@ export function mountSuspension(root, reference) {
     readout.innerHTML = metrics.map(([label,value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join('') +
       (insight.fits ? `<div class="link-readout-wide"><dt>What the roll steer means</dt><dd>${rollSteerMeaning(insight.rollSteer)}</dd></div>` : '');
     for (const canvas of panel.querySelectorAll('canvas')) draw(canvas, canvas.dataset.linkCanvas, links, result, Number(pick.value));
+    dm?.refresh();
+    // Roll centre at ride height (not the posed value) feeds the load-transfer model.
+    const rc = state.heave || state.roll ? rearLinkInsights(links, {heave: 0, roll: 0}) : insight;
+    onChange?.({rollCentre: rc.fits ? rc.rollCentre : null,
+      state: {layout: layout.value, links: links.map(l => ({axle: [...l.axle], chassis: [...l.chassis]})), heave: state.heave, roll: state.roll}});
   }
+  if (typeof ResizeObserver !== 'undefined' && sideCanvas) new ResizeObserver(() => { if (lastResult) { draw(sideCanvas, 'side', links, lastResult, Number(pick.value)); dm?.refresh(); } }).observe(sideCanvas);
   panel.addEventListener('input', event => {
     const key = event.target.dataset.linkInput;
     if (!key) return;
@@ -190,11 +258,17 @@ export function mountSuspension(root, reference) {
     if (key === 'reset') Object.assign(state, {heave: 0, roll: 0});
     if (key === 'mounts') { links = linkLayout(layout.value); pickFields(); }
     for (const [field, n] of Object.entries(state)) {
-      panel.querySelector(`[data-link-input="${field}"]`).value = n;
-      panel.querySelector(`[data-link-value="${field}"]`).value = n;
+      const input = panel.querySelector(`[data-link-input="${field}"]`), out = panel.querySelector(`[data-link-value="${field}"]`);
+      if (input) input.value = n; // 'active' is bookkeeping with no control (previously threw here, so these buttons did nothing)
+      if (out) out.value = n;
     }
     update();
   });
   pickFields(true);
+  for (const field of ['heave', 'roll']) {
+    const input = panel.querySelector(`[data-link-input="${field}"]`), out = panel.querySelector(`[data-link-value="${field}"]`);
+    if (input) input.value = state[field];
+    if (out) out.value = state[field];
+  }
   update();
 }

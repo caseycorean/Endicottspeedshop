@@ -1,4 +1,6 @@
 import { cleanSetup, newSetup, usableSetup } from './models.mjs';
+import { cleanSusp } from './suspension-lab.mjs';
+import { cleanRear } from './suspension-view.mjs';
 
 const activeKey = 'ess.active-configuration.v1';
 const garageKey = 'ess.garage.v1';
@@ -115,6 +117,7 @@ export function shareFragment(state, view = 'compare') {
     ...(state.event ? {event: state.event} : {}),
     ...(state.tool ? {tool: state.tool} : {}),
     ...(state.perf ? {perf: state.perf} : {}),
+    ...(state.susp ? {susp: state.susp} : {}),
   });
 }
 
@@ -144,6 +147,13 @@ export function readFragment(hash) {
       if ((tire != null && (typeof tire !== 'string' || tire.length > 24)) || (surface != null && (typeof surface !== 'string' || surface.length > 24)) ||
           (mu != null && !(Number.isFinite(mu) && mu >= .1 && mu <= 3)) || (gear != null && !(Number.isInteger(gear) && gear >= 0 && gear < 10))) return invalid;
       state.perf = {tire: tire ?? null, surface: surface ?? 'dryAsphalt', customMu: mu ?? null, gear: gear ?? 0};
+    }
+    // Suspension geometry and settings travel in canonical units (in, lb-ft/deg, g), never in display units.
+    if (raw.susp !== undefined) {
+      const susp = cleanSusp(raw.susp);
+      const rear = raw.susp?.rear === undefined ? undefined : cleanRear(raw.susp.rear);
+      if (!susp || rear === null) return invalid;
+      state.susp = {...susp, ...(rear ? {rear} : {})};
     }
     for (const key of keys) {
       const selected = validateSelection(raw[key], raw[key + 'Mode']);

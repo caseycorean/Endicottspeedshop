@@ -6,7 +6,9 @@ import { fmt, numberField } from './ui.mjs';
 import { compare, matchupEntries, comparisonResults, liveGrid, resultTime, setupName, quickImpact } from './matchup.mjs';
 import { paintReplay, replayFrame } from './replay.mjs';
 import { garageView } from './garage-view.mjs';
-import { mountSuspension, suspensionView } from './suspension-view.mjs';
+import { mountSuspension, suspensionView, cleanRear } from './suspension-view.mjs';
+import { suspensionPageHtml, mountSuspensionPage, loadSusp, saveSusp, cleanSusp } from './suspension-lab.mjs';
+import { bindUnitControls, format as formatUnits } from './units.mjs';
 import { installCatalog } from './catalog.mjs';
 import { tractionPanel } from './drivetrain-view.mjs';
 import { components, componentOverrides } from './components.mjs';
@@ -53,6 +55,7 @@ function rememberDraft() {
 }
 let view = 'home';
 let perf = loadPerf();
+let susp = loadSusp();
 const perfViews = ['performance', 'performance-why', 'performance-math'];
 let replay;
 let pendingPreset;
@@ -66,11 +69,13 @@ function speak(message = '') {
   status.textContent = message;
 }
 
+const limitsFor = key => ({frontSpring: [40, 2000], rearSpring: [40, 2000], frontMotion: [.25, 1.5], rearMotion: [.25, 1.5]})[key] ?? [0, 0];
+const withSusp = () => ({...state, susp: JSON.parse(JSON.stringify(susp))});
 const withPerf = () => ({...state, perf: {tire: perf.tire, surface: perf.surface, customMu: perf.customMu, gear: perf.gear}});
 
 function experimentUrl(page = 'compare') {
   const url = new URL('./', location.href);
-  url.hash = shareFragment(page.startsWith('performance') ? withPerf() : state, page);
+  url.hash = shareFragment(page.startsWith('performance') ? withPerf() : page === 'suspension' ? withSusp() : state, page);
   return url.href;
 }
 
@@ -87,8 +92,9 @@ function navigate(next) {
 function applyLocation() {
   const route = readFragment(location.hash);
   if (route.state) {
-    const {perf: sharedPerf, ...rest} = route.state;
+    const {perf: sharedPerf, susp: sharedSusp, ...rest} = route.state;
     state = rest;
+    if (sharedSusp) { susp = sharedSusp; saveSusp(susp); }
     if (sharedPerf) {
       perf = cleanPerf({...sharedPerf, vehicle: state[state.focus].id}); savePerf(perf);
       if (!state[state.focus].conditions && (perf.tire || perf.surface !== 'dryAsphalt')) {
@@ -96,7 +102,7 @@ function applyLocation() {
         state[state.focus + 'Mode'] = 'after';
       }
     }
-    sharedLinkNotice = perfViews.includes(route.view) ? 'Shared experiment: same car, gearing, tire and surface. Change one thing to see what it does.'
+    sharedLinkNotice = route.view === 'suspension' ? 'Shared suspension experiment: same car, springs and geometry, shown in your units. Move one thing to see what it does.' : perfViews.includes(route.view) ? 'Shared experiment: same car, gearing, tire and surface. Change one thing to see what it does.'
       : 'Shared experiment. Try a change or run the comparison to see it play out.';
   } else if (route.invalid) {
     state = initialState(false);
@@ -135,10 +141,26 @@ function render(next = view, restoreDetails = false) {
     case 'tools': app.innerHTML = toolsView(state, toolSettings(), shareFragment(state, 'tools'), saved); break;
     case 'garage': app.innerHTML = garageView(getGarage(), getActive()); break;
     case 'suspension': {
-      const selected = getActive();
-      const vehicle = selected && resolve(selected.setup, selected.mode === 'after');
-      app.innerHTML = suspensionView(selected && setupName(selected.setup), vehicle) + frontGeometry(vehicle?.archFront);
-      mountSuspension(app, vehicle);
+      const setup = active();
+      const v = resolve(setup, true), orig = resolve(setup, false);
+      const rear = cleanRear(susp.rear);
+      app.innerHTML = suspensionPageHtml({ name: setupName(setup), v, susp,
+        provenance: state[state.focus + 'Mode'] === 'after' ? 'modified configuration' : 'original configuration',
+        rearHtml: suspensionView(setupName(setup), v, { embedded: true, initial: rear }) });
+      mountSuspensionPage(app, {
+        susp, v, orig,
+        save: () => saveSusp(susp),
+        rerender: () => render('suspension', true),
+        announce: speak,
+        preview: (key, value) => { const next = {...setup, tune: {...setup.tune, [key]: value}}; return usableSetup(next) ? resolve(next, true) : null; },
+        applyTune: (key, value, label) => {
+          if (!validValue(key, value)) return `Use ${formatUnits(key.endsWith('Motion') ? 'ratio' : 'rate', limitsFor(key)[0])} to ${formatUnits(key.endsWith('Motion') ? 'ratio' : 'rate', limitsFor(key)[1])}.`;
+          const next = {...setup, tune: {...setup.tune, [key]: value}};
+          if (!commitExperiment(next, (label ? 'Applied: ' + label + '. ' : '') + 'Saved with this configuration.')) return 'That value could not be applied to this configuration.';
+          return true;
+        },
+        mountRear: (root, onRear) => mountSuspension(root, v, { initial: rear, onChange: onRear }),
+      });
       break;
     }
     case 'learn': app.innerHTML = learn(); break;
@@ -163,6 +185,7 @@ function render(next = view, restoreDetails = false) {
   }
   mountCamber(app);
   mountFrontGeometry(app);
+  bindUnitControls(app);
   watchPerfSticky();
   fillLaunchPanel();
   rememberDraft();
@@ -177,7 +200,7 @@ function render(next = view, restoreDetails = false) {
   }
   if (focusData) {
     const [key, value] = focusData;
-    [...app.querySelectorAll('button,select')].find(el => el.dataset[key] === value && !el.disabled)?.focus({ preventScroll: true });
+    [...app.querySelectorAll('button,select,input')].find(el => el.dataset[key] === value && !el.disabled && (priorFocus.dataset.range === undefined) === (el.dataset.range === undefined))?.focus({ preventScroll: true });
   }
 }
 
@@ -467,6 +490,24 @@ async function perfShare() {
   }
 }
 
+async function suspShare() {
+  const url = experimentUrl('suspension');
+  const target = byId('susp-share-feedback');
+  const v = resolve(active(), true);
+  const summary = `${setupName(active())} suspension: springs ${formatUnits('rate', v.frontSpring)} front / ${formatUnits('rate', v.rearSpring)} rear`;
+  const result = await shareResult(url, 'ESS suspension experiment', summary);
+  if (!target?.isConnected || result === 'cancelled') return;
+  target.replaceChildren(result === 'copied' ? 'Link copied. ' : result === 'shared' ? 'Experiment shared. ' : '');
+  const anchor = document.createElement('a');
+  anchor.href = url; anchor.textContent = 'Open the shared link'; anchor.target = '_blank'; anchor.rel = 'noopener';
+  target.append(anchor);
+  if (result === 'manual') {
+    const input = document.createElement('input');
+    input.readOnly = true; input.value = url; input.setAttribute('aria-label', 'Experiment link');
+    target.append(input); input.focus(); input.select();
+  }
+}
+
 async function share() {
   const url = experimentUrl();
   const title = 'ESS Vehicle Lab comparison';
@@ -699,6 +740,7 @@ document.addEventListener('click', event => {
   }
   if (perfViews.includes(view) && perfClick(el)) return;
   if (el.dataset.labTry) { applyLabExperiment(el); return; }
+  if (el.matches('[data-susp-share]')) { suspShare(); return; }
   if (el.dataset.preset) { choosePreset(el.dataset.preset); return; }
   if (el.dataset.remove !== undefined) {
     const next = clone(active());
@@ -879,6 +921,8 @@ app.addEventListener('input', event => {
   byId('load-link').hash = hash;
   rememberDraft();
 });
+
+document.addEventListener('ess:units-changed', () => { if (view === 'suspension') render(view, true); });
 
 window.addEventListener('hashchange', () => {
   if (location.hash !== '#content') applyLocation();

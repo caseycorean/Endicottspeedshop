@@ -81,8 +81,9 @@ def page(path, title, desc, body, active="", extra_head=""):
 <p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="{rel}contact/">Spot a problem? Tell us.</a></p>
 </aside>
 {body}
-<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="{rel}contact/">report a problem</a></span><span><a href="{rel}privacy/">Privacy</a> · <a href="{rel}contact/">Contact</a></span></div></footer>
+<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="{rel}contact/">report a problem</a></span><span><a href="{rel}privacy/">Privacy</a> · <a href="{rel}contact/">Contact</a></span><label class="ess-units"><span>Units</span><select data-units-pref aria-label="Measurement units"><option value="us">US customary</option><option value="metric">Metric</option><option value="dual">Both</option></select></label></div></footer>
 <script src="{rel}assets/site.js"></script>
+<script type="module" src="{rel}experience/units.mjs"></script>
 </body>
 </html>
 """

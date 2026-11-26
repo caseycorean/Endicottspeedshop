@@ -193,3 +193,7 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]), select { min-hei
 .page summary { min-height: 44px; display: flex; align-items: center; }
 .brand { min-height: 44px; display: inline-flex; align-items: center; }
 details > summary { min-height: 44px; display: flex; align-items: center; }
+
+/* Units preference (functional; shared by every page — Claude, 25 Nov) */
+.ess-units { display: inline-flex; align-items: center; gap: .4rem; }
+.ess-units select { min-height: 40px; max-width: 100%; font: inherit; }
