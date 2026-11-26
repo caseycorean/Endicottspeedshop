@@ -96,3 +96,12 @@ test('a closed lap converges to a repeating start speed', () => {
   const r = runPath(camaro, loop, { closed: true, startMph: 30 });
   near(r.entryMph, r.exitMph, .05, 'periodic');
 });
+
+test('timing conventions: road-test timing is shorter than an emergency stop by about the extra build-up distance', async () => {
+  const { brakeBetween, BRAKING_CONVENTIONS } = await import('../maneuvers.mjs');
+  const v = car('camaro');
+  const r = brakeBetween(v, 60, 0, { convention: 'roadTest' }), e = brakeBetween(v, 60, 0, { convention: 'emergency' });
+  assert.ok(BRAKING_CONVENTIONS.roadTest.params.riseTime < BRAKING_CONVENTIONS.emergency.params.riseTime);
+  const extra = e.distance - r.distance, approx = 88 * (.15 - .05) / 2; // linear ramp ≈ half the speed × the extra time
+  assert.ok(extra > 0 && Math.abs(extra - approx) < 3, `extra ${extra.toFixed(2)} ft vs ≈${approx.toFixed(2)} ft`);
+});

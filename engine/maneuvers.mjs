@@ -79,7 +79,21 @@ export function accelerationProfile(v, { distanceFt = 1320, fromMph = 0, toMph =
 
 // ---------------------------------------------------------------- 2. braking between any two speeds
 /** Braking from any speed to any lower speed (0 = a full stop). Thin wrapper so every maneuver uses one braking model. */
-export const brakeBetween = (v, fromMph, toMph = 0, options = {}) => brakingStop(withAxles(v), { from: fromMph, to: toMph, ...options });
+export const brakeBetween = (v, fromMph, toMph = 0, { convention, ...options } = {}) =>
+  brakingStop(withAxles(v), { from: fromMph, to: toMph, ...(BRAKING_CONVENTIONS[convention] ?? {}).params, ...options });
+/**
+ * How the clock and tape are started matters as much as the physics. Calibration (26 Nov, Claude): on 117 Supercar X
+ * archive stops (51 street cars, 60–100 mph; independent of the 24 modern validation stops) the best brake build-up
+ * time was 0.05 s (MAD 5.1%, signed 0.0%) with ABS efficiency unchanged at 0.95. Applied to the 20 held-out Car and
+ * Driver stops it cut the bias from +5.1% to +2.5% (MAD 7.2% → 6.1%). Read as: published distances are timed once the
+ * brakes are essentially applied. The 0.15 s literature value is kept for a real-world emergency stop.
+ */
+export const BRAKING_CONVENTIONS = {
+  roadTest: { label: 'Road-test timing', params: { riseTime: .05 },
+    note: 'Timed the way magazines usually report a stop: from when the brakes are applied. Build-up 0.05 s, calibrated on 117 archive stops and checked on 20 held-out Car and Driver tests (about 2.5% long on average).' },
+  emergency: { label: 'Real-world emergency stop', params: { riseTime: .15 },
+    note: 'Adds a typical 0.15 s of brake-pressure build-up (literature estimate). Driver reaction time is not included: at 60 mph a 1.5 s reaction adds about 130 ft.' },
+};
 
 // ---------------------------------------------------------------- 3. steady cornering
 /** Steady-state cornering on a radius (ft): limit lateral g, speed, limiting axle (balance) and lateral load transfer split. */

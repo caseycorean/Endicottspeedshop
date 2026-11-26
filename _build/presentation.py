@@ -71,6 +71,7 @@ def change_home_a(html):
     sims = ('<div class="a-sims" aria-label="Simulators">'
             '<a href="experience/#performance"><strong>Performance simulator</strong><span>0–60, quarter mile, gearing and tires, side by side</span></a>'
             '<a href="experience/#build"><strong>Build a car</strong><span>Engine, transmission, weight and balance</span></a>'
+            '<a href="simulate/"><strong>Accelerate, brake, corner</strong><span>Any distance or speed, stops from any speed, corners, and braking into and powering out of them</span></a>'
             '<a href="suspension-v2/"><strong>Suspension</strong><span>Move the pivots: camber, roll center and anti-squat through travel</span></a>'
             '<a href="vehicles/"><strong>Vehicle specifications</strong><span>116 cars with sources and live experiments</span></a></div>')
     return (html.replace("Endicott Speed Shop | Run it before you buy it.", "Endicott Speed Shop | Measure. Test. Improve.")
