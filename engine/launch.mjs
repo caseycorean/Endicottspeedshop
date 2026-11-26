@@ -13,7 +13,7 @@
 //   • A spinning tire gives sliding friction (lower than peak) until the wheels slow to road speed.
 // Same inertia basis as acceleration.mjs (Gillespie): wheels + driveline 0.04·m, engine 0.0025·N²·m (as road mass).
 // Manual and dual-clutch only; automatics fall back to straightLine (converter model). Units: lb, in, ft, s, mph.
-import { straightLine, driveAt, torqueAt, resistanceAt, tractionLimit, launchSettings, defaults, wheelRpm } from './acceleration.mjs';
+import { straightLine, driveAt, torqueAt, resistanceAt, tractionLimit, launchSettings, defaults, wheelRpm, inertiaScale } from './acceleration.mjs';
 import { frictionFor, tractionCheck, sources as tireSources } from './traction.mjs';
 
 const G = 32.174;
@@ -67,7 +67,7 @@ export function launchRun(v, opts = {}) {
     rollResistance: defaults.rollResistance, ...opts };
   const m = v.weight / G;
   const Mw = .04 * m;                                   // wheels + driveline, as road-equivalent mass
-  const Me = gear => .0025 * (v.gears[gear] * v.finalDrive) ** 2 * m; // engine + flywheel in this gear
+  const Me = gear => .0025 * (v.gears[gear] * v.finalDrive * ((opts.inertiaScale ?? defaults.inertiaScale) ? inertiaScale(v) : 1)) ** 2 * m; // engine + flywheel in this gear
   const rpmOf = (E, gear) => wheelRpm(v, E, gear);      // road-equivalent engine speed → rpm
   const speedOf = (rpm, gear) => rpm / wheelRpm(v, 1, gear);
   const drive = (rpm, gear) => rpm > v.redline ? 0 : driveAt(v, Math.max(rpm, 600), gear); // rev limiter; stall floor

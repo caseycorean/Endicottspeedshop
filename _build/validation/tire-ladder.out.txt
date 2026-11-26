@@ -1,0 +1,16 @@
+
+GR86
+  allSeason      μ 0.88  old 0–60 6.58 ET 15.08  |  fixed 0–60 6.61 ET 15.08
+  maxSummer      μ 1.05  old 0–60 5.90 ET 14.54  |  fixed 0–60 6.30 ET 14.81
+  extremeSummer  μ 1.10  old 0–60 5.77 ET 14.43  |  fixed 0–60 6.23 ET 14.75
+  dragRadial     μ 1.10  old 0–60 5.77 ET 14.43  |  fixed 0–60 6.23 ET 14.75
+  slick          μ 1.15  old 0–60 5.66 ET 14.34  |  fixed 0–60 6.17 ET 14.69
+
+Ranger Raptor
+  allSeason      μ 0.88  old 0–60 5.76 ET 14.29  |  fixed 0–60 5.70 ET 14.26
+  maxSummer      μ 1.05  old 0–60 6.39 ET 14.79  |  fixed 0–60 5.66 ET 14.22
+  extremeSummer  μ 1.10  old 0–60 6.38 ET 14.78  |  fixed 0–60 5.65 ET 14.22
+  dragRadial     μ 1.10  old 0–60 6.38 ET 14.78  |  fixed 0–60 5.65 ET 14.22
+  slick          μ 1.15  old 0–60 6.37 ET 14.77  |  fixed 0–60 5.64 ET 14.21
+
+Ram TRX

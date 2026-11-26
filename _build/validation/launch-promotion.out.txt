@@ -1,0 +1,49 @@
+
+## all (n=71 ET, 70 0–60)
+et    legacy MAE 0.347 bias 0.22 | base MAE 0.344 bias 0.21 | scaled MAE 0.317 bias 0.17 | perf MAE 0.325 bias 0.19 | max MAE 0.286 bias 0.11
+s60   legacy MAE 0.384 bias 0.29 | base MAE 0.380 bias 0.29 | scaled MAE 0.349 bias 0.24 | perf MAE 0.356 bias 0.26 | max MAE 0.313 bias 0.17
+trap  legacy MAE 2.324 bias -0.23 | base MAE 2.408 bias -0.26 | scaled MAE 2.405 bias -0.04 | perf MAE 2.342 bias -0.17 | max MAE 2.280 bias 0.30
+
+## manual (n=54 ET, 54 0–60)
+et    legacy MAE 0.302 bias 0.18 | base MAE 0.298 bias 0.16 | scaled MAE 0.294 bias 0.14 | perf MAE 0.296 bias 0.15 | max MAE 0.248 bias 0.05
+s60   legacy MAE 0.311 bias 0.22 | base MAE 0.306 bias 0.20 | scaled MAE 0.304 bias 0.19 | perf MAE 0.305 bias 0.20 | max MAE 0.252 bias 0.09
+trap  legacy MAE 2.412 bias -0.49 | base MAE 2.503 bias -0.52 | scaled MAE 2.491 bias -0.38 | perf MAE 2.492 bias -0.38 | max MAE 2.383 bias 0.17
+
+## automatic (n=17 ET, 16 0–60)
+et    legacy MAE 0.488 bias 0.34 | base MAE 0.489 bias 0.36 | scaled MAE 0.390 bias 0.24 | perf MAE 0.418 bias 0.31 | max MAE 0.406 bias 0.28
+s60   legacy MAE 0.629 bias 0.51 | base MAE 0.630 bias 0.56 | scaled MAE 0.502 bias 0.40 | perf MAE 0.529 bias 0.46 | max MAE 0.517 bias 0.44
+trap  legacy MAE 2.044 bias 0.61 | base MAE 2.108 bias 0.60 | scaled MAE 2.133 bias 1.03 | perf MAE 1.868 bias 0.50 | max MAE 1.953 bias 0.70
+
+## curated (n=17 ET, 17 0–60)
+et    legacy MAE 0.477 bias 0.37 | base MAE 0.524 bias 0.40 | scaled MAE 0.422 bias 0.28 | perf MAE 0.444 bias 0.31 | max MAE 0.383 bias 0.22
+s60   legacy MAE 0.659 bias 0.52 | base MAE 0.721 bias 0.56 | scaled MAE 0.600 bias 0.41 | perf MAE 0.617 bias 0.44 | max MAE 0.546 bias 0.34
+trap  legacy MAE 1.750 bias -0.06 | base MAE 1.826 bias -0.11 | scaled MAE 1.892 bias 0.36 | perf MAE 1.720 bias 0.12 | max MAE 1.717 bias 0.53
+
+## archive (n=54 ET, 53 0–60)
+et    legacy MAE 0.306 bias 0.17 | base MAE 0.287 bias 0.15 | scaled MAE 0.284 bias 0.13 | perf MAE 0.288 bias 0.15 | max MAE 0.255 bias 0.07
+s60   legacy MAE 0.296 bias 0.21 | base MAE 0.271 bias 0.20 | scaled MAE 0.269 bias 0.18 | perf MAE 0.273 bias 0.20 | max MAE 0.238 bias 0.12
+trap  legacy MAE 2.504 bias -0.28 | base MAE 2.591 bias -0.30 | scaled MAE 2.567 bias -0.17 | perf MAE 2.538 bias -0.26 | max MAE 2.457 bias 0.23
+
+## manual, ≤10 lb/hp (n=38 ET, 38 0–60)
+et    legacy MAE 0.263 bias 0.14 | base MAE 0.252 bias 0.11 | scaled MAE 0.245 bias 0.09 | perf MAE 0.247 bias 0.10 | max MAE 0.220 bias 0.01
+s60   legacy MAE 0.265 bias 0.20 | base MAE 0.247 bias 0.18 | scaled MAE 0.239 bias 0.16 | perf MAE 0.240 bias 0.17 | max MAE 0.205 bias 0.09
+trap  legacy MAE 2.349 bias -0.09 | base MAE 2.445 bias -0.11 | scaled MAE 2.414 bias 0.06 | perf MAE 2.415 bias 0.06 | max MAE 2.361 bias 0.67
+
+## manual, >10 lb/hp (n=16 ET, 16 0–60)
+et    legacy MAE 0.395 bias 0.28 | base MAE 0.409 bias 0.28 | scaled MAE 0.410 bias 0.27 | perf MAE 0.413 bias 0.27 | max MAE 0.314 bias 0.14
+s60   legacy MAE 0.423 bias 0.26 | base MAE 0.447 bias 0.27 | scaled MAE 0.458 bias 0.26 | perf MAE 0.460 bias 0.26 | max MAE 0.365 bias 0.09
+trap  legacy MAE 2.560 bias -1.44 | base MAE 2.639 bias -1.51 | scaled MAE 2.673 bias -1.44 | perf MAE 2.674 bias -1.44 | max MAE 2.434 bias -0.99
+
+worst manual ET residuals (perf):
+sx-1977-pontiac-supercar-x-firebird-formula                  perf 1.03 base 1.02 mu 0.85 lb/hp 16.2
+toyota-gr86-zn8--2022-premium-2.4-m6-coupe                   perf 0.75 base 0.70 mu 1.1 lb/hp 12.4
+sx-1977-pontiac-firebird-formula                             perf 0.64 base 0.67 mu 0.85 lb/hp 17.9
+sx-2002-pagani-zonda-s7-3                                    perf -0.60 base -0.59 mu 1.1 lb/hp 5.1
+pontiac-firebird-2nd-gen--1977-trans-am-w72-400-m4-coupe     perf -0.60 base -0.55 mu 0.85 lb/hp 19.1
+sx-2002-bmw-m3-coupe                                         perf 0.56 base 0.59 mu 1.1 lb/hp 10.3
+sx-1985-pontiac-fiero-gt                                     perf 0.56 base 0.48 mu 0.95 lb/hp 19.7
+subaru-wrx-vb--2022-limited-2.4-m6-sedan                     perf 0.51 base 0.52 mu 1.1 lb/hp 12.5
+sx-2002-ferrari-360-modena-f1                                perf 0.48 base 0.53 mu 1.1 lb/hp 7.7
+sx-2003-ferrari-enzo-ferrari                                 perf 0.45 base 0.47 mu 1.1 lb/hp 4.6
+sx-2003-saleen-s7                                            perf -0.44 base -0.44 mu 1.1 lb/hp 5.2
+sx-2003-ford-svt-cobra                                       perf 0.44 base 0.44 mu 1.1 lb/hp 9.4

@@ -39,14 +39,18 @@ test('v2 hits a closed-form constant-traction distance and two rollout clocks', 
   const base = resolve(newSetup('corvette'), false);
   const v = {...base, grip: .35, cda: 0};
   // Independent solution. With no resistance and one gear at these speeds, the axle remains
-  // grip limited at F = μWr / (1 − μh/L). Wheel-only rotational inertia adds four percent.
-  const a = 32.174 * v.grip * (1 - v.front) / (1 - v.grip * v.cg / v.wheelbase) / 1.04;
+  // grip limited at F = μWr / (1 − μh/L). At the grip limit the engine has torque to spare and spins up the wheels
+  // itself, so the car gets the full grip force (25 Nov fix, same as engine/launch.mjs). The old rule's extra 4%
+  // wheel-inertia divisor is kept behind legacyTraction and checked too.
+  const a = 32.174 * v.grip * (1 - v.front) / (1 - v.grip * v.cg / v.wheelbase);
   const distanceFt = 60;
-  const run = kernel(v, {distanceFt, rollResistance: 0});
-  assert.ok(run.trace.slice(1).every(s => s.limit === 'traction'));
-  assert.ok(Math.abs(run.finish.t - Math.sqrt(2 * distanceFt / a)) < .001);
-  const stripClock = Math.sqrt(2 * (distanceFt + 1) / a) - Math.sqrt(2 / a);
-  assert.ok(Math.abs(run.magazine.et - stripClock) < .001);
+  for (const [opts, acc] of [[{}, a], [{legacyTraction: true}, a / 1.04]]) {
+    const run = kernel(v, {distanceFt, rollResistance: 0, ...opts});
+    assert.ok(run.trace.slice(1).every(s => s.limit === 'traction'));
+    assert.ok(Math.abs(run.finish.t - Math.sqrt(2 * distanceFt / acc)) < .001);
+    const stripClock = Math.sqrt(2 * (distanceFt + 1) / acc) - Math.sqrt(2 / acc);
+    assert.ok(Math.abs(run.magazine.et - stripClock) < .001);
+  }
 });
 
 test('Z06 published trim benchmark uses the right clock and is marked calibration', () => {
