@@ -9,6 +9,7 @@ import { components } from './components.mjs';
 import { gearChart, lights, tree, ordinal } from './identity.mjs';
 import { finding } from './identity-figures.mjs';
 import { setupName } from './matchup.mjs';
+import { ovalLap } from './oval.mjs';
 import { escape, fmt, delta } from './ui.mjs';
 
 /** What each page connects to. `car` is the reference car shown when the visitor has not chosen one. */
@@ -54,16 +55,19 @@ export function journeyCar(plan, active = getActive()) {
 }
 
 /** Light metrics for before/after: quarter mile, launch share of grip, front share, launch grip. */
-export function metrics(setup, pagePerf = perfDefaults()) {
+export function metrics(setup, pagePerf = perfDefaults(), event = 'strip') {
   const perf = effectivePerf(setup, pagePerf);
   const v = resolve(setup, true);
+  const lapRun = event === 'oval' ? ovalLap(v) : null;
+  const lap = Number.isFinite(lapRun?.lap) ? lapRun.lap : null;
+  const lateral = lapRun?.cornering && !lapRun.cornering.gripOnly ? lapRun.cornering.ay : null;
   const { opts } = frictionOptions(baseVehicle(setup), perf);
   let launch = null;
   if (opts.customMu !== null) {
     const c = tractionCheck(v, { ...opts, gear: 0 });
     if (c.status !== 'missing') launch = c;
   }
-  return { v, et: quickEt(setup, perf), launch: launch?.utilization ?? null, status: launch?.status ?? 'missing',
+  return { v, et: event === 'oval' ? lap : quickEt(setup, perf), lap, lateral, launch: launch?.utilization ?? null, status: launch?.status ?? 'missing',
     grip: launch?.availableLb.typical ?? null, front: v.front, weight: v.weight };
 }
 
@@ -71,7 +75,9 @@ const fxLine = (a, b) => {
   const parts = [];
   if (Number.isFinite(a.front) && Number.isFinite(b.front) && Math.abs(a.front - b.front) > .0004) parts.push(`front ${fmt(a.front * 100, 1)}% → ${fmt(b.front * 100, 1)}%`);
   if (Number.isFinite(a.weight) && Number.isFinite(b.weight) && Math.abs(a.weight - b.weight) >= .5) parts.push(`${fmt(a.weight)} → ${fmt(b.weight)} lb`);
-  if (Number.isFinite(a.grip) && Number.isFinite(b.grip) && Math.abs(a.grip - b.grip) >= 1) parts.push(`launch grip ${fmt(a.grip)} → ${fmt(b.grip)} lb`);
+  if (!Number.isFinite(a.lateral) && Number.isFinite(a.grip) && Number.isFinite(b.grip) && Math.abs(a.grip - b.grip) >= 1) parts.push(`launch grip ${fmt(a.grip)} → ${fmt(b.grip)} lb`);
+  if (Number.isFinite(a.lateral) && Number.isFinite(b.lateral) && Math.abs(a.lateral - b.lateral) >= .0005) parts.push(`cornering ${fmt(a.lateral, 3)} → ${fmt(b.lateral, 3)} g`);
+  if (Number.isFinite(a.lateral)) return parts.join(' · ');
   if (Number.isFinite(a.launch) && Number.isFinite(b.launch) && Math.abs(a.launch - b.launch) >= .005) parts.push(`launch uses ${fmt(a.launch * 100)}% → ${fmt(b.launch * 100)}% of grip`);
   return parts.join(' · ');
 };
@@ -84,8 +90,8 @@ const generators = {
     const setup = clone(base); setup.tune.finalDrive = step.ratio;
     return { setup, perf, title: `Try a ${fmt(step.ratio, 2)} final drive`, what: `${fmt(m.v.finalDrive, 2)} → ${fmt(step.ratio, 2)}`, view: 'performance' };
   },
-  tire(base, perf, m) {
-    const step = nextSteps(m, perf).find(s => s.kind === 'tire');
+  tire(base, perf, m, event) {
+    const step = nextSteps(m, perf).find(s => s.kind === 'tire' && (event !== 'oval' || s.surface !== 'preppedStrip'));
     if (!step) return null;
     const next = { ...effectivePerf(base, perf), tire: step.tire, surface: step.surface, customMu: null };
     return { setup: withConditions(clone(base), next), perf: next, title: step.title, what: step.detail, view: 'performance' };
@@ -102,12 +108,12 @@ const generators = {
     setup.parts.push({ label: p.label, preset: 'seats', oldWeight: p.oldWeight, oldX: p.oldX, newWeight: p.newWeight, newX: p.newX });
     return usableSetup(setup) ? { setup, perf, title: 'Remove the rear seats (ESS measured)', what: '23 lb measured by ESS, 76 in behind the front axle (location estimated)', view: 'build' } : null;
   },
-  cg(base, perf, m) {
+  cg(base, perf, m, event) {
     if (!Number.isFinite(m.v.cg)) return null;
     const cg = Math.round((m.v.cg - 2) * 10) / 10;
     if (!validValue('cg', cg)) return null;
     const setup = clone(base); setup.tune.cg = cg;
-    return { setup, perf, title: 'Lower the CG by 2 in', what: `CG height ${fmt(m.v.cg, 1)} → ${fmt(cg, 1)} in (less load moves onto the rear)`, view: 'performance' };
+    return { setup, perf, title: 'Lower the CG by 2 in', what: `CG height ${fmt(m.v.cg, 1)} → ${fmt(cg, 1)} in (${event === 'oval' ? 'less load moves to the outside tires in a turn' : 'less load moves onto the rear'})`, view: 'performance' };
   },
   engine(base, perf, m) {
     const current = base.components?.engine;
@@ -120,15 +126,19 @@ const generators = {
 };
 
 /** Run the page's experiments on a car. Pure: used by the band and by tests. */
-export function experiments(planKey, setup, perf = perfDefaults()) {
+// On the test oval the same one-step changes are ranked by flying-lap time; launch-only ideas are left out.
+const ovalGens = ['tire', 'cg', 'weight', 'gearing'];
+
+export function experiments(planKey, setup, perf = perfDefaults(), { event = 'strip' } = {}) {
   const plan = plans[planKey];
   const m = perfModel(setup, perf);
-  const before = metrics(setup, perf);
+  const before = metrics(setup, perf, event);
   const out = [];
-  for (const g of plan.gens) {
-    const x = generators[g]?.(setup, perf, m);
+  const gens = event === 'oval' && plan.lab ? ovalGens : plan.gens;
+  for (const g of gens) {
+    const x = generators[g]?.(setup, perf, m, event);
     if (!x) continue;
-    const after = metrics(x.setup, x.perf);
+    const after = metrics(x.setup, x.perf, event);
     out.push({ ...x, gen: g, before, after, dEt: Number.isFinite(after.et) && Number.isFinite(before.et) ? after.et - before.et : null, fx: fxLine(before, after) });
   }
   if (plan.rank) out.sort((a, b) => (a.dEt ?? 0) - (b.dEt ?? 0));
@@ -174,21 +184,24 @@ export function journeyHtml(planKey, labRoot, active) {
 }
 
 /** In-Lab version: buttons apply the experiment to the focused car in place (data-lab-try), no navigation. */
-export function labJourneyHtml(planKey, setup, laneLabel) {
+export function labJourneyHtml(planKey, setup, laneLabel, { event = 'strip' } = {}) {
   const plan = plans[planKey];
-  const { before, list } = experiments(planKey, setup);
+  const oval = event === 'oval';
+  const { before, list } = experiments(planKey, setup, perfDefaults(), { event });
   if (!list.length) return '';
+  const testName = oval ? 'Flying lap' : 'Quarter mile';
+  const copy = oval ? 'Each option is a model run of the car you are tuning on the test oval, ranked by modelled lap gain. Apply one and the comparison reruns.' : plan.copy;
   return `<section class="ig-journey ig-lab-journey" aria-labelledby="lab-journey-title"><p class="ig-eyebrow">${escape(laneLabel)}</p>
-    <h2 id="lab-journey-title">${escape(plan.title)}</h2><p class="ig-journey-copy">${escape(plan.copy)}</p>
+    <h2 id="lab-journey-title">${escape(plan.title)}</h2><p class="ig-journey-copy">${escape(copy)}</p>
     <ol class="ig-exp-list">${list.map(x => {
       const gain = x.dEt === null ? '' : Math.abs(x.dEt) < .005 ? '±0.00 s' : `${delta(x.dEt, 2)} s`;
-      const etLine = Number.isFinite(x.before.et) && Number.isFinite(x.after.et) ? `Quarter mile ${fmt(x.before.et, 2)} → ${fmt(x.after.et, 2)} s` : '';
-      return `<li><button type="button" class="ig-exp" data-lab-try="${x.gen}" data-lab-plan="${planKey}">
+      const etLine = Number.isFinite(x.before.et) && Number.isFinite(x.after.et) ? `${testName} ${fmt(x.before.et, 2)} → ${fmt(x.after.et, 2)} s` : '';
+      return `<li><button type="button" class="ig-exp" data-lab-try="${x.gen}" data-lab-plan="${planKey}" data-lab-event="${oval ? 'oval' : 'strip'}">
         <span class="ig-exp-title">${escape(x.title)}</span><b class="ig-exp-gain ${x.dEt > .004 ? 'worse' : ''}">${escape(gain)}</b>
         <span class="ig-exp-what">${escape(x.what)}</span><span class="ig-exp-fx">${escape([etLine, x.fx].filter(Boolean).join(' · '))}</span>
         <span class="ig-exp-go">Apply to this car</span></button></li>`;
     }).join('')}</ol>
-    <p class="ig-journey-note">${Number.isFinite(before.et) ? `Now ${fmt(before.et, 2)} s for ${escape(setupName(setup))}. ` : ''}Undo any change in Build; save the ones worth testing to My Garage.</p></section>`;
+    <p class="ig-journey-note">${Number.isFinite(before.et) ? `Now ${fmt(before.et, 2)} s ${oval ? 'per lap ' : ''}for ${escape(setupName(setup))}. ` : ''}Undo any change in Build; save the ones worth testing to My Garage.</p></section>`;
 }
 
 function mountAll() {

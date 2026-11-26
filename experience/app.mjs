@@ -153,7 +153,7 @@ function render(next = view, restoreDetails = false) {
     case 'build': app.innerHTML = build(state, saved) + labJourney('lab-build'); break;
     case 'compare': {
       const entries = matchupEntries(state);
-      app.innerHTML = compare(state, entries) + labJourney('lab-compare');
+      app.innerHTML = compare(state, entries) + labJourney('lab-compare', state.event);
       setReplay(entries);
       break;
     }
@@ -635,12 +635,12 @@ function carryLane(key, selection = modeOf(state, key)) {
 
 
 // ---- In-Lab next experiments (Build, Compare) ----
-function labJourney(key) {
-  try { return `<div class="shell">${labJourneyHtml(key, active(), labelLane(state.focus) + ' · ' + setupName(active()))}</div>`; }
+function labJourney(key, event = 'strip') {
+  try { return `<div class="shell">${labJourneyHtml(key, active(), labelLane(state.focus) + ' · ' + setupName(active()), {event})}</div>`; }
   catch { return ''; }
 }
 function applyLabExperiment(el) {
-  const x = journeyExperiments(el.dataset.labPlan, active()).list.find(item => item.gen === el.dataset.labTry);
+  const x = journeyExperiments(el.dataset.labPlan, active(), undefined, {event: el.dataset.labEvent === 'oval' ? 'oval' : 'strip'}).list.find(item => item.gen === el.dataset.labTry);
   if (!x || !usableSetup(x.setup)) { speak('That experiment no longer applies to this car.'); return; }
   state[state.focus] = x.setup;
   state[state.focus + 'Mode'] = modified(x.setup) ? 'after' : 'before';
