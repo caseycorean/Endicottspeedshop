@@ -293,11 +293,14 @@ def render_all(page, pending, data, runtime, private, reference_page):
     template = os.environ.get('ESS_SPEC_TEMPLATE', 'spec')
     from spec_discovery import DISCOVERY_SLUGS, render as discovery_page
     from spec_story import STORY_SLUGS, render as story_page
+    from spec_guided import GUIDED_SLUGS, render as guided_page
     for p in pending:
         r = records.get(p['rid'])
         if template == 'reference' or not p['indexable'] or r is None:
             reference_page(page, p['path'], p['title'], p['variant'], p['kind'], p['groups'], p['sources'], p['fixture'], p['rid'],
                            p['indexable'], p['note_html'])
+        elif os.environ.get('ESS_SPEC_GUIDED') == '1' and r['slug'] in GUIDED_SLUGS:
+            guided_page(page, r, private)  # owner-review demonstration only (Fox Mustang); off in the public build
         elif os.environ.get('ESS_SPEC_STORY') == '1' and r['slug'] in STORY_SLUGS:
             story_page(page, r, private)  # owner-review demonstration only (1977 Formula); off in the public build
         elif os.environ.get('ESS_SPEC_DISCOVERY') == '1' and r['slug'] in DISCOVERY_SLUGS:
