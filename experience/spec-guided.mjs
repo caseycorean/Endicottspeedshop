@@ -112,9 +112,36 @@ function labHref(view = 'build', other) {
 const stockNum = (x, d = 2, u = 's') => `<span class="c-stock">${fx(x, d)}${u ? ' ' + u : ''}</span>`;
 const modNum = (x, d = 2, u = 's') => `<span class="c-mod">${fx(x, d)}${u ? ' ' + u : ''}</span>`;
 const delta = (a, b, d = 2) => { if (!Number.isFinite(a) || !Number.isFinite(b)) return ''; const x = b - a; if (Math.abs(x) < .005) return '<span class="sg-d same">no change</span>'; return `<span class="sg-d ${x < 0 ? 'quicker' : 'slower'}">${sign(x, d)} s ${x < 0 ? 'quicker' : 'slower'}</span>`; };
+
+// ---------- B5 (26 Nov): published road test beside the ESS model, labelled, with an explanation when they differ ----------
+// Validation on 17 cars with both figures (Claude, 26 Nov): model ¼ mile typically ~2% slower than the published test,
+// 0–60 ~9% slower (launch grip is assumed conservatively). Gaps beyond these bands trigger the explanation, not removal.
+const TEST_BAND = { et: .05, t60: .15 };
+const testFact = k => (R?.facts ?? []).find(f => f.key === k && typeof f.value === 'number' && f.value > 0);
+function roadTest(c) {
+  const rs = c.rs ?? c.rm; if (!rs) return null;
+  const rows = [['t60', '0–60 mph', 1, rs.magazine.zeroTo60], ['et', '¼ mile', 2, rs.magazine.et]]
+    .map(([k, label, d, model]) => ({ k, label, d, model, test: testFact(k) })).filter(r => r.test && Number.isFinite(r.model));
+  if (!rows.length) return null;
+  const src = rows[0].test.source ?? {};
+  const wide = rows.some(r => Math.abs(r.model / r.test.value - 1) > TEST_BAND[r.k]);
+  return { rows, src, wide };
+}
+function roadTestHtml(c, compact = false) {
+  const t = roadTest(c); if (!t) return '';
+  const pub = esc(t.src.publisher || 'Road test');
+  const line = `<b>Published road test</b> (${t.src.url ? `<a href="${esc(t.src.url)}" rel="noopener">${pub}</a>` : pub}): ${t.rows.map(r => `${r.label} ${fx(r.test.value, r.d)} s`).join(' · ')}` +
+    ` · <b>ESS model, stock</b>: ${t.rows.map(r => `${r.label} ${fx(r.model, r.d)} s`).join(' · ')}`;
+  const why = `<details class="sg-why"><summary>${t.wide ? 'Why are these so different?' : 'How do these compare?'}</summary>
+    <p>A road test is one car on one day: its tires, surface, weather, tune, mileage and the driver's launch all show in the number. The ESS model is an ordinary car with the stated tire type and a typical launch, timed the way magazines time it (1-ft rollout).</p>
+    <p>Across 17 cars with both figures, the model's quarter mile averaged about 2% slower than the published test and its 0–60 about 9% slower. Most of the gap is at the launch, where the model assumes ordinary grip; the largest gaps were traction-limited cars.</p>
+    ${t.wide ? `<p>Gaps this large are common with period tests. Some test cars were not ordinary: the best-documented case is the 1964 GTO that Car and Driver tested, which had been secretly fitted with a larger engine (<a href="https://www.oldcarsweekly.com/features/car-of-the-week-1964-pontiac-gto-red-car" rel="noopener">Old Cars Weekly</a>, <a href="https://hagerty.com/media/?p=5657" rel="noopener">Hagerty</a>). We have no evidence about this particular test car. Treat both numbers as ballpark figures, and the model as a guide to what a typical example and your changes are likely to do.</p>` : ''}
+  </details>`;
+  return compact ? `<p class="sg-test-line">${line}. <a href="#sg-road-test">Compare</a></p>` : `<div class="sg-test"><p>${line}.</p>${why}</div>`;
+}
 function modelLine(c) {
   if (!c.rm) return '<p class="sg-empty">The model cannot run this configuration.</p>';
-  if (!isModified()) return `<p class="sg-model">ESS model, stock: 0–60 mph ${stockNum(c.rm.magazine.zeroTo60)} · quarter mile ${stockNum(c.rm.magazine.et)}</p>`;
+  if (!isModified()) return `<p class="sg-model">ESS model estimate, stock: 0–60 mph ${stockNum(c.rm.magazine.zeroTo60)} · quarter mile ${stockNum(c.rm.magazine.et)}</p>` + roadTestHtml(c);
   return `<p class="sg-model">ESS model: 0–60 mph ${stockNum(c.rs?.magazine.zeroTo60)} → ${modNum(c.rm.magazine.zeroTo60)} ${delta(c.rs?.magazine.zeroTo60, c.rm.magazine.zeroTo60)} · quarter mile ${stockNum(c.rs?.magazine.et)} → ${modNum(c.rm.magazine.et)} ${delta(c.rs?.magazine.et, c.rm.magazine.et)}</p>`;
 }
 const CAT = { article: ['cat-found', 'Article'], tool: ['cat-data', 'Calculator'], lab: ['cat-test', 'Vehicle Lab'], vehicle: ['cat-notes', 'Vehicle'], plan: ['cat-data', 'Plan'] };
@@ -490,7 +517,7 @@ function renderBar() {
       ${wc ? `<p class="sg-wc">${esc(wc[1])} <a href="#explore" data-sg-q="${wc[0]}">See why</a></p>` : ''}
       ${mod ? `<ul>${list.map((x, i) => `<li><span class="c-mod">${esc(x.text)}</span> <button type="button" class="sg-link" data-undo="${i}" aria-label="Undo ${esc(x.text)}">Undo</button></li>`).join('')}</ul><p><button type="button" class="sg-link" data-reset>Back to stock</button></p>` : '<p>Make a change in any answer; it shows here and goes with you into the Vehicle Lab.</p>'}
       <p class="sg-acts"><a class="btn-small primary sg-a" href="${esc(labHref('build'))}">Continue in the Vehicle Lab</a><a class="btn-small sg-a" href="${esc(labHref('compare-strip'))}">Race it against stock</a>${mod ? '<button type="button" class="btn-small" data-save>Save to My Garage</button><button type="button" class="btn-small" data-share>Share</button>' : ''}</p>
-      <p class="sg-note">ESS model, magazine timing (1-ft rollout).</p></div></details></div>`;
+      <p class="sg-note">ESS model estimate, magazine timing (1-ft rollout). Not a measured result.</p>${roadTestHtml(c)}</div></details></div>`;
   const more = bar.querySelector('details'); more.ontoggle = () => { barOpen = more.open; };
   bar.querySelector('[data-reset]')?.addEventListener('click', () => { state.tune = {}; state.parts = []; state.conditions = null; state.last = null; rebuild(); update('Back to stock.'); });
   for (const x of bar.querySelectorAll('[data-undo]')) x.onclick = () => { list[+x.dataset.undo].undo(); state.last = null; rebuild(); update('Change undone.'); };
