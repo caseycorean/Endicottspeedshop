@@ -113,6 +113,7 @@ export function shareFragment(state, view = 'compare') {
     ...configurations, focus: state.focus,
     ...(state.event ? {event: state.event} : {}),
     ...(state.tool ? {tool: state.tool} : {}),
+    ...(state.perf ? {perf: state.perf} : {}),
   });
 }
 
@@ -133,6 +134,16 @@ export function readFragment(hash) {
         (tool !== undefined && (!tool || ![tool.brake, tool.lateral].every(n => Number.isFinite(n) && n >= 0 && n <= 1.2)))) return invalid;
     const state = {focus: raw.focus, ...(raw.event ? {event: raw.event} : {}),
       ...(tool ? {tool: {brake: tool.brake, lateral: tool.lateral}} : {})};
+    // Gearing-and-traction conditions (tire class, surface, own friction, inspected gear). Shape-checked here;
+    // performance-view.cleanPerf() validates the values against the tire and surface tables.
+    const perf = raw.perf;
+    if (perf !== undefined) {
+      if (!perf || typeof perf !== 'object' || Array.isArray(perf)) return invalid;
+      const tire = perf.tire, surface = perf.surface, mu = perf.customMu, gear = perf.gear;
+      if ((tire != null && (typeof tire !== 'string' || tire.length > 24)) || (surface != null && (typeof surface !== 'string' || surface.length > 24)) ||
+          (mu != null && !(Number.isFinite(mu) && mu >= .1 && mu <= 3)) || (gear != null && !(Number.isInteger(gear) && gear >= 0 && gear < 10))) return invalid;
+      state.perf = {tire: tire ?? null, surface: surface ?? 'dryAsphalt', customMu: mu ?? null, gear: gear ?? 0};
+    }
     for (const key of keys) {
       const selected = validateSelection(raw[key], raw[key + 'Mode']);
       if (!selected) return invalid;

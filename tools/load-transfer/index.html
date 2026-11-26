@@ -21,7 +21,9 @@
 <link rel="stylesheet" href="../../assets/site.css">
 <link rel="stylesheet" href="../../assets/ess-search.css">
 <link rel="stylesheet" href="../../assets/ess-editorial.css">
-<script src="../../assets/tool-events.js" data-tool="load_transfer" data-result="lx" defer></script><script type="module" src="../../experience/search-bridge.mjs"></script>
+<link rel="stylesheet" href="../../assets/ess-identity.css">
+<meta name="theme-color" content="#16191c">
+<script src="../../assets/tool-events.js" data-tool="load_transfer" data-result="lx" defer></script><script type="module" src="../../experience/journey.mjs"></script><script type="module" src="../../experience/search-bridge.mjs"></script>
 </head>
 <body class="ess-theme">
 <header class="site-header"><div class="header-inner">
@@ -77,7 +79,7 @@
 <p><strong>Why it matters.</strong> A tire's grip grows more slowly than the load on it, so the axle that carries more of the cornering transfer loses grip first. Shift the transfer toward the front and the car tends to push (understeer); toward the rear and it tends to rotate (oversteer). This is why a stiffer front anti-roll bar adds understeer.</p>
 <p><strong>What this tool assumes.</strong> Steady braking and cornering on a flat road; the whole car's mass is treated as one body (wheels and axles are not separated out); no aerodynamic downforce or drag; the front/rear split of cornering transfer uses the static axle loads. Tire grip is not modeled: the tool shows the loads, not whether the tires can hold them. These simplifications are fine for comparing changes on the same car; treat the absolute numbers as estimates.</p>
 <p>Related: <a href="../cg-builder/">Balance &amp; CG Builder</a> · <a href="../spring-rate/">Spring Rate &amp; Ride Frequency</a> · <a href="../../articles/weight-distribution-50-50/">Why 50/50 is not the goal</a> · <a href="../../articles/traction-circle/">The traction circle</a></p></div>
-</main>
+<section class="ig-journey" data-ess-journey="tools/load-transfer" data-lab-root="../../experience/" aria-label="Try it on a car"><noscript><p><a href="../../experience/">Open the Vehicle Lab</a></p></noscript></section></main>
 <script type="module">
 import { tireLoads } from "../../engine/loads.mjs";
 (function(){
@@ -136,7 +138,7 @@ calc();
 })();
 </script>
 
-<footer class="footer"><div class="line"><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/">report a problem</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span></div></footer>
+<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/">report a problem</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span></div></footer>
 <script src="../../assets/site.js"></script>
 </body>
 </html>

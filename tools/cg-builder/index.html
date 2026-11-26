@@ -21,7 +21,9 @@
 <link rel="stylesheet" href="../../assets/site.css">
 <link rel="stylesheet" href="../../assets/ess-search.css">
 <link rel="stylesheet" href="../../assets/ess-editorial.css">
-<script src="../../assets/tool-events.js" data-tool="cg_builder" data-result="oF" defer></script><script type="module" src="../../experience/search-bridge.mjs"></script>
+<link rel="stylesheet" href="../../assets/ess-identity.css">
+<meta name="theme-color" content="#16191c">
+<script src="../../assets/tool-events.js" data-tool="cg_builder" data-result="oF" defer></script><script type="module" src="../../experience/journey.mjs"></script><script type="module" src="../../experience/search-bridge.mjs"></script>
 </head>
 <body class="ess-theme">
 <header class="site-header"><div class="header-inner">
@@ -102,7 +104,7 @@
 <div class="section narrow"><div class="section-label">How it works</div>
 <p>Each part's weight times its distance from the front axle is a moment. Removing a part takes its moment away; adding one puts a moment in; moving one does both; replacing one removes the old part and adds the new one. The new center of gravity is the total moment divided by the new total weight; front weight follows from where that center sits between the axles. The same arithmetic gives side-to-side balance and, when you supply a starting height, CG height.</p>
 <p>Part weights marked <span class="badge">measured</span> were weighed by ESS (see <a href="../../articles/measured-firebird-weights/">what each includes</a>); <span class="badge">typical</span> values are reasonable starting points, not measurements. Locations in the list are typical estimates for a second-gen F-body — edit them for your car. Measured weights include different hardware (for example, the stock subframe was weighed on its wheels and the C5 assembly without), so when you replace one with another, make sure the two include the same parts.</p></div>
-</main>
+<section class="ig-journey" data-ess-journey="tools/cg-builder" data-lab-root="../../experience/" aria-label="Try it on a car"><noscript><p><a href="../../experience/">Open the Vehicle Lab</a></p></noscript></section></main>
 <script>
 (function(){
 // [name, weight lb, source, X, Y, Z] — X behind front axle, Y right of centerline, Z above ground (in)
@@ -303,7 +305,7 @@ renum();calc();
 })();
 </script>
 
-<footer class="footer"><div class="line"><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/">report a problem</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span></div></footer>
+<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/">report a problem</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span></div></footer>
 <script src="../../assets/site.js"></script>
 </body>
 </html>

@@ -61,17 +61,25 @@ def contact(page, address):
 <p class="hint">What happens to your email: see <a href="../privacy/">Privacy</a>.</p>
 </main>""", active="Contact")
 
+def journey(path, rel):
+    """Mount point for the model-driven 'try it on a car' band (experience/journey.mjs). Visible content, filled by the
+    visitor's active car or the page's reference car; links open the experiment already applied."""
+    key = path.strip("/").replace("/index.html", "") or "home"
+    return (f'<section class="ig-journey" data-ess-journey="{key}" data-lab-root="{rel}experience/" aria-label="Try it on a car">'
+            f'<noscript><p><a href="{rel}experience/">Open the Vehicle Lab</a></p></noscript></section>')
+
 def article(page, path, title, kicker, desc, meta, body):
     rel = "../" * path.count("/")
     page(path + "index.html", f"{title} | Endicott Speed Shop", desc,
-         f'<main class="page narrow article"><div class="kicker">{kicker}</div><h1>{title}</h1><div class="meta">{meta}</div>{body}'
+         f'<main class="page narrow article ig-article"><div class="kicker">{kicker}</div><h1>{title}</h1><div class="meta">{meta}</div>{body}'
+         f'{journey(path, rel)}'
          f'<div class="section"><div class="section-label">Keep going</div><p><a href="{rel}tools/cg-builder/">Try the Balance &amp; CG Builder</a> · <a href="{rel}articles/">All articles</a></p></div></main>',
          active="Articles")
 
 from home import homepage, grip_entrance
 
 def build(page):
-    page("index.html", "Endicott Speed Shop | Build it. Then prove it.",
+    page("index.html", "Endicott Speed Shop | Run it before you buy it.",
          "Choose your car, compare builds and use engineering tools to test changes in weight, grip, gearing and suspension.",
          homepage(), extra_head='<script type="module" src="experience/home.mjs"></script>')
     page("grip/index.html", "Tire Load Experiment | Endicott Speed Shop",

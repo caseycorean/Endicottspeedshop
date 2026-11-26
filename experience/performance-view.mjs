@@ -5,6 +5,7 @@ import { resolve, straightLine, powerIssue, massIssue, MPH } from './models.mjs'
 import { tractionCheck, byGear, compareTires, frictionFor, tireClasses, pickerOrder, surfaces,
   missingFor as tractionMissing } from '../engine/traction.mjs';
 import { wheelRpm } from '../engine/acceleration.mjs';
+import { presets as launchPresets, runPreset, timeLost } from '../engine/launch.mjs';
 import { components } from './components.mjs';
 import { missingFor as studyMissing, missingText } from './readiness.mjs';
 import { vehicles } from './vehicles.mjs';
@@ -104,6 +105,16 @@ export function perfModel(setup, perf) {
 }
 
 // ---------- Next experiment: real runs of the shared model for a few one-step changes ----------
+/** One-line text for a shared link preview: car, gearing, conditions and the result. */
+export function shareSummary(m) {
+  const t = m.tire === 'setup' ? 'vehicle grip input' : m.tire === 'custom' ? `μ ${fmt(m.opts.customMu, 2)}` : tireClasses[m.tire].label;
+  const where = m.opts.surface ? ', ' + surfaces[m.opts.surface].label.toLowerCase() : '';
+  const fd = Number.isFinite(m.v.finalDrive) ? ` · ${fmt(m.v.finalDrive, 2)} final drive` : '';
+  const result = m.accel ? ` · estimated quarter mile ${fmt(m.accel.et, 2)} s` : '';
+  const g = m.gearRows[0] ? ` · 1st gear uses ${fmt(m.gearRows[0].utilization * 100)}% of grip` : '';
+  return `${setupName(m.setup)}${fd} · ${t}${where}${result}${g}`;
+}
+
 /** Small before/after snapshot for the feedback line: quarter mile and launch share of grip. */
 export function snapshot(setup, perf) {
   const v = resolve(setup, true);
@@ -236,17 +247,18 @@ export function tractionHtml(m, laneKey) {
       <p>In ${ordinal(row.gear)} at peak torque the drivetrain sends <b>${fmt(row.demandLb)} lb</b>; the tires can take ${fmt(row.availableLb.low)}–${fmt(row.availableLb.high)} lb.
       ${showLaunch ? `From a standing start (${fmt(launch.inputs.rpm)} rpm${launch.inputs.converterRatio > 1 ? `, converter ×${launch.inputs.converterRatio}` : ''}) it is <b>${pct(launch.utilization)}</b>: ${escape(statusWord[launch.status].toLowerCase())}.` : ''}</p>
     </div>
-    <details class="explain" data-details="perf-gear-detail"><summary>Engineering details · ${ordinal(row.gear)} gear</summary>
-      ${forceRows(row)}
-      <dl class="gc-facts">
+    ${forceRows(row)}
+      <dl class="gc-facts" aria-label="Engineering details, ${ordinal(row.gear)} gear">
         <div><dt>Gear ratio</dt><dd>${fmt(row.ratio, 2)} × ${fmt(m.v.finalDrive, 2)} final = ${fmt(row.ratio * m.v.finalDrive, 2)}:1</dd></div>
         <div><dt>Drive force</dt><dd>${fmt(row.demandLb)} lb at ${fmt(m.v.torqueRpm)} rpm</dd></div>
         <div><dt>Grip (low / typical / high)</dt><dd>${fmt(row.availableLb.low)} / ${fmt(row.availableLb.typical)} / ${fmt(row.availableLb.high)} lb</dd></div>
         ${g ? `<div><dt>Speed at ${fmt(m.v.redline)} rpm</dt><dd>${fmt(g.shiftMph)} mph <small>theoretical, gearing only</small></dd></div>` : ''}
       </dl>
       <p class="quiet small">The speed is what the gearing allows at the shift point. It is not the achievable top speed: drag and power stop the car earlier in the tall gears. ${fmt(m.cruiseRpm)} rpm at 70 mph in top gear.</p>
+    <details class="explain" data-details="perf-gear-detail"><summary>How this ${ordinal(row.gear)}-gear check is calculated</summary>
       ${check.text ? `<p class="small">${escape(check.text)}</p>` : ''}
       <ul class="small">${(check.assumptions ?? []).map(n => `<li>${escape(n)}</li>`).join('')}</ul>
+      <p class="small"><a href="#performance-math">See the two equations with this car's numbers</a></p>
     </details>
   </section>`;
 }
@@ -327,18 +339,52 @@ export function nextStepsHtml(m, perf) {
       <strong>${escape(s.title)}</strong><b class="${s.change > .004 ? 'worse' : ''}">${Math.abs(s.change) < .005 ? '±0.00' : delta(s.change, 2)} s</b><span>${escape(s.detail)}</span></button>`).join('')}</div></section>`;
 }
 
+/** Launch technique panel shell; filled after render because the best-rpm sweep takes tens of milliseconds. */
+export function launchShellHtml(m) {
+  if (!m.accel || m.runIssue) return '<span id="perf-launch"></span>';
+  return `<section class="panel content-panel perf-launch" id="perf-launch" aria-labelledby="perf-launch-title" aria-busy="true">
+    <h2 id="perf-launch-title">The driver's part: launch technique</h2>
+    <p class="ig-sum-note">Same car, gearing and ${escape(condition(m).toLowerCase())}. Running the launch model…</p></section>`;
+}
+
+const launchOrder = ['typical', 'performance', 'maximum', 'dump'];
+/** Launch presets and time lost by factor from engine/launch.mjs (preview model), at the page's tire and surface. */
+export function launchPanelHtml(m) {
+  if (!m.accel || !m.mu) return '';
+  const mu = m.mu.typical;
+  const runs = launchOrder.map(id => ({ id, r: runPreset(m.v, id, { mu }) }));
+  const ref = runs.find(x => x.id === 'performance').r.magazine.et;
+  const slowest = Math.max(...runs.map(x => x.r.magazine.et ?? 0));
+  const lost = timeLost(m.v, { mu, ...Object.fromEntries(Object.entries(launchPresets.performance).filter(([k]) => !['label', 'note'].includes(k))), launchRpm: runs.find(x => x.id === 'performance').r.launchRpm });
+  const bars = [['Wheelspin and grip', lost.lost.traction.et], ['Gear changes', lost.lost.shifts.et], ['Launch rpm choice', lost.lost.launchRpm.et]].filter(([, x]) => Number.isFinite(x));
+  const top = Math.max(.01, ...bars.map(([, x]) => Math.abs(x)));
+  const o = m.original;
+  const stock = !m.modified && m.tire === matchedClass(m.v) && (m.opts.surface ?? 'dryAsphalt') === 'dryAsphalt';
+  return `<section class="panel content-panel perf-launch" id="perf-launch" aria-labelledby="perf-launch-title">
+    <h2 id="perf-launch-title">The driver's part: launch technique</h2>
+    <p class="ig-sum-note">Same car, gearing and ${escape(condition(m).toLowerCase())}. Magazine timing (1 ft rollout), so these read lower than the standstill time above.</p>
+    <ol class="ig-launch-list">${runs.map(({ id, r }) => `<li data-launch="${id}"><span><b>${escape(launchPresets[id].label)}</b><small>${fmt(r.launchRpm)} rpm launch · ${escape(launchPresets[id].note.split('.')[0])}.</small></span>
+      <span class="ig-launch-time"><b>${fmt(r.magazine.et, 2)} s</b><small>${id === 'performance' ? 'reference' : delta(r.magazine.et - ref, 2) + ' s'} · 0–60 ${fmt(r.magazine.zeroTo60, 2)} s</small></span>
+      <span class="ig-launch-bar" style="--w:${(100 * (r.magazine.et ?? 0) / slowest).toFixed(1)}%"></span></li>`).join('')}</ol>
+    <h3 class="ig-h3">Where the time goes (performance launch)</h3>
+    <ul class="ig-lost">${bars.map(([k, x]) => `<li><span>${k}</span><span class="ig-lost-bar"><i style="width:${(100 * Math.max(0, x) / top).toFixed(1)}%"></i></span><b>${x <= .005 ? 'none' : fmt(x, 2) + ' s'}</b></li>`).join('')}</ul>
+    <p class="quiet small">${escape(lost.note)}${stock && (o.testEt || o.test60) ? ` Published road test of the stock car: ${o.test60 ? '0–60 ' + fmt(o.test60, 2) + ' s' : ''}${o.testEt ? ' · quarter mile ' + fmt(o.testEt, 2) + ' s' : ''} (a best run, so compare with maximum effort).` : ''}</p>
+    <p class="ig-preview-note">Preview model (engine/launch.mjs, Claude 25 Nov, branch engineering/launch-validation 6fe64f7): checked on 59 archive road tests, quarter-mile mean error 0.26 s; not yet independently QA'd. Closed-course comparison, not driving advice.</p>
+  </section>`;
+}
+
 /** Kept for the live-update path; the gear list now lives inside the chart. */
 export const gearTableHtml = () => '';
 
 export function tireTableHtml(m) {
   if (!m.tireRows.length) return '<span id="perf-tires"></span>';
   const grips = m.tireRows.filter(r => r.status === 'green').length;
-  return `<details class="panel content-panel perf-tires-panel" id="perf-tires" data-details="perf-tires"><summary><span class="ig-sum-title">Every tire, same car</span>
-    <span class="ig-sum-note">${ordinal(m.gear + 1)} gear, ${escape(shortSurface[m.opts.surface ?? 'dryAsphalt'].toLowerCase())}: ${grips} of ${m.tireRows.length} classes have grip to spare</span></summary>
+  return `<section class="panel content-panel perf-tires-panel" id="perf-tires" aria-labelledby="perf-tires-title"><h2 id="perf-tires-title">Every tire, same car</h2>
+    <p class="ig-sum-note">${ordinal(m.gear + 1)} gear, ${escape(shortSurface[m.opts.surface ?? 'dryAsphalt'].toLowerCase())}: ${grips} of ${m.tireRows.length} classes have grip to spare.</p>
     <ul class="ig-tire-list perf-tire-list">${m.tireRows.map(r => `<li><button type="button" data-perf-pick-tire="${r.id}" aria-pressed="${r.id === m.tire}" data-level="${r.status}">
       <span>${lamp(r.status)}${escape(shortTire[r.id])}</span>${useBar(r.utilization, r.status)}
       <span class="ig-pct">${pct(r.utilization)}</span></button></li>`).join('')}</ul>
-    <p class="quiet small">Tap one to use it. Bars: share of grip in the selected gear; the line is 100%.</p></details>`;
+    <p class="quiet small">Tap one to use it. Bars: share of grip in the selected gear; the line is 100%.</p></section>`;
 }
 
 function assumptionsHtml(m) {
@@ -368,13 +414,15 @@ export function performanceView(state, perf, links, last) {
       ${controlsHtml(m, perf, last)}
       ${nextStepsHtml(m, perf)}
       ${tireTableHtml(m)}
+      ${launchShellHtml(m)}
       <section class="panel content-panel perf-learn">
         <a class="route-card" href="#performance-why"><strong>Why does a shorter gear stop helping?</strong><span>Plain-language answer, then the numbers behind this result.</span></a>
         ${assumptionsHtml(m)}
         <p class="ig-links"><a href="../articles/traction-circle/">The traction circle</a><a id="perf-load-link" href="${escape(links.loadTransfer)}">Load transfer calculator</a><a href="#compare">Race it in Compare</a></p>
         <div class="actions"><button type="button" class="button primary" data-perf-use>Use this configuration</button>
+          <button type="button" class="button secondary" data-perf-share>Share this experiment</button>
           <button type="button" class="button secondary" data-action="save">Save to My Garage</button></div>
-        <p class="quiet small" id="active-feedback" role="status"></p>
+        <p class="quiet small" id="active-feedback" role="status"></p><div class="quiet small" id="perf-share-feedback" role="status"></div>
       </section>
     </div>
   </section>`;

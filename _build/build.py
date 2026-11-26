@@ -35,6 +35,14 @@ def page(path, title, desc, body, active="", extra_head=""):
     rel = "../" * depth
     canon = path[:-len("index.html")] if path.endswith("index.html") else path
     URLS.append(canon)
+    if path.startswith(("articles/", "tools/", "plan/")) and "data-ess-journey" not in body:
+        # Calculators, hubs and the planning guide end with the same model-driven next-experiment band as articles.
+        key = path.replace("/index.html", "")
+        band = (f'<section class="ig-journey" data-ess-journey="{key}" data-lab-root="{rel}experience/" aria-label="Try it on a car">'
+                f'<noscript><p><a href="{rel}experience/">Open the Vehicle Lab</a></p></noscript></section>')
+        body = body[:body.rfind("</main>")] + band + body[body.rfind("</main>"):]
+    if "data-ess-journey" in body:
+        extra_head += f'<script type="module" src="{rel}experience/journey.mjs"></script>'
     if path.startswith(("articles/", "tools/", "plan/")):
         tool = path.split("/")[-2] if path.startswith(("tools/", "plan/")) else "article"
         selector = (f'<div class="ess-config" data-ess-vehicle="{tool}" '
@@ -56,6 +64,8 @@ def page(path, title, desc, body, active="", extra_head=""):
 <link rel="stylesheet" href="{rel}assets/site.css">
 <link rel="stylesheet" href="{rel}assets/ess-search.css">
 <link rel="stylesheet" href="{rel}assets/ess-editorial.css">
+<link rel="stylesheet" href="{rel}assets/ess-identity.css">
+<meta name="theme-color" content="#16191c">
 {extra_head}
 </head>
 <body class="ess-theme">
@@ -69,7 +79,7 @@ def page(path, title, desc, body, active="", extra_head=""):
 <p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="{rel}contact/">Spot a problem? Tell us.</a></p>
 </aside>
 {body}
-<footer class="footer"><div class="line"><span>© 2026 Endicott Speed Shop · Beta — <a href="{rel}contact/">report a problem</a></span><span><a href="{rel}privacy/">Privacy</a> · <a href="{rel}contact/">Contact</a></span></div></footer>
+<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="{rel}contact/">report a problem</a></span><span><a href="{rel}privacy/">Privacy</a> · <a href="{rel}contact/">Contact</a></span></div></footer>
 <script src="{rel}assets/site.js"></script>
 </body>
 </html>

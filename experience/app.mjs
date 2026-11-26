@@ -13,7 +13,7 @@ import { components, componentOverrides } from './components.mjs';
 import { mountCamber } from './diagrams.mjs';
 import { mountFrontGeometry, frontGeometry } from './front-geometry.mjs';
 import { studies, missingFor } from './readiness.mjs';
-import { performanceView, performanceExplain, loadPerf, savePerf, perfDefaults, summaryHtml, tractionHtml, tireTableHtml, feedbackHtml, perfModel, snapshot } from './performance-view.mjs';
+import { performanceView, performanceExplain, loadPerf, savePerf, perfDefaults, cleanPerf, shareSummary, summaryHtml, tractionHtml, tireTableHtml, feedbackHtml, perfModel, snapshot, launchPanelHtml } from './performance-view.mjs';
 
 const app = document.querySelector('#app');
 installCatalog();
@@ -29,7 +29,7 @@ function initialState(useDraft = true) {
     try {
       const draft = JSON.parse(sessionStorage.getItem(draftKey));
       const saved = draft?.selection === JSON.stringify(selected) && readFragment(draft.fragment).state;
-      if (saved) return saved;
+      if (saved) { delete saved.perf; return saved; } // page conditions persist separately (sessionStorage)
     } catch {
       // The standalone lab also works with browser storage disabled.
     }
@@ -45,7 +45,7 @@ if (entryUrl.searchParams.has('start')) {
 
 function rememberDraft() {
   try {
-    sessionStorage.setItem(draftKey, JSON.stringify({selection: JSON.stringify(getActive()), fragment: shareFragment(state)}));
+    sessionStorage.setItem(draftKey, JSON.stringify({selection: JSON.stringify(getActive()), fragment: shareFragment(withPerf())}));
   } catch {
     // The live experiment still works with browser storage disabled.
   }
@@ -65,9 +65,11 @@ function speak(message = '') {
   status.textContent = message;
 }
 
+const withPerf = () => ({...state, perf: {tire: perf.tire, surface: perf.surface, customMu: perf.customMu, gear: perf.gear}});
+
 function experimentUrl(page = 'compare') {
   const url = new URL('./', location.href);
-  url.hash = shareFragment(state, page);
+  url.hash = shareFragment(page.startsWith('performance') ? withPerf() : state, page);
   return url.href;
 }
 
@@ -84,8 +86,11 @@ function navigate(next) {
 function applyLocation() {
   const route = readFragment(location.hash);
   if (route.state) {
-    state = route.state;
-    sharedLinkNotice = 'Shared experiment. Try a change or run the comparison to see it play out.';
+    const {perf: sharedPerf, ...rest} = route.state;
+    state = rest;
+    if (sharedPerf) { perf = cleanPerf({...sharedPerf, vehicle: state[state.focus].id}); savePerf(perf); }
+    sharedLinkNotice = perfViews.includes(route.view) ? 'Shared experiment: same car, gearing, tire and surface. Change one thing to see what it does.'
+      : 'Shared experiment. Try a change or run the comparison to see it play out.';
   } else if (route.invalid) {
     state = initialState(false);
     sharedLinkNotice = 'This experiment link could not be restored. The default matchup is ready to try.';
@@ -150,6 +155,7 @@ function render(next = view, restoreDetails = false) {
   mountCamber(app);
   mountFrontGeometry(app);
   watchPerfSticky();
+  fillLaunchPanel();
   rememberDraft();
   notice.textContent = sharedLinkNotice;
   notice.classList.toggle('link-notice', Boolean(sharedLinkNotice));
@@ -433,6 +439,24 @@ function refreshComparison() {
   rememberDraft();
 }
 
+async function perfShare() {
+  const url = experimentUrl('performance');
+  const target = byId('perf-share-feedback');
+  const result = await shareResult(url, 'ESS gearing and traction experiment', shareSummary(perfModel(active(), perf)));
+  if (!target?.isConnected || result === 'cancelled') return;
+  target.replaceChildren();
+  if (result === 'copied') target.append('Link copied. ');
+  if (result === 'shared') target.append('Experiment shared. ');
+  const anchor = document.createElement('a');
+  anchor.href = url; anchor.textContent = 'Open the shared link'; anchor.target = '_blank'; anchor.rel = 'noopener';
+  target.append(anchor);
+  if (result === 'manual') {
+    const input = document.createElement('input');
+    input.readOnly = true; input.value = url; input.setAttribute('aria-label', 'Experiment link');
+    target.append(input); input.focus(); input.select();
+  }
+}
+
 async function share() {
   const url = experimentUrl();
   const title = 'ESS Vehicle Lab comparison';
@@ -512,7 +536,17 @@ function carryLane(key, selection = modeOf(state, key)) {
 
 
 // ---- Performance page (gearing and traction) ----
-let perfObserver;
+let perfObserver, launchTimer = 0;
+function fillLaunchPanel() {
+  clearTimeout(launchTimer);
+  if (view !== 'performance' || !byId('perf-launch')?.hasAttribute('aria-busy')) return;
+  launchTimer = setTimeout(() => {
+    const target = byId('perf-launch');
+    if (!target) return;
+    try { target.outerHTML = launchPanelHtml(perfModel(active(), perf)) || '<span id="perf-launch"></span>'; }
+    catch { target.removeAttribute('aria-busy'); target.querySelector('.ig-sum-note').textContent = 'The launch model could not run for this car.'; }
+  }, 60);
+}
 function watchPerfSticky() {
   perfObserver?.disconnect();
   const slip = app.querySelector('#perf-summary .ig-slip'), bar = app.querySelector('.perf-sticky');
@@ -604,6 +638,7 @@ function perfClick(el) {
     perfCommit('Gearing and tires reset to the original car.');
     return true;
   }
+  if (el.hasAttribute('data-perf-share')) { perfShare(); return true; }
   if (el.hasAttribute('data-perf-use')) { carryLane(state.focus, modified(active()) ? 'after' : 'before'); return true; }
   return false;
 }

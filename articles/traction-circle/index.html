@@ -22,8 +22,8 @@
 <link rel="stylesheet" href="../../assets/ess-search.css">
 <link rel="stylesheet" href="../../assets/ess-editorial.css">
 <link rel="stylesheet" href="../../assets/ess-identity.css">
-<meta name="theme-color" content="#1b1e1a">
-<script type="module" src="../../experience/search-bridge.mjs"></script>
+<meta name="theme-color" content="#16191c">
+<script type="module" src="../../experience/journey.mjs"></script><script type="module" src="../../experience/search-bridge.mjs"></script>
 </head>
 <body class="ess-theme">
 <header class="site-header"><div class="header-inner">
@@ -69,19 +69,14 @@
 <p>Power doesn't make the circle bigger; it determines how quickly you use the bottom of it on corner exit. That's why handling-focused builds with moderate power often lap faster than brute-force builds with much more.</p>
 <div class="callout">The classic muscle car doesn't have a power problem. It has a circle problem. Fix the architecture, fit modern rubber, and the same car becomes a different machine.</div>
 <p>Next: <a href="../weight-distribution-50-50/">What 50/50 weight distribution really means →</a></p>
-<section class="ig-next" data-ig-next aria-labelledby="ig-next-title"><p class="ig-eyebrow" style="color:var(--ig-amber)">Try it on a car</p><h2 id="ig-next-title">Where does your car run out of grip?</h2>
-<p>The same limit decides a launch. See how much of the drivetrain’s force the tires can use, gear by gear and tire by tire.</p>
-<div class="ig-live-card" data-ig-live></div>
-<noscript><p><a href="../../experience/#performance">Open gearing and traction</a></p></noscript></section>
-<div class="section"><div class="section-label">Keep going</div><p><a href="../../tools/cg-builder/">Try the Balance &amp; CG Builder</a> · <a href="../../articles/">All articles</a></p></div></main>
-<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/">report a problem</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span></div></footer>
-<script src="../../assets/site.js"></script>
+
 <script type="module">
-import { liveCard, bindLiveOpen, circlesSvg, circleKey } from '../../experience/identity-figures.mjs';
+import { circlesSvg, circleKey } from '../../experience/identity-figures.mjs';
 const fig = document.querySelector('[data-ig-circles]');
 if (fig) { fig.querySelector('svg').innerHTML = circlesSvg(); fig.querySelector('[data-ig-key]').innerHTML = circleKey(); }
-const live = document.querySelector('[data-ig-live]');
-if (live) { const card = liveCard('../../experience/'); live.innerHTML = card.html; bindLiveOpen(live, card.setup, card.example, '../../experience/'); }
 </script>
+<section class="ig-journey" data-ess-journey="articles/traction-circle" data-lab-root="../../experience/" aria-label="Try it on a car"><noscript><p><a href="../../experience/">Open the Vehicle Lab</a></p></noscript></section><div class="section"><div class="section-label">Keep going</div><p><a href="../../tools/cg-builder/">Try the Balance &amp; CG Builder</a> · <a href="../../articles/">All articles</a></p></div></main>
+<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/">report a problem</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span></div></footer>
+<script src="../../assets/site.js"></script>
 </body>
 </html>

@@ -21,7 +21,9 @@
 <link rel="stylesheet" href="../../assets/site.css">
 <link rel="stylesheet" href="../../assets/ess-search.css">
 <link rel="stylesheet" href="../../assets/ess-editorial.css">
-<script src="../../assets/tool-events.js" data-tool="scale_delta" data-result="w" defer></script><script type="module" src="../../experience/search-bridge.mjs"></script>
+<link rel="stylesheet" href="../../assets/ess-identity.css">
+<meta name="theme-color" content="#16191c">
+<script src="../../assets/tool-events.js" data-tool="scale_delta" data-result="w" defer></script><script type="module" src="../../experience/journey.mjs"></script><script type="module" src="../../experience/search-bridge.mjs"></script>
 </head>
 <body class="ess-theme">
 <header class="site-header"><div class="header-inner">
@@ -61,7 +63,7 @@
 <p>The part's weight is the change in the total. Its fore-aft location follows from how that change divides between the front and rear axles: if the rear scales lost 20% of it, the part sat 20% of the wheelbase behind the front axle. Side-to-side works the same way across the track.</p>
 <p>Each scale reading is rounded, so the result has an uncertainty. This tool assumes each of the eight readings can be off by up to half a reading step and shows the worst case. That covers rounding only — it is not the scales' accuracy or repeatability, which you should check by weighing the car more than once. Small parts on big scales give large location uncertainty — use this method for heavy assemblies and a component scale for small parts.</p>
 <p>Part weights ESS measured this way are in <a href="../../articles/measured-firebird-weights/">the measured weights reference</a>; use them in the <a href="../cg-builder/">Balance &amp; CG Builder</a>.</p></div>
-</main>
+<section class="ig-journey" data-ess-journey="tools/scale-delta" data-lab-root="../../experience/" aria-label="Try it on a car"><noscript><p><a href="../../experience/">Open the Vehicle Lab</a></p></noscript></section></main>
 <script>
 (function(){
 function num(v){v=(v||'').toString().trim().replace(/,/g,'');if(v==='')return null;if(!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(v))return NaN;return parseFloat(v)}
@@ -100,7 +102,7 @@ calc();
 })();
 </script>
 
-<footer class="footer"><div class="line"><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/">report a problem</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span></div></footer>
+<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/">report a problem</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span></div></footer>
 <script src="../../assets/site.js"></script>
 </body>
 </html>
