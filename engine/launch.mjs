@@ -79,6 +79,7 @@ export function launchRun(v, opts = {}) {
   let E = speedOf(o.launchRpm, 0);
   let locked = false, spinning = false, shift = 0;
   let t60 = null, tRollout = null, sixty = null, finish = null, stripFinish = null, peakClutch = 0, minRpmAfterLock = Infinity;
+  let clutchReentries = 0, everLocked = false; // QA 25 Nov: a re-launch after the first lock-up is a model fault
   const time = { wheelspin: 0, grip: 0, clutch: 0, bog: 0, engine: 0, shifting: 0 };
   const trace = [{ t: 0, speed: 0, x: 0, gear: 1, rpm: o.launchRpm, limit: 'clutch' }];
   let nextSample = .02;
@@ -111,10 +112,13 @@ export function launchRun(v, opts = {}) {
       }
       // Shift on engine rpm only while the tires grip; a spinning tire just runs the engine into the rev limiter.
       if (!spinning && rpm >= shiftRpm && gear < v.gears.length - 1) {
-        gear++; shift = o.shiftSeconds; locked = false; E = W; // new gear: E re-expressed in the next ratio
+        gear++; shift = o.shiftSeconds; E = W; // new gear: E re-expressed in the next ratio
+        // Instant shift (shiftSeconds 0, the timeLost counterfactual): stay locked and rev-matched; never a second clutch launch.
+        locked = !(shift > 0);
       }
     } else {
       // Clutch slipping (first-gear launch): capacity ramps in over clutchSeconds.
+      if (everLocked) clutchReentries++;
       const ramp = o.clutchSeconds > 0 ? Math.min(1, (t + dt) / o.clutchSeconds) : 1;
       const rpm = rpmOf(E, gear);
       let Fc = ramp * clutchMax;
@@ -140,6 +144,7 @@ export function launchRun(v, opts = {}) {
     }
     const nV = Math.max(0, V + aV * dt), nX = x + (V + nV) / 2 * dt;
     W = Math.max(nV, W + aW * dt);
+    if (locked) everLocked = true;
     if (!locked && shift <= 0) E = Math.max(E + aE * dt, W); else if (locked && shift <= 0) E = W;
     if (locked && shift <= 0 && gear === 0) minRpmAfterLock = Math.min(minRpmAfterLock, rpmOf(E, gear));
     time[label] += dt;
@@ -155,7 +160,7 @@ export function launchRun(v, opts = {}) {
   const r0 = tRollout ?? 0;
   const round = (o) => Object.fromEntries(Object.entries(o).map(([k, s]) => [k, Math.round(s * 100) / 100]));
   return {
-    model: 'launch dynamics', zeroTo60: t60, finish,
+    model: 'launch dynamics', zeroTo60: t60, finish, completed: !!stripFinish, clutchReentries,
     magazine: { zeroTo60: t60 == null ? null : t60 - r0, et: stripFinish ? stripFinish.t - r0 : null, trap: stripFinish?.trap ?? null,
       sixtyFt: sixty == null ? null : sixty - r0, note: 'Comparison clock starts after the chosen rollout distance.' },
     time: round(time), trace, launchRpm: o.launchRpm,
@@ -174,7 +179,9 @@ export function bestLaunchRpm(v, opts = {}, target = 'et') {
     rows.push({ rpm, et: r.magazine.et, zeroTo60: r.magazine.zeroTo60, sixtyFt: r.magazine.sixtyFt, wheelspin: r.time.wheelspin, bog: r.time.bog, shock: r.peakShock });
   }
   const key = target === '60' ? 'zeroTo60' : 'et';
-  const ok = rows.filter(r => r[key] != null);
+  const ok = rows.filter(r => Number.isFinite(r[key]));
+  // No launch rpm completes the run (e.g. too little power for maxTime): a structured "unavailable", never a TypeError.
+  if (!ok.length) return { best: null, quickest: null, rows, unavailable: `No launch rpm completes the ${key === 'et' ? 'quarter mile' : '0–60'} within ${opts.maxTime ?? 45} s.` };
   const quickest = Math.min(...ok.map(r => r[key]));
   // Lowest rpm within 0.02 s of the quickest that does not bog: no slower in the model, and easier on the clutch.
   const near = ok.filter(r => r[key] <= quickest + .02);
@@ -188,10 +195,15 @@ export function runPreset(v, id, overrides = {}) {
   const { label, note, ...settings } = p;
   const o = { ...settings, ...overrides };
   if (o.launchRpm === 'model') o.launchRpm = launchSettings(v).launchRpm;
-  if (o.launchRpm === 'best') o.launchRpm = bestLaunchRpm(v, { ...o, launchRpm: undefined }).best.rpm;
+  let fallback = null;
+  if (o.launchRpm === 'best') {
+    const b = bestLaunchRpm(v, { ...o, launchRpm: undefined });
+    if (b.best) o.launchRpm = b.best.rpm;
+    else { o.launchRpm = launchSettings(v).launchRpm; fallback = `${b.unavailable} Using the model launch rpm instead.`; }
+  }
   if (v.transmission === 'dual-clutch') o.shiftSeconds = Math.min(o.shiftSeconds, .12);
   const r = launchRun(v, o);
-  return { preset: id, label, note, ...r };
+  return { preset: id, label, note, ...r, ...(fallback ? { launchRpmFallback: fallback } : {}) };
 }
 
 /**
@@ -205,14 +217,14 @@ export function timeLost(v, opts = {}) {
   const base = run({});
   const d = (alt, k) => alt[k] == null || base[k] == null ? null : Math.round((base[k] - alt[k]) * 100) / 100;
   const noShift = run({ shiftSeconds: 0 }), noGrip = run({ mu: 9 });
-  const best = bestLaunchRpm(v, opts).best;
-  const atBest = run({ launchRpm: best.rpm });
+  const best = bestLaunchRpm(v, opts).best;           // null when no launch rpm completes the run
+  const atBest = best ? run({ launchRpm: best.rpm }) : {};
   return {
     base: { et: base.et, zeroTo60: base.zeroTo60 },
     lost: {
       shifts: { et: d(noShift, 'et'), zeroTo60: d(noShift, 'zeroTo60') },
       traction: { et: d(noGrip, 'et'), zeroTo60: d(noGrip, 'zeroTo60') },
-      launchRpm: { et: d(atBest, 'et'), zeroTo60: d(atBest, 'zeroTo60'), bestRpm: best.rpm },
+      launchRpm: { et: d(atBest, 'et'), zeroTo60: d(atBest, 'zeroTo60'), bestRpm: best?.rpm ?? null },
     },
     note: 'Each factor is removed on its own; the savings overlap, so they do not sum to the total.',
   };
