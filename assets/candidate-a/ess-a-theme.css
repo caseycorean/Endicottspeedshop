@@ -157,3 +157,7 @@ body[data-ess-skin="candidate-a"] { font: 1rem/1.55 var(--ess-text-face); }
 [data-ess-skin="candidate-a"] :is(.c-stock, .ig-live-head span) { color: #8a5300 !important; }
 /* Selected tire row turns navy: its level percentage must switch to light ink. */
 [data-ess-skin="candidate-a"] .ig-tire-list :is(button[aria-pressed="true"], button.on, .on > button) .ig-pct { color: #fff !important; }
+/* New finding N1 (26 Nov regression): the mobile drawer's close button (×) and beta note were light-on-light. */
+[data-ess-skin="candidate-a"] .sidebar .close-btn { color: #2c2c2c !important; border-color: var(--a-line-strong) !important; background: #fff !important; }
+[data-ess-skin="candidate-a"] .sidebar .hint { color: #5b5b59 !important; }
+[data-ess-skin="candidate-a"] .sidebar .hint a { color: var(--a-accent) !important; }

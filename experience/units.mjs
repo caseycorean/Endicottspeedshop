@@ -164,3 +164,22 @@ if (typeof window !== 'undefined') {
     else bindUnitControls();
   }
 }
+
+// R8 (26 Nov): every slider needs an accessible name. Many sliders sit beside a visible caption that is not a <label>;
+// name them from that caption (first line of the surrounding control) so screen readers announce what they change.
+function nameControls(root = document) {
+  for (const el of root.querySelectorAll('input[type="range"]:not([aria-label]):not([aria-labelledby])')) {
+    if (el.labels?.length) continue;
+    const box = el.closest('label, .slider, .gl-s, .sg-ctl, .field, div') ?? el.parentElement;
+    const raw = box?.innerText?.trim() ? box.innerText : (box?.textContent ?? '');
+    const text = raw.split(/\n|\s{2,}/).map(s => s.trim()).find(s => s && !/^[-+−]?[\d.,]+\s*\S{0,6}$/.test(s));
+    if (text) el.setAttribute('aria-label', text.slice(0, 80));
+  }
+}
+if (typeof document !== 'undefined' && typeof MutationObserver !== 'undefined') {
+  const run = () => nameControls();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+  let queued = false;
+  new MutationObserver(() => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; run(); }); })
+    .observe(document.documentElement, { childList: true, subtree: true });
+}
