@@ -282,3 +282,10 @@ a.btn-small { text-decoration: none; display: inline-block; }
 .sg-pair { flex: none; } .sg-pair b { white-space: nowrap; }
 @media (max-width: 760px) { .sg-pairs { flex-wrap: wrap; gap: 2px 12px; } .sg-pair b { font-size: 1rem; } }
 @media (max-width: 400px) { .sg-pair:nth-child(3) { display: none; } }
+
+/* Integrated candidate (26 Nov): the generic side-view drawing is gone (owner: inaccurate illustration); the key
+   figures take its place beside the name. Header logo sized like the rest of the integrated site. */
+.sg-hero .sg-figs { margin: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); align-self: start; }
+.site-header .brand img { height: 72px; }
+@media (max-width: 860px) { .site-header .brand img { height: 60px; } .sg-hero .sg-figs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 400px) { .site-header .brand img { height: 52px; } }

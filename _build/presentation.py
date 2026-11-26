@@ -5,29 +5,53 @@ presentation/ess @ bbe647d). This file ports that package's template transforms 
 the generator, so the integrated site builds with the presentation applied and no runtime rewriting.
 To update: copy Work's new assets into assets/ess-presentation/ and replace the transforms below.
 Build without the layer: ESS_BRAND=none python3 _build/build.py
+
+Owner direction 25–26 Nov (overnight convergence): Candidate A (site/v12-growth 56303cb) is the provisional visual
+foundation. ESS_BRAND=candidate-a (the default on this branch) keeps Work's component layer for layout but re-binds its
+tokens and header to Candidate A (assets/candidate-a/ess-a-theme.css), restores the Candidate A logo and keeps the
+owner's tagline "Measure. Test. Improve." / "Your car. Your experiment." ESS_BRAND=speed gives Work's look back.
 """
 import os, re
 
-BRAND = os.environ.get("ESS_BRAND", "speed").strip().lower()
+BRAND = os.environ.get("ESS_BRAND", "candidate-a").strip().lower()
+SKIN = BRAND == "candidate-a"
 PAIR_CALCULATORS = ("tools/load-transfer/index.html", "tools/spring-rate/index.html")
 ARTICLE = "articles/traction-circle/index.html"
 ARTICLE_EXPERIMENT = re.compile(r'<div class="section" id="try-it">.*?</script></div>', flags=re.S)
 
 
 def head(rel):
-    if BRAND != "speed":
+    if BRAND not in ("speed", "candidate-a"):
         return ""
+    if SKIN:
+        return (f'<link rel="stylesheet" href="{rel}assets/ess-presentation/ess-system.css">\n'
+                f'<link rel="stylesheet" href="{rel}assets/ess-presentation/ess-claude-adapter.css">\n'
+                f'<link rel="icon" type="image/png" href="{rel}logo-round.png">\n')
     return (f'<link rel="stylesheet" href="{rel}assets/ess-presentation/ess-system.css">\n'
             f'<link rel="stylesheet" href="{rel}assets/ess-presentation/ess-claude-adapter.css">\n'
             f'<link rel="icon" type="image/svg+xml" href="{rel}assets/ess-presentation/ess-mark.svg">\n')
 
 
+def tail_css(rel):
+    """Stylesheet loaded after every other one (the skin must win)."""
+    return f'<link rel="stylesheet" href="{rel}assets/candidate-a/ess-a-theme.css">\n' if SKIN else ""
+
+
+def brand_html(rel):
+    if SKIN:
+        return (f'<img class="a-logo" src="{rel}logo-horizontal-tight.png" alt="Endicott Speed Shop — Measure, Test, Improve" '
+                'width="611" height="192">')
+    return '<span class="ess-wordmark"><strong>ENDICOTT</strong><span>SPEED SHOP</span></span>'
+
+
 def body_attrs():
+    if SKIN:
+        return ' data-ess-brand="speed" data-ess-skin="candidate-a"'
     return ' data-ess-brand="speed"' if BRAND == "speed" else ""
 
 
 def theme_color():
-    return "#162720" if BRAND == "speed" else "#16191c"
+    return "#ffffff" if SKIN else "#162720" if BRAND == "speed" else "#16191c"
 
 
 def change_home(html):
@@ -40,6 +64,21 @@ def change_home(html):
                  "Pick a car. Change one thing. See how it affects grip, balance or acceleration before you buy the part.")
         .replace("Live from the Vehicle Lab", "Live Vehicle Lab result · Model estimate", 1)
     )
+
+
+def change_home_a(html):
+    """Candidate A homepage: the owner's taglines, and the simulators one tap from the first screen."""
+    sims = ('<div class="a-sims" aria-label="Simulators">'
+            '<a href="experience/#performance"><strong>Performance simulator</strong><span>0–60, quarter mile, gearing and tires, side by side</span></a>'
+            '<a href="experience/#build"><strong>Build a car</strong><span>Engine, transmission, weight and balance</span></a>'
+            '<a href="experience/#suspension"><strong>Suspension lab</strong><span>Drag the geometry, watch camber and roll</span></a>'
+            '<a href="vehicles/"><strong>Vehicle specifications</strong><span>116 cars with sources and live experiments</span></a></div>')
+    return (html.replace("Endicott Speed Shop | Run it before you buy it.", "Endicott Speed Shop | Measure. Test. Improve.")
+            .replace("Run it before<br><em>you buy it.</em>", "Your car.<br><em>Your experiment.</em>")
+            .replace('<p class="ig-invite">Your car. Your experiment.</p>', '<p class="ig-invite">Engineering models, sourced numbers and honest ranges.</p>')
+            .replace("Pick your car, change a gear, a tire or a part, and see what it does before anything ships. Engineering models, sourced numbers, honest ranges.",
+                     "Pick a car. Change a gear, a tire or a part. See what it does to grip, balance and acceleration before you buy anything.")
+            .replace('<section class="ig-section home-intentions"', sims + '\n<section class="ig-section home-intentions"', 1))
 
 
 def change_article(html):
@@ -76,9 +115,11 @@ def change_calculator(html, path):
 
 def transform(path, html):
     """Apply the presentation package's page changes to one generated page."""
-    if BRAND != "speed":
+    if BRAND not in ("speed", "candidate-a"):
         return html
-    if path == "index.html":
+    if path == "index.html" and SKIN:
+        html = change_home_a(html)
+    elif path == "index.html":
         html = change_home(html)
     if path == ARTICLE:
         html = change_article(html)

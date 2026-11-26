@@ -3,6 +3,8 @@ import { components, componentOverrides, componentProvenance } from './component
 import { axleWeights as sharedAxles, applyItems, tireLoads as sharedLoads, ride as sharedRide } from '../engine/loads.mjs';
 import { availableDrive, driveAt, resistanceAt, straightLine as sharedStrip, tractionLimit, wheelRpm } from '../engine/acceleration.mjs';
 import { missingFor, missingText } from './readiness.mjs';
+import { engineFamilyFor, engineFamilies } from '../engine/data/engines.mjs';
+import { swapMassChange } from '../engine/resolve.mjs';
 import { tireClasses as tractionClasses, surfaces as tractionSurfaces, frictionFor, pickerOrder as tirePickerOrder } from '../engine/traction.mjs';
 
 export const G = 32.174;
@@ -124,6 +126,27 @@ export function newSetup(id) {
   return { id, base: {}, tune: {}, parts: [], ...(id === 'custom' ? {estimates: []} : {}) };
 }
 
+/**
+ * Installed-mass consequence of an engine swap (owner review 26 Nov: a swap changed power and shift point but not mass).
+ * Uses the shared component library's dressed engine weights and the engine adapter's rule (engine centre of mass 8 in
+ * behind the front axle, estimate). Returns {part, from, to} when both engine weights are known on a front-engine car,
+ * {unchanged: reason} when the mass cannot be estimated (the result then keeps the stock mass, and says so), or null.
+ */
+export function engineSwapMass(setup) {
+  const id = setup.components?.engine;
+  if (!id) return null;
+  const v = vehicles[setup.id];
+  const to = components.engine[id]?.family ?? null;
+  const from = v ? engineFamilyFor(`${setup.id} ${v.ref ?? ''} ${v.name ?? ''} ${v.trim ?? ''}`) : null;
+  if (v?.layout && v.layout !== 'FR' && v.layout !== 'F4' && !/^F/.test(v.layout))
+    return {unchanged: 'Engine position is not modeled for mid- or rear-engine cars, so the stock mass and balance are kept.'};
+  if (!from) return {unchanged: 'The stock engine is not in the component weight library yet, so the stock mass and balance are kept.'};
+  if (!to || !engineFamilies[to]) return {unchanged: 'The swap engine’s installed weight is not in the component library yet, so the stock mass and balance are kept.'};
+  if (from === to) return {unchanged: 'Same engine family: installed mass treated as unchanged.'};
+  const part = swapMassChange({fromFamily: from, toFamily: to});
+  return part ? {part, from, to} : {unchanged: 'Engine weights incomplete; stock mass kept.'};
+}
+
 export function resolve(setup, modified = true) {
   const estimateKeys = setup.estimates ?? Object.keys(customEstimates);
   const original = {...stock(setup.id)};
@@ -150,7 +173,12 @@ export function resolve(setup, modified = true) {
     const frontLb = tuned.weight * tuned.front;
     return {...tuned, frontLb, rearLb: tuned.weight - frontLb, cgX: null};
   }
-  return {...tuned, ...(modified && setup.parts.length ? applyItems(tuned, setup.parts) : sharedAxles(tuned))};
+  const swap = modified ? engineSwapMass(setup) : null;
+  const ownMass = Object.hasOwn(setup.tune ?? {}, 'weight') || Object.hasOwn(setup.tune ?? {}, 'front');
+  const items = [...(swap?.part && !ownMass ? [swap.part] : []), ...(modified ? setup.parts : [])];
+  if (swap?.part && !ownMass) { evidence.weight = 'estimated'; evidence.front = 'estimated'; }
+  const extra = swap ? {engineSwap: ownMass && swap.part ? {unchanged: 'Your own weight or balance entry is used instead of the library estimate.'} : swap} : {};
+  return {...tuned, ...(items.length ? applyItems(tuned, items) : sharedAxles(tuned)), ...extra};
 }
 
 export function massIssue(v) {

@@ -16,7 +16,7 @@ from pathlib import Path
 
 from spec_page import h, fact_value, model_table, EVIDENCE_TEXT, intro
 
-GUIDED_SLUGS = {'1993-ford-mustang-lx-5-0-ssp-five-speed-m5-us'}
+GUIDED_SLUGS = None  # every specification page (overnight convergence, 26 Nov); was the Fox Mustang only
 ROOT = Path(__file__).resolve().parent.parent
 GROUPS = [('engine', 'Engine'), ('transmission', 'Transmission & axle'), ('weight', 'Weight'), ('dimensions', 'Dimensions'),
           ('tires', 'Wheels & tires'), ('suspension', 'Suspension'), ('brakes', 'Brakes'), ('performance', 'Performance'),
@@ -27,6 +27,12 @@ INPUT_ROWS = [('weight', 'Weight', 'weight', 'Vehicle weight'), ('dimensions', '
               ('transmission', 'gears', None, 'Gear ratios'), ('transmission', 'finalDrive', None, 'Axle ratio'),
               ('weight', 'front', None, 'Weight on the front axle'), ('engine', 'redline', None, 'Shift rpm')]
 EXPLORE = {'engine': 'power', 'transmission': 'gearing', 'weight': 'balance', 'tires': 'tires', 'performance': 'launch'}
+
+
+def short(text, n=64):
+    """A basis note short enough for a key-figure tile (the full basis is in the model-inputs table)."""
+    text = (text or '').strip()
+    return text if len(text) <= n else ''
 
 
 def row(label, value_html, ev, note='', review=False):
@@ -51,6 +57,12 @@ def input_value(key, inp):
 
 
 def render(page, r, private):
+    # Same destinations, analytics switch, link-preview tags and sitemap as every other generated page (_build/build.py).
+    shell = page.__globals__
+    nav = ''.join(f'<a href="../../{u}"{" class=on" if n == "Vehicles" else ""}>{n}</a>' for n, u, _ in shell['NAV'])
+    side = ''.join(f'<a href="../../{u}">{n}<small>{d}</small></a>' for n, u, d in shell['NAV'])
+    if not private:
+        shell['URLS'].append(f'vehicles/{r["slug"]}/')
     facts, ident, model = r['facts'], r['identity'], r.get('model') or {}
     inputs = model.get('inputs', {})
     runs = bool(model and r['links'].get('lab') and not model.get('competition'))
@@ -99,10 +111,10 @@ def render(page, r, private):
     if 'power' in k: figs.append(fig('Power', round(k['power']['value']), 'hp', f'at {inputs["hpRpm"]["value"]:,} rpm' if inputs.get('hpRpm') else ''))
     if 'torque' in k: figs.append(fig('Torque', round(k['torque']['value']), 'lb-ft', f'at {inputs["torqueRpm"]["value"]:,} rpm' if inputs.get('torqueRpm') else ''))
     w = k.get('weight') or (inputs.get('weight') and {'value': inputs['weight']['value'], 'evidence': inputs['weight']['evidence']})
-    if w: figs.append(fig('Weight', f'<span data-q="weight" data-v="{w["value"]}" data-bare>{round(w["value"]):,}</span>', 'lb', 'civilian LX V8 coupe reference' if 'weight' not in k else (k['weight'].get('basis') or ''), w.get('evidence')))
+    if w: figs.append(fig('Weight', f'<span data-q="weight" data-v="{w["value"]}" data-bare>{round(w["value"]):,}</span>', 'lb', short((k.get('weight') or inputs.get('weight') or {}).get('basis')), w.get('evidence')))
     if w and 'power' in k: figs.append(fig('Weight per hp', f'{w["value"] / k["power"]["value"]:.1f}', 'lb/hp', 'from the two figures above'))
     if inputs.get('gears'): figs.append(fig('Transmission', f'{len(inputs["gears"]["value"])}-speed', 'manual' if inputs.get('transmission', {}).get('value') == 'manual' else '', f'overdrive {inputs["gears"]["value"][-1]:g}' if inputs['gears']['value'][-1] < 1 else ''))
-    if inputs.get('finalDrive'): figs.append(fig('Axle ratio', f'{inputs["finalDrive"]["value"]:.2f}', ':1', 'standard; 3.08 optional' if inputs['finalDrive']['evidence'] == 'estimate' else '', inputs['finalDrive']['evidence']))
+    if inputs.get('finalDrive'): figs.append(fig('Axle ratio', f'{inputs["finalDrive"]["value"]:.2f}', ':1', short(inputs['finalDrive'].get('basis')) if inputs['finalDrive']['evidence'] == 'estimate' else '', inputs['finalDrive']['evidence']))
 
     refs = ''.join(f'<li id="source-{i}"><a href="{h(u)}" rel="noreferrer">{h(pubs.get(u))}</a></li>' for u, i in numbers.items())
     data = json.dumps({x: r[x] for x in ('schema', 'id', 'slug', 'title', 'variant', 'identity', 'key', 'tires', 'model', 'links', 'compareWith', 'facts')},
@@ -130,6 +142,10 @@ def render(page, r, private):
 <title>{h(title)} specifications | Endicott Speed Shop</title>
 <meta name="description" content="{h(desc)}">
 <link rel="canonical" href="https://endicottspeedshop.com/vehicles/{h(r["slug"])}/">
+{shell['GA']}
+{shell['share_tags'](h(title + ' specifications | Endicott Speed Shop'), h(desc), 'https://endicottspeedshop.com/vehicles/' + h(r['slug']) + '/')}
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" type="image/png" href="../../logo-round.png">
 {('<meta name="robots" content="noindex,nofollow">' if private else '')}
 <link rel="stylesheet" href="../../assets/candidate-a/site.css">
 <link rel="stylesheet" href="../../assets/ess-guided.css">
@@ -138,11 +154,11 @@ def render(page, r, private):
 <body>
 <header class="site-header"><div class="header-inner">
 <div class="brand-wrap"><a href="../../" class="brand" aria-label="Endicott Speed Shop home"><img src="../../logo-horizontal-tight.png" alt="Endicott Speed Shop — Measure, Test, Improve" width="611" height="192"></a><a class="beta-pill" href="../../about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
-<nav class="topnav"><a href="../../plan/">Plan</a><a href="../../tools/">Tools</a><a href="../../articles/">Articles</a><a href="../../build/">The Build</a><a href="../../about/">About</a><a href="../../contact/">Contact</a></nav>
+<nav class="topnav" aria-label="Main navigation">{nav}</nav>
 <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
 </div></header>
 <aside class="sidebar" id="sidebar"><button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
-<nav><a href="../../">Home<small>Start here</small></a><a href="../">Vehicles<small>Specifications and experiments</small></a><a href="../../plan/">Plan<small>Plan your build, step by step</small></a><a href="../../tools/">Tools<small>Calculators built from measured data</small></a><a href="../../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../../build/">The Build<small>The green car, measured</small></a><a href="../../about/">About<small>Why this exists</small></a><a href="../../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
+<nav><a href="../../">Home<small>Start here</small></a>{side}</nav>
 <p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="../../contact/">Spot a problem? Tell us.</a></p>
 </aside>
 <main class="page sg-page" id="main">
@@ -154,8 +170,7 @@ def render(page, r, private):
 <p class="lede" data-sg-lede>{intro(dict(r, title=name))}</p>
 <div class="action-row">{('<a class="btn primary" href="#explore">Explore this car</a>' if runs else '')}<a class="btn secondary" href="#specifications">Specifications</a></div>
 </div>
-<figure class="sg-hero-fig" data-sg-hero><figcaption>Layout drawn to this car’s wheelbase and weight split. Weight split is an ESS estimate.</figcaption></figure></section>
-<dl class="sg-figs" aria-label="Key figures">{"".join(figs)}</dl>
+<dl class="sg-figs" aria-label="Key figures">{"".join(figs)}</dl></section>
 {(f'<p class="sg-private note">Private review build. Model results are ESS estimates and labeled as such; nothing on this page is published.</p>' if private else '')}
 {explore}
 <section class="section sg-specs" id="specifications" aria-labelledby="specs-h">

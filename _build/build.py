@@ -82,11 +82,11 @@ def page(path, title, desc, body, active="", extra_head="", *, indexable=True, j
 <script type="module" src="{rel}experience/measurement.mjs"></script>
 <meta name="theme-color" content="{presentation.theme_color()}">
 {extra_head}
-</head>
+{presentation.tail_css(rel)}</head>
 <body class="ess-theme"{presentation.body_attrs()}>
 <a class="vr-skip" href="#main">Skip to content</a>
 <header class="site-header"><div class="header-inner">
-<div class="brand-wrap"><a href="{rel}./" class="brand" aria-label="Endicott Speed Shop home"><span class="ess-wordmark"><strong>ENDICOTT</strong><span>SPEED SHOP</span></span></a><a class="beta-pill" href="{rel}about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
+<div class="brand-wrap"><a href="{rel}./" class="brand" aria-label="Endicott Speed Shop home">{presentation.brand_html(rel)}</a><a class="beta-pill" href="{rel}about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
 <nav class="topnav" aria-label="Main navigation">{links}</nav>
 <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
 </div></header>

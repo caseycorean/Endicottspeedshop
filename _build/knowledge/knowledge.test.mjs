@@ -73,7 +73,7 @@ test('manufacturer corrections replace archive values but never peak rpm, and ke
 
 test('static page answers without JavaScript: title, canonical, facts and embedded record', () => {
   const html = readFileSync(new URL('vehicles/1991-ferrari-f40/index.html', root), 'utf8');
-  assert.match(html, /<h1>1991 Ferrari F40<\/h1>/);
+  assert.match(html, /<h1[^>]*>1991 Ferrari F40<\/h1>/);
   assert.match(html, /rel="canonical" href="[^"]*\/vehicles\/1991-ferrari-f40\/"/);
   assert.match(html, /478 hp/);
   const data = JSON.parse(html.match(/<script type="application\/json" id="ess-spec-data">([\s\S]*?)<\/script>/)[1]);
