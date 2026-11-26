@@ -24,7 +24,9 @@ for (const [id, [z60, et, trap, lap]] of Object.entries(independent)) {
     assert.ok(Math.abs(run.zeroTo60 - z60) < .04, `0–60 ${run.zeroTo60} vs ${z60}`);
     assert.ok(Math.abs(run.finish.t - et) < .04, `ET ${run.finish.t} vs ${et}`);
     assert.ok(Math.abs(run.finish.trap - trap) < .1, `trap ${run.finish.trap} vs ${trap}`);
-    assert.ok(Math.abs(ovalLap(v).lap - lap) < .02, `lap ${ovalLap(v).lap} vs ${lap}`);
+    // The checkpoints were computed for the grip-only point mass, so compare with load sensitivity off.
+    const legacyLap = ovalLap(v, { loadSensitivity: 0 }).lap;
+    assert.ok(Math.abs(legacyLap - lap) < .02, `lap ${legacyLap} vs ${lap}`);
   });
 }
 
@@ -63,12 +65,16 @@ test('lighter-but-slower Corvette is explained by rear weight share', () => {
   assert.match(c.why, /47\.0% to 46\.6%/);
 });
 
-test('oval change note says turn speed is grip-only', () => {
+test('oval change note explains the cornering limit when weight changes', () => {
   const base = newSetup('firebird');
   const mod = { ...base, parts: [{ label: 's', oldWeight: 23, oldX: 76, newWeight: 0, newX: 76 }] };
   const o = resolve(base, false); const m = resolve(mod);
   const ro = ovalLap(o); const rm = ovalLap(m);
-  assert.equal(ro.turnSpeed, rm.turnSpeed);
   const c = changeFromOriginal('Car A', o, m, ro, rm, true);
-  assert.match(c.why, /Turn speed does not change/);
+  assert.match(c.why, /Cornering limit/);
+  assert.match(c.why, /ESS estimate/);
+  // Grip-only behaviour is still available and still explained.
+  const g0 = changeFromOriginal('Car A', o, m, ovalLap(o, { loadSensitivity: 0 }), ovalLap(m, { loadSensitivity: 0 }), true);
+  assert.equal(ovalLap(o, { loadSensitivity: 0 }).turnSpeed, ovalLap(m, { loadSensitivity: 0 }).turnSpeed);
+  assert.ok(g0);
 });

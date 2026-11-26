@@ -1,4 +1,5 @@
 import { G, MPH, driveForce, driveResistance, tractiveLimit, powerIssue, massIssue } from './models.mjs';
+import { corneringLimit } from '../engine/cornering.mjs';
 
 const radius = 200;
 const straight = 520;
@@ -26,9 +27,11 @@ export function ovalPoint(distance) {
   return { x: -radius * Math.sin(angle), y: radius * (1 + Math.cos(angle)) };
 }
 
+// Friction ellipse: lateral limit from the load-transfer model (v.lateralLimit), longitudinal limit v.grip.
 function budget(v, speed, curvature) {
   const lateralG = speed ** 2 * curvature / G;
-  return Math.sqrt(Math.max(0, v.grip ** 2 - lateralG ** 2));
+  const lateral = v.lateralLimit ?? v.grip;
+  return v.grip * Math.sqrt(Math.max(0, 1 - (lateralG / lateral) ** 2));
 }
 
 function availableDrive(v, speed, curvature) {
@@ -40,13 +43,19 @@ function availableDrive(v, speed, curvature) {
   return { gear, limited: power > cap, acceleration: (Math.min(cap, power) - resistance) * G / v.weight };
 }
 
-export function ovalLap(v) {
-  const issue = powerIssue(v, 'oval') || massIssue(v);
+/**
+ * Flying lap. options.loadSensitivity: tire load sensitivity k for the cornering limit (default
+ * engine/cornering.mjs LOAD_SENSITIVITY; 0 reproduces the earlier grip-only point mass).
+ */
+export function ovalLap(input, { loadSensitivity } = {}) {
+  const issue = powerIssue(input, 'oval') || massIssue(input);
   if (issue) return { issue };
+  const cornering = corneringLimit(input, loadSensitivity === undefined ? {} : { sensitivity: loadSensitivity });
+  const v = { ...input, lateralLimit: cornering.ay };
   const n = pieces.length;
   // v². A constant-radius end is capped at 96% of the theoretical lateral limit
   // so the discrete solver can allow a little combined demand through transitions.
-  const cap = .96 ** 2 * v.grip * G * radius;
+  const cap = .96 ** 2 * v.lateralLimit * G * radius;
   const speedSquared = pieces.map((p, i) => p.curvature || pieces[(i + n - 1) % n].curvature ?
     cap : (180 * MPH) ** 2);
   for (let iteration = 0; iteration < 60; iteration++) {
@@ -84,5 +93,5 @@ export function ovalLap(v) {
   trace.at(-1).x = ovalLength;
   const peakSpeed = Math.max(...trace.map(s => s.speed)) / MPH;
   const turnSpeed = Math.min(...trace.filter((_, i) => pieces[i]?.curvature).map(s => s.speed)) / MPH;
-  return { trace, lap: trace.at(-1).t, peakSpeed, turnSpeed };
+  return { trace, lap: trace.at(-1).t, peakSpeed, turnSpeed, cornering };
 }
