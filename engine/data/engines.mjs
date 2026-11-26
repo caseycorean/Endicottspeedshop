@@ -46,7 +46,7 @@ export function engineFamilyFor(name = '') {
   if (/\bls[1236]\b|5\.7 ls1|ls1/.test(n)) return 'gm-ls-gen3';
   if (/lt4|lt1|lt2|l87|6\.2/.test(n) && /chevrolet|camaro|corvette|silverado/.test(n)) return 'gm-lt-gen5';
   if (/454|396|427/.test(n) && /chevrolet|chevelle|c10/.test(n)) return 'gm-bbc';
-  if (/302|327|350|307|l79/.test(n) && /chevrolet|camaro|nova|chevy|c10/.test(n)) return 'gm-sbc';
+  if (/283|302|305|327|350|307|l79|lb9|l98/.test(n) && /chevrolet|camaro|nova|chevy|c10|corvette/.test(n) && !/ls\d|lt\d/.test(n)) return 'gm-sbc';
   if (/pontiac/.test(n) && /389|400|455|w72/.test(n)) return 'pontiac-v8';
   if (/426 hemi|hemi/.test(n) && /1970|challenger|charger/.test(n)) return 'mopar-hemi-426';
   if (/428|390|360|fe\b/.test(n) && /ford|mustang|f-100/.test(n)) return 'ford-fe';

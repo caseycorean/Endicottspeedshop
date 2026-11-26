@@ -26,7 +26,7 @@ export const fields = {
   archFront: 'Front suspension architecture', archRear: 'Rear suspension architecture',
   frontTrack: 'Front track (in)', rearTrack: 'Rear track (in)', cg: 'CG height (in)',
   hp: 'Peak power (hp)', hpRpm: 'Peak power RPM', torque: 'Peak torque (lb-ft)',
-  torqueRpm: 'Peak torque RPM', redline: 'Shift / redline RPM', gears: 'Gear ratios',
+  torqueRpm: 'Peak torque RPM', redline: 'Upshift RPM (model shift point, not the rev limit)', gears: 'Gear ratios',
   finalDrive: 'Final drive', tire: 'Rear tire size', diameter: 'Rear tire diameter (in)',
   grip: 'Launch grip coefficient', cda: 'Drag area (ft²)', frontSpring: 'Front spring (lb/in)',
   rearSpring: 'Rear spring (lb/in)', frontMotion: 'Front motion ratio', rearMotion: 'Rear motion ratio',

@@ -1245,11 +1245,11 @@
      },
      "quarter": {
       "missing": "Vehicle weight (lb), Wheelbase (in), Gear ratios, Final drive",
-      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "Vehicle weight (lb), Wheelbase (in), Gear ratios, Final drive",
-      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -1991,11 +1991,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -2458,11 +2458,11 @@
      },
      "quarter": {
       "missing": "Vehicle weight (lb)",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "Vehicle weight (lb)",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -2699,7 +2699,7 @@
     "readiness": null,
     "competition": false,
     "accelerationRuns": false,
-    "accelerationIssue": "Add Vehicle weight (lb), Peak power RPM, Peak torque RPM, Shift / redline RPM, Gear ratios, Final drive."
+    "accelerationIssue": "Add Vehicle weight (lb), Peak power RPM, Peak torque RPM, Upshift RPM (model shift point, not the rev limit), Gear ratios, Final drive."
    },
    "links": {
     "compare": "/vehicles/compare/?a=1963-chevrolet-c10-short-wheelbase",
@@ -3089,11 +3089,11 @@
      },
      "quarter": {
       "missing": "Vehicle weight (lb), Gear ratios, Final drive",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "Vehicle weight (lb), Gear ratios, Final drive",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -3376,7 +3376,7 @@
     "readiness": null,
     "competition": false,
     "accelerationRuns": false,
-    "accelerationIssue": "Add Peak power (hp), Peak power RPM, Peak torque (lb-ft), Peak torque RPM, Shift / redline RPM, Gear ratios, Final drive."
+    "accelerationIssue": "Add Peak power (hp), Peak power RPM, Peak torque (lb-ft), Peak torque RPM, Upshift RPM (model shift point, not the rev limit), Gear ratios, Final drive."
    },
    "links": {
     "compare": "/vehicles/compare/?a=1978-chevrolet-c10-short-bed-fleetside",
@@ -3826,11 +3826,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "CG height (in), Peak power (hp), Peak torque (lb-ft), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Peak power (hp), Peak torque (lb-ft), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "CG height (in), Peak power (hp), Peak torque (lb-ft), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Peak power (hp), Peak torque (lb-ft), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -5493,11 +5493,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -7227,11 +7227,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "CG height (in), Peak power (hp), Peak torque (lb-ft), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Peak power (hp), Peak torque (lb-ft), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "CG height (in), Peak power (hp), Peak torque (lb-ft), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Peak power (hp), Peak torque (lb-ft), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -7727,11 +7727,11 @@
      },
      "quarter": {
       "missing": "Vehicle weight (lb), Gear ratios, Final drive",
-      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "Vehicle weight (lb), Gear ratios, Final drive",
-      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -8623,11 +8623,11 @@
      },
      "quarter": {
       "missing": "Gear ratios, Final drive",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "Gear ratios, Final drive",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -11562,11 +11562,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -12457,11 +12457,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -13665,11 +13665,11 @@
      },
      "quarter": {
       "missing": "Vehicle weight (lb), Wheelbase (in)",
-      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "Vehicle weight (lb), Wheelbase (in)",
-      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -14301,11 +14301,11 @@
      },
      "quarter": {
       "missing": "Vehicle weight (lb), Gear ratios, Final drive",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "Vehicle weight (lb), Gear ratios, Final drive",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -15504,7 +15504,7 @@
     "readiness": null,
     "competition": false,
     "accelerationRuns": false,
-    "accelerationIssue": "Add Peak power RPM, Peak torque RPM, Shift / redline RPM, Gear ratios, Final drive."
+    "accelerationIssue": "Add Peak power RPM, Peak torque RPM, Upshift RPM (model shift point, not the rev limit), Gear ratios, Final drive."
    },
    "links": {
     "compare": "/vehicles/compare/?a=1967-ford-f-100-115-inch-styleside",
@@ -16375,11 +16375,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -17457,11 +17457,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -18217,11 +18217,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -18683,11 +18683,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Final drive, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Final drive, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Final drive, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Final drive, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -20651,11 +20651,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -21692,11 +21692,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -23790,11 +23790,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -24389,11 +24389,11 @@
      },
      "quarter": {
       "missing": "Vehicle weight (lb), Wheelbase (in)",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "Vehicle weight (lb), Wheelbase (in)",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -26476,11 +26476,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -27157,11 +27157,11 @@
      },
      "quarter": {
       "missing": "Gear ratios, Final drive",
-      "estimated": "CG height (in), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "Gear ratios, Final drive",
-      "estimated": "CG height (in), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -27942,11 +27942,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -29431,11 +29431,11 @@
      },
      "quarter": {
       "missing": "Vehicle weight (lb), Gear ratios, Final drive",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "Vehicle weight (lb), Gear ratios, Final drive",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -32246,11 +32246,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -32666,11 +32666,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Shift / redline RPM, Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Peak power (hp), Peak torque (lb-ft), Upshift RPM (model shift point, not the rev limit), Rear tire diameter (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -37459,11 +37459,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -39157,17 +39157,17 @@
       "estimated": "Static front share (%), Front spring (lb/in), Rear spring (lb/in), Front motion ratio, Rear motion ratio, Front unsprung (lb/corner), Rear unsprung (lb/corner), Tire vertical rate (lb/in)"
      },
      "quarter": {
-      "missing": "Wheelbase (in), Peak power RPM, Shift / redline RPM",
+      "missing": "Wheelbase (in), Peak power RPM, Upshift RPM (model shift point, not the rev limit)",
       "estimated": "Static front share (%), CG height (in), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
-      "missing": "Wheelbase (in), Peak power RPM, Shift / redline RPM",
+      "missing": "Wheelbase (in), Peak power RPM, Upshift RPM (model shift point, not the rev limit)",
       "estimated": "Static front share (%), CG height (in), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
     "accelerationRuns": false,
-    "accelerationIssue": "Add Wheelbase (in), Peak power RPM, Shift / redline RPM."
+    "accelerationIssue": "Add Wheelbase (in), Peak power RPM, Upshift RPM (model shift point, not the rev limit)."
    },
    "links": {
     "compare": "/vehicles/compare/?a=2024-toyota-gr-supra-3-0-six-speed-manual-m6-us",
@@ -40252,11 +40252,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -41219,11 +41219,11 @@
      },
      "quarter": {
       "missing": "Gear ratios",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "Gear ratios",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -41913,11 +41913,11 @@
      },
      "quarter": {
       "missing": "Gear ratios, Final drive",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "Gear ratios, Final drive",
-      "estimated": "Static front share (%), CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "Static front share (%), CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -44648,11 +44648,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -49571,11 +49571,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -58652,11 +58652,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -59044,11 +59044,11 @@
      },
      "quarter": {
       "missing": "",
-      "estimated": "CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "",
-      "estimated": "CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,
@@ -64221,11 +64221,11 @@
      },
      "quarter": {
       "missing": "Gear ratios, Final drive",
-      "estimated": "CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      },
      "oval": {
       "missing": "Gear ratios, Final drive",
-      "estimated": "CG height (in), Shift / redline RPM, Launch grip coefficient, Drag area (ft²)"
+      "estimated": "CG height (in), Upshift RPM (model shift point, not the rev limit), Launch grip coefficient, Drag area (ft²)"
      }
     },
     "competition": false,

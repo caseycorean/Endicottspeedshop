@@ -49,7 +49,7 @@
 .k-stock { background: var(--stock); } .k-mod { background: var(--mod); } .k-ok { background: var(--ok); } .k-over { background: var(--over); }
 .k-est { background: transparent; border-bottom: 2px dashed var(--est); border-radius: 0 !important; height: 6px !important; vertical-align: 3px !important; }
 
-.sg-bar { position: sticky; top: 112px; z-index: 30; background: rgba(255, 255, 255, .97); border: 1.5px solid var(--line-strong); border-radius: 16px; margin: 0 0 18px; box-shadow: 0 8px 22px -18px rgba(47, 85, 127, .6); }
+.sg-bar { position: sticky; top: 96px; z-index: 30; background: rgba(255, 255, 255, .97); border: 1.5px solid var(--line-strong); border-radius: 16px; margin: 0 0 18px; box-shadow: 0 8px 22px -18px rgba(47, 85, 127, .6); }
 .sg-bar-in { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px 22px; align-items: center; padding: 10px 16px; }
 .sg-bar-name b { display: block; font-size: 1.05rem; font-weight: 600; }
 .sg-bar-name small { font-size: .82rem; }
@@ -72,7 +72,7 @@ a.btn-small { text-decoration: none; display: inline-block; }
 .sg-a.primary, a.btn-small.primary { color: #fff; }
 
 .sg-layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 22px; align-items: start; }
-.sg-toc { position: sticky; top: 200px; }
+.sg-toc { position: static; } /* owner review 26 Nov: no independently scrolling panels */
 .sg-toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .sg-q { display: grid; grid-template-columns: 4.8rem minmax(0, 1fr); gap: 10px; padding: 12px; border: 1.5px solid var(--line); border-radius: 14px; background: #fff; text-decoration: none; color: var(--text); }
 .sg-q:hover { border-color: var(--line-strong); background: #fbfcfd; }
@@ -282,3 +282,16 @@ a.btn-small { text-decoration: none; display: inline-block; }
 .sg-pair { flex: none; } .sg-pair b { white-space: nowrap; }
 @media (max-width: 760px) { .sg-pairs { flex-wrap: wrap; gap: 2px 12px; } .sg-pair b { font-size: 1rem; } }
 @media (max-width: 400px) { .sg-pair:nth-child(3) { display: none; } }
+
+/* Integrated candidate (26 Nov): the generic side-view drawing is gone (owner: inaccurate illustration); the key
+   figures take its place beside the name. Header logo sized like the rest of the integrated site. */
+.sg-hero .sg-figs { margin: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); align-self: start; }
+.site-header .brand img { height: 72px; }
+@media (max-width: 860px) { .site-header .brand img { height: 60px; } .sg-hero .sg-figs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 400px) { .site-header .brand img { height: 52px; } }
+
+.sg-add-panel { margin-top: 14px; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--soft); }
+.sg-add-panel .sg-chips { margin: 6px 0; }
+.sg-chip small { color: var(--muted); font-weight: 400; margin-left: 4px; }
+.sg-find { display: grid; gap: 4px; margin-top: 8px; font-size: .88rem; color: var(--muted); }
+.sg-find input { min-height: 44px; padding: 8px 12px; border: 1.5px solid var(--line-strong); border-radius: 10px; font: inherit; font-size: 1rem; color: var(--text); background: #fff; max-width: 420px; }
