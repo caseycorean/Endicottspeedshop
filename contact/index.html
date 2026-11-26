@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contact | Endicott Speed Shop</title>
-<meta name="description" content="Contact Endicott Speed Shop with corrections, calculator problems, questions or measured part data.">
+<title>Feedback | Endicott Speed Shop</title>
+<meta name="description" content="Suggest a correction, report a usability problem or request a vehicle or tool.">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-GGJVMS8CZD"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.href.split('#')[0]});</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.origin+location.pathname,page_referrer:document.referrer?new URL(document.referrer).origin:''});</script>
 <link rel="canonical" href="https://endicottspeedshop.com/contact/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Endicott Speed Shop">
-<meta property="og:title" content="Contact | Endicott Speed Shop">
-<meta property="og:description" content="Contact Endicott Speed Shop with corrections, calculator problems, questions or measured part data.">
+<meta property="og:title" content="Feedback | Endicott Speed Shop">
+<meta property="og:description" content="Suggest a correction, report a usability problem or request a vehicle or tool.">
 <meta property="og:url" content="https://endicottspeedshop.com/contact/">
 <meta property="og:image" content="https://endicottspeedshop.com/logo-round.png">
 <meta property="og:image:width" content="1536">
@@ -21,29 +21,49 @@
 <link rel="stylesheet" href="../assets/site.css">
 <link rel="stylesheet" href="../assets/ess-search.css">
 <link rel="stylesheet" href="../assets/ess-editorial.css">
-
+<link rel="stylesheet" href="../assets/ess-identity.css">
+<link rel="stylesheet" href="../assets/ess-presentation/ess-system.css">
+<link rel="stylesheet" href="../assets/ess-presentation/ess-claude-adapter.css">
+<link rel="icon" type="image/svg+xml" href="../assets/ess-presentation/ess-mark.svg">
+<link rel="stylesheet" href="../assets/ess-reference.css">
+<script type="module" src="../experience/measurement.mjs"></script>
+<meta name="theme-color" content="#162720">
+<script type="module" src="../experience/feedback.mjs"></script>
 </head>
-<body class="ess-theme">
+<body class="ess-theme" data-ess-brand="speed">
+<a class="vr-skip" href="#main">Skip to content</a>
 <header class="site-header"><div class="header-inner">
 <div class="brand-wrap"><a href=".././" class="brand" aria-label="Endicott Speed Shop home"><span class="ess-wordmark"><strong>ENDICOTT</strong><span>SPEED SHOP</span></span></a><a class="beta-pill" href="../about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
-<nav class="topnav" aria-label="Main navigation"><a href="../experience/">Vehicle Lab</a><a href="../plan/">Plan</a><a href="../tools/">Tools</a><a href="../articles/">Articles</a><a href="../build/">The Build</a><a href="../about/">About</a><a href="../contact/" class=on>Contact</a></nav>
+<nav class="topnav" aria-label="Main navigation"><a href="../vehicles/">Vehicles</a><a href="../experience/">Vehicle Lab</a><a href="../plan/">Plan</a><a href="../tools/">Tools</a><a href="../articles/">Articles</a><a href="../build/">Research</a><a href="../about/">About</a><a href="../contact/" class=on>Contact</a></nav>
 <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
 </div></header>
 <aside class="sidebar" id="sidebar"><button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
-<nav><a href=".././">Home<small>Start here</small></a><a href="../experience/">Vehicle Lab<small>Build, compare and test your car</small></a><a href="../plan/">Plan<small>Plan your build, step by step</small></a><a href="../tools/">Tools<small>Calculators built from measured data</small></a><a href="../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../build/">The Build<small>The green car, measured</small></a><a href="../about/">About<small>Why this exists</small></a><a href="../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
+<nav><a href=".././">Home<small>Start here</small></a><a href="../vehicles/">Vehicles<small>Factory specifications and independent tests</small></a><a href="../experience/">Vehicle Lab<small>Build, compare and test your car</small></a><a href="../plan/">Plan<small>Plan your build, step by step</small></a><a href="../tools/">Tools<small>Calculators built from measured data</small></a><a href="../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../build/">Research<small>How ESS measures and tests changes</small></a><a href="../about/">About<small>Why this exists</small></a><a href="../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
 <p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="../contact/">Spot a problem? Tell us.</a></p>
 </aside>
-<main class="page narrow article"><div class="kicker">Contact</div><h1>Contact the shop.</h1>
-<p class="lede">Endicott Speed Shop is a one-person shop. Email is the best way to reach us; replies may take a few days.</p>
-<p class="note">PREVIEW: the contact address is added before launch.</p>
-<h2>Especially welcome</h2>
-<ul><li><strong>Corrections.</strong> Which page, what looks wrong, and your source if you have one.</li>
-<li><strong>Calculator problems.</strong> Which tool, the numbers you entered, and your device and browser.</li>
-<li><strong>Measured data.</strong> A part's weight with what it included (hardware, fluids, brackets) and how it was weighed.</li>
-<li><strong>Questions</strong> about the builds, the articles or the tools.</li></ul>
-<p class="hint">What happens to your email: see <a href="../privacy/">Privacy</a>.</p>
-</main>
-<footer class="footer"><div class="line"><span>© 2026 Endicott Speed Shop · Beta — <a href="../contact/">report a problem</a></span><span><a href="../privacy/">Privacy</a> · <a href="../contact/">Contact</a></span></div></footer>
+<main id="main" class="page vr-page vr-feedback">
+    <nav class="vr-breadcrumb" aria-label="Breadcrumb"><a href="../">Home</a></nav>
+    <section class="vr-hero"><p class="vr-eyebrow">Endicott Speed Shop</p><h1>Tell us what needs attention.</h1><p class="vr-variant">Prepare a note you can copy. Online delivery is awaiting setup.</p></section>
+    <noscript><p>The feedback form needs JavaScript. </p></noscript>
+    <form class="vr-feedback-form" data-feedback-mode="draft" hidden>
+      <label for="kind">What would you like to tell us?</label>
+      <select id="kind" name="kind" required>
+        <option value="">Choose a topic</option><option value="suggestion">Suggestion</option>
+        <option value="correction">Specification or source correction</option><option value="usability">Something was hard to use</option>
+        <option value="vehicle">Vehicle request</option><option value="feature">Feature request</option>
+      </select>
+      <label for="note">Your feedback</label><textarea id="note" name="note" rows="6" required minlength="10" maxlength="1200" aria-describedby="note-help"></textarea>
+      <p id="note-help">Between 10 and 1,200 characters. Leave out contact details, VINs and shared configuration links.</p>
+      <div class="vr-check" data-feedback-context hidden><label><input type="checkbox" name="context"> Include the public page path and, when available, its factory reference link.</label>
+      <p data-context-value></p><p>Your saved vehicles, settings and measurements stay on this device.</p></div>
+      <div hidden><label>Leave blank<input name="website" autocomplete="off" tabindex="-1"></label></div>
+      <div class="vr-button-row"><button class="vr-button primary" type="submit">Prepare feedback note</button><a href="../privacy/">Privacy</a></div>
+      <p data-feedback-status role="status" tabindex="-1"></p>
+      <div data-feedback-copy hidden><label for="feedback-copy">Your feedback note</label><textarea id="feedback-copy" rows="5" readonly></textarea>
+        <button class="vr-button" type="button" data-feedback-copy-button>Copy note</button></div>
+    </form></main>
+<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="../contact/?from=/contact/">Give feedback</a></span><span><a href="../privacy/">Privacy</a> · <a href="../contact/">Contact</a></span><label class="ess-units"><span>Units</span><select data-units-pref aria-label="Measurement units"><option value="us">US customary</option><option value="metric">Metric</option><option value="dual">Both</option></select></label></div></footer>
 <script src="../assets/site.js"></script>
+<script type="module" src="../experience/units.mjs"></script>
 </body>
 </html>

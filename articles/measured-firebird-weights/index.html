@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>What Second-Gen Firebird Parts Actually Weigh (Measured) | Endicott Speed Shop</title>
-<meta name="description" content="Scale-measured weights of LS-swap and second-gen F-body parts, with what each number includes.">
+<title>Engineering research | Endicott Speed Shop</title>
+<meta name="description" content="Explore the ESS approach to measuring parts and planning a build.">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-GGJVMS8CZD"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.href.split('#')[0]});</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.origin+location.pathname,page_referrer:document.referrer?new URL(document.referrer).origin:''});</script>
 <link rel="canonical" href="https://endicottspeedshop.com/articles/measured-firebird-weights/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Endicott Speed Shop">
-<meta property="og:title" content="What Second-Gen Firebird Parts Actually Weigh (Measured) | Endicott Speed Shop">
-<meta property="og:description" content="Scale-measured weights of LS-swap and second-gen F-body parts, with what each number includes.">
+<meta property="og:title" content="Engineering research | Endicott Speed Shop">
+<meta property="og:description" content="Explore the ESS approach to measuring parts and planning a build.">
 <meta property="og:url" content="https://endicottspeedshop.com/articles/measured-firebird-weights/">
 <meta property="og:image" content="https://endicottspeedshop.com/logo-round.png">
 <meta property="og:image:width" content="1536">
@@ -25,69 +25,24 @@
 <link rel="stylesheet" href="../../assets/ess-presentation/ess-system.css">
 <link rel="stylesheet" href="../../assets/ess-presentation/ess-claude-adapter.css">
 <link rel="icon" type="image/svg+xml" href="../../assets/ess-presentation/ess-mark.svg">
+<link rel="stylesheet" href="../../assets/ess-reference.css">
+<script type="module" src="../../experience/measurement.mjs"></script>
 <meta name="theme-color" content="#162720">
-<script type="module" src="../../experience/journey.mjs"></script><script type="module" src="../../experience/search-bridge.mjs"></script>
+<meta name="robots" content="noindex,follow">
 </head>
 <body class="ess-theme" data-ess-brand="speed">
+<a class="vr-skip" href="#main">Skip to content</a>
 <header class="site-header"><div class="header-inner">
 <div class="brand-wrap"><a href="../.././" class="brand" aria-label="Endicott Speed Shop home"><span class="ess-wordmark"><strong>ENDICOTT</strong><span>SPEED SHOP</span></span></a><a class="beta-pill" href="../../about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
-<nav class="topnav" aria-label="Main navigation"><a href="../../experience/">Vehicle Lab</a><a href="../../plan/">Plan</a><a href="../../tools/">Tools</a><a href="../../articles/" class=on>Articles</a><a href="../../build/">The Build</a><a href="../../about/">About</a><a href="../../contact/">Contact</a></nav>
+<nav class="topnav" aria-label="Main navigation"><a href="../../vehicles/">Vehicles</a><a href="../../experience/">Vehicle Lab</a><a href="../../plan/">Plan</a><a href="../../tools/">Tools</a><a href="../../articles/">Articles</a><a href="../../build/">Research</a><a href="../../about/">About</a><a href="../../contact/">Contact</a></nav>
 <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false"><div class="menu-lines"><span></span><span></span><span></span></div></button>
 </div></header>
 <aside class="sidebar" id="sidebar"><button class="close-btn" id="closeBtn" aria-label="Close menu">×</button>
-<nav><a href="../.././">Home<small>Start here</small></a><a href="../../experience/">Vehicle Lab<small>Build, compare and test your car</small></a><a href="../../plan/">Plan<small>Plan your build, step by step</small></a><a href="../../tools/">Tools<small>Calculators built from measured data</small></a><a href="../../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../../build/">The Build<small>The green car, measured</small></a><a href="../../about/">About<small>Why this exists</small></a><a href="../../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
+<nav><a href="../.././">Home<small>Start here</small></a><a href="../../vehicles/">Vehicles<small>Factory specifications and independent tests</small></a><a href="../../experience/">Vehicle Lab<small>Build, compare and test your car</small></a><a href="../../plan/">Plan<small>Plan your build, step by step</small></a><a href="../../tools/">Tools<small>Calculators built from measured data</small></a><a href="../../articles/">Articles<small>Engineering foundations and build notes</small></a><a href="../../build/">Research<small>How ESS measures and tests changes</small></a><a href="../../about/">About<small>Why this exists</small></a><a href="../../contact/">Contact<small>Corrections, questions and measured data</small></a></nav>
 <p class="hint" style="margin-top:20px">This site is in beta: tools and articles are still being checked and expanded. <a href="../../contact/">Spot a problem? Tell us.</a></p>
 </aside>
-<main class="page narrow article ig-article"><div class="kicker">Build data</div><h1>What Second-Gen Firebird Parts Actually Weigh (Measured)</h1>
-<div class="ess-config" data-ess-vehicle="article" data-lab-root="../../experience/"></div><div class="meta">Endicott Speed Shop · Measured March–July 2026</div><p class="lede">Published part weights for second-gen F-bodies are scattered, rarely say what was included, and often disagree. These are numbers we measured ourselves while stripping one car and building another — with what each one includes.</p>
-<h2>How these were measured</h2>
-<p>Two methods, and they have different strengths:</p>
-<ul><li><strong>Component scale.</strong> Parts small enough to lift were weighed on their own (a bathroom or food scale; the exact scale wasn't always recorded, so treat these as good to roughly a pound, not a tenth).</li>
-<li><strong>Corner-scale difference.</strong> For big assemblies, the car sat on four corner scales; we removed the part and weighed again. The difference is the part's weight, and how the difference splits between the front and rear scales tells you <em>where</em> the part sat. You can do the same with our <a href="../../tools/scale-delta/">scale-difference tool</a>.</li></ul>
-<div class="note">Read the "includes" column. Most disagreements between published part weights come from different things being included, not from bad scales.</div>
-<h2>Powertrain</h2>
-<div class="table-wrap"><table class="data"><tr><th>Part</th><th>Weight</th><th>Includes / notes</th><th>Method</th></tr>
-<tr><td>LS1 + T5 engine package (2004 GTO LS1, '84 Z28 T5)</td><td class="n">558 lb</td><td>Dressed LS1, intake, exhaust manifolds, alternator, power-steering pump, starter, mounts, harness, bellhousing and T5. <strong>Not</strong> clutch, flywheel or A/C. Sat about 18 in behind the front axle centerline.</td><td>Corner-scale difference</td></tr>
-<tr><td>GTO flywheel + clutch + pressure plate</td><td class="n">50 lb</td><td>Stock parts</td><td>Component scale</td></tr>
-<tr><td>Speedway steel LS-to-T5 bellhousing</td><td class="n">23.6 lb</td><td>Bare</td><td>Component scale</td></tr>
-<tr><td>Original T5 aluminum bellhousing</td><td class="n">7.9 lb</td><td>Bare — the steel swap bellhousing adds about 16 lb</td><td>Component scale</td></tr>
-<tr><td>LS1 exhaust manifold (one side)</td><td class="n">15.4 lb</td><td>Cast manifold</td><td>Component scale</td></tr>
-<tr><td>Speed Engineering header (one side)</td><td class="n">10.7 lb</td><td>1-3/4" swap header</td><td>Component scale</td></tr>
-<tr><td>Stock radiator (drained)</td><td class="n">31 lb</td><td>As removed, drained</td><td>Component scale</td></tr>
-<tr><td>Aluminum 2-core radiator</td><td class="n">11 lb</td><td>Dry — 20 lb lighter than stock, all ahead of the front axle</td><td>Component scale</td></tr></table></div>
-<h2>Chassis and steering</h2>
-<div class="table-wrap"><table class="data"><tr><th>Part</th><th>Weight</th><th>Includes / notes</th><th>Method</th></tr>
-<tr><td>Stock front subframe assembly</td><td class="n">474 lb</td><td>Rolled out complete <strong>on its front wheels and tires</strong> (roughly 50–60 lb each), with suspension and brakes; engine already out; no steering box</td><td>Corner-scale difference</td></tr>
-<tr><td>Steering box + power-steering pump</td><td class="n">41–44 lb</td><td>Box and pump</td><td>Component scale / difference</td></tr>
-<tr><td>Stock cab-side steering column parts</td><td class="n">≈21 lb</td><td>As removed</td><td>Corner-scale difference</td></tr>
-<tr><td>C5 Corvette cab-side steering parts</td><td class="n">≈17 lb</td><td>As removed</td><td>Corner-scale difference</td></tr>
-<tr><td>C5 Corvette front assembly (partial)</td><td class="n">247 lb</td><td>Crossmember, rack, sway bar and a short piece of frame; <strong>no wheels or tires</strong>; not enough frame to bolt into a Firebird as-is</td><td>Corner-scale difference</td></tr></table></div>
-<div class="callout">Comparing the last two directly would suggest a C5 front end saves over 220 lb. Take the wheels and tires off the Firebird number and the like-for-like difference is closer to 100–125 lb — before adding the brackets needed to mount the C5 parts. Same scales, very different conclusion.</div>
-<h2>Body and interior</h2>
-<div class="table-wrap"><table class="data"><tr><th>Part</th><th>Weight</th><th>Includes / notes</th><th>Method</th></tr>
-<tr><td>Hood (stock flat)</td><td class="n">61 lb</td><td>Panel only; hinges separate</td><td>Corner-scale difference</td></tr>
-<tr><td>Hood hinges (pair)</td><td class="n">8.5 lb</td><td></td><td>Derived</td></tr>
-<tr><td>Front fender (Trans Am)</td><td class="n">32 lb</td><td>Bare panel</td><td>Component scale</td></tr>
-<tr><td>Inner fender</td><td class="n">11.5 lb</td><td>One side</td><td>Component scale</td></tr>
-<tr><td>Front bumper assembly (1977)</td><td class="n">73 lb</td><td>Assembly as removed</td><td>Component scale</td></tr>
-<tr><td>Core support (bare)</td><td class="n">27 lb</td><td></td><td>Component scale</td></tr>
-<tr><td>Trunk lid</td><td class="n">24 lb</td><td></td><td>Component scale</td></tr>
-<tr><td>Door glass</td><td class="n">17.5 lb</td><td>One side</td><td>Component scale</td></tr>
-<tr><td>Stock front seat</td><td class="n">44 lb</td><td>One seat</td><td>Component scale</td></tr>
-<tr><td>Aftermarket racing-style seat</td><td class="n">29 lb</td><td>One seat, without brackets</td><td>Component scale</td></tr>
-<tr><td>Rear seat back / bottom</td><td class="n">17.5 / 5.5 lb</td><td></td><td>Component scale</td></tr>
-<tr><td>WS6 brake booster / 11" drum-car booster</td><td class="n">9.1 / 9.3 lb</td><td>Bare</td><td>Component scale</td></tr></table></div>
-<h2>Wheels and tires</h2>
-<div class="table-wrap"><table class="data"><tr><th>Part</th><th>Weight</th><th>Includes / notes</th><th>Method</th></tr>
-<tr><td>18 × 8.5 wheel + 265/45R18 tire</td><td class="n">55.6 lb</td><td>Front, mounted</td><td>Component scale</td></tr>
-<tr><td>18 × 10 wheel + 295/40R18 tire</td><td class="n">61.7 lb</td><td>Rear, mounted</td><td>Component scale</td></tr></table></div>
-<h2>Whole car</h2>
-<p>A stripped shell (no engine, transmission or front subframe) weighed <strong>1,646 lb</strong> on our scales. The green car, built back up with the LS1/T5 but still missing its nose, hood, radiator, exhaust, fuel and coolant, weighed <strong>2,786 lb at 51% front</strong> in July 2026. The finished-car weighing comes next.</p>
-<h2>Use the numbers</h2>
-<p>Most of these parts are built into the <a href="../../tools/cg-builder/">Balance &amp; CG Builder</a> as presets, so you can see what removing, swapping or moving them does to your own car's balance.</p>
-<p class="hint">Found a different number for the same part? <a href="../../contact/">Send it with what it included</a> — that's how a reference gets better.</p>
-<section class="ig-journey" data-ess-journey="articles/measured-firebird-weights" data-lab-root="../../experience/" aria-label="Try it on a car"><noscript><p><a href="../../experience/">Open the Vehicle Lab</a></p></noscript></section><div class="section"><div class="section-label">Keep going</div><p><a href="../../tools/cg-builder/">Try the Balance &amp; CG Builder</a> · <a href="../../articles/">All articles</a></p></div></main>
-<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/">report a problem</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span><label class="ess-units"><span>Units</span><select data-units-pref aria-label="Measurement units"><option value="us">US customary</option><option value="metric">Metric</option><option value="dual">Both</option></select></label></div></footer>
+<main id="main" class="page narrow article"><h1>Engineering research</h1><p>This article is awaiting editorial review.</p><p><a href="../../build/">See the research method</a> · <a href="../../articles/">Engineering articles</a></p></main>
+<footer class="footer"><div class="line"><span class="ig-sign">Measure. Test. Improve.</span><span>© 2026 Endicott Speed Shop · Beta — <a href="../../contact/?from=/articles/measured-firebird-weights/">Give feedback</a></span><span><a href="../../privacy/">Privacy</a> · <a href="../../contact/">Contact</a></span><label class="ess-units"><span>Units</span><select data-units-pref aria-label="Measurement units"><option value="us">US customary</option><option value="metric">Metric</option><option value="dual">Both</option></select></label></div></footer>
 <script src="../../assets/site.js"></script>
 <script type="module" src="../../experience/units.mjs"></script>
 </body>
