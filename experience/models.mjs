@@ -3,6 +3,7 @@ import { components, componentOverrides, componentProvenance } from './component
 import { axleWeights as sharedAxles, applyItems, tireLoads as sharedLoads, ride as sharedRide } from '../engine/loads.mjs';
 import { availableDrive, driveAt, resistanceAt, straightLine as sharedStrip, tractionLimit, wheelRpm } from '../engine/acceleration.mjs';
 import { missingFor, missingText } from './readiness.mjs';
+import { tireClasses as tractionClasses, surfaces as tractionSurfaces, frictionFor, pickerOrder as tirePickerOrder } from '../engine/traction.mjs';
 
 export const G = 32.174;
 export const FT_PER_MILE = 5280;
@@ -48,6 +49,36 @@ export function validValue(key, value) {
   return Object.hasOwn(limits, key) && between(value, ...limits[key]);
 }
 
+/**
+ * Tire and surface conditions travel with a configuration (gearing page, Compare, Build, Garage, shared links).
+ * {tire: traction class id, surface: traction surface id, customMu: 0.1–3}. Returns {} for defaults, null if invalid.
+ */
+export function cleanConditions(raw) {
+  if (!isObject(raw)) return null;
+  const out = {};
+  if (raw.tire != null) { if (typeof raw.tire !== 'string' || !Object.hasOwn(tractionClasses, raw.tire)) return null; out.tire = raw.tire; }
+  if (raw.surface != null) { if (typeof raw.surface !== 'string' || !Object.hasOwn(tractionSurfaces, raw.surface)) return null; if (raw.surface !== 'dryAsphalt') out.surface = raw.surface; }
+  if (raw.customMu != null) { if (!between(raw.customMu, .1, 3)) return null; out.customMu = raw.customMu; delete out.tire; }
+  return out;
+}
+
+/** Street tire class whose calibrated typical value equals a grip input (dry asphalt reference). */
+export function matchedTire(grip) {
+  if (!Number.isFinite(grip)) return null;
+  return tirePickerOrder.find(id => tractionClasses[id].reference === 'dryAsphalt' && Math.abs(tractionClasses[id].longitudinal.typical - grip) < .001) ?? null;
+}
+
+/** Typical friction for conditions on a car whose own grip input is `grip` (shared engine values). */
+export function conditionsGrip(conditions, grip) {
+  if (!conditions) return null;
+  if (conditions.customMu != null) return conditions.customMu;
+  const tire = conditions.tire ?? matchedTire(grip);
+  const surface = conditions.surface ?? 'dryAsphalt';
+  if (tire) return frictionFor({ tire, surface }).typical;
+  if (Number.isFinite(grip) && surface !== 'dryAsphalt') return Math.round(grip * tractionSurfaces[surface].factor.typical * 100) / 100;
+  return null;
+}
+
 export function cleanSetup(raw) {
   if (!isObject(raw) || typeof raw.id !== 'string' || !Object.hasOwn(vehicles, raw.id) ||
       !isObject(raw.base) || !isObject(raw.tune) || !Array.isArray(raw.parts) || raw.parts.length > 8) return null;
@@ -57,6 +88,11 @@ export function cleanSetup(raw) {
     if (!Array.isArray(raw.estimates) || raw.id !== 'custom' || raw.estimates.length > Object.keys(customEstimates).length ||
         raw.estimates.some(key => typeof key !== 'string' || !Object.hasOwn(customEstimates, key))) return null;
     setup.estimates = [...new Set(raw.estimates)];
+  }
+  if (raw.conditions !== undefined) {
+    const conditions = cleanConditions(raw.conditions);
+    if (conditions === null) return null;
+    if (Object.keys(conditions).length) setup.conditions = conditions;
   }
   if (raw.components !== undefined) {
     if (!isObject(raw.components)) return null;
@@ -103,6 +139,11 @@ export function resolve(setup, modified = true) {
   for (const key of [...Object.keys(setup.base), ...Object.keys(modified ? setup.tune : {})])
     if (Object.hasOwn(modified ? setup.tune : {}, key) || !Object.hasOwn(overrides, key)) evidence[key] = 'user';
   const tuned = {...original, ...setup.base, ...overrides, evidence};
+  // Tire/surface conditions set the grip input everywhere (unless an explicit grip value was typed in).
+  if (modified && setup.conditions && !Object.hasOwn(setup.tune, 'grip')) {
+    const mu = conditionsGrip(setup.conditions, tuned.grip);
+    if (Number.isFinite(mu)) { tuned.grip = mu; evidence.grip = 'user'; }
+  }
   if (!Number.isFinite(tuned.weight) || !Number.isFinite(tuned.front))
     return {...tuned, frontLb: null, rearLb: null, cgX: null};
   if (!Number.isFinite(tuned.wheelbase)) {

@@ -13,7 +13,7 @@ import { components, componentOverrides } from './components.mjs';
 import { mountCamber } from './diagrams.mjs';
 import { mountFrontGeometry, frontGeometry } from './front-geometry.mjs';
 import { studies, missingFor } from './readiness.mjs';
-import { performanceView, performanceExplain, loadPerf, savePerf, perfDefaults, cleanPerf, shareSummary, summaryHtml, tractionHtml, tireTableHtml, feedbackHtml, perfModel, snapshot, launchPanelHtml } from './performance-view.mjs';
+import { performanceView, performanceExplain, loadPerf, savePerf, perfDefaults, cleanPerf, shareSummary, summaryHtml, tractionHtml, tireTableHtml, feedbackHtml, perfModel, snapshot, launchPanelHtml, withConditions, effectivePerf } from './performance-view.mjs';
 
 const app = document.querySelector('#app');
 installCatalog();
@@ -88,7 +88,13 @@ function applyLocation() {
   if (route.state) {
     const {perf: sharedPerf, ...rest} = route.state;
     state = rest;
-    if (sharedPerf) { perf = cleanPerf({...sharedPerf, vehicle: state[state.focus].id}); savePerf(perf); }
+    if (sharedPerf) {
+      perf = cleanPerf({...sharedPerf, vehicle: state[state.focus].id}); savePerf(perf);
+      if (!state[state.focus].conditions && (perf.tire || perf.surface !== 'dryAsphalt')) {
+        state[state.focus] = withConditions(state[state.focus], perf);
+        state[state.focus + 'Mode'] = 'after';
+      }
+    }
     sharedLinkNotice = perfViews.includes(route.view) ? 'Shared experiment: same car, gearing, tire and surface. Change one thing to see what it does.'
       : 'Shared experiment. Try a change or run the comparison to see it play out.';
   } else if (route.invalid) {
@@ -139,7 +145,9 @@ function render(next = view, restoreDetails = false) {
     case 'performance-why':
     case 'performance-math': {
       const setup = active();
-      if (perf.vehicle !== setup.id) { perf = {...perfDefaults(), surface: perf.surface, vehicle: setup.id}; savePerf(perf); }
+      if (perf.vehicle !== setup.id) { perf = {...perfDefaults(), vehicle: setup.id}; savePerf(perf); }
+      // The configuration is the source of truth for tire, surface and own friction.
+      { const e = effectivePerf(setup, {...perf, tire: null, surface: 'dryAsphalt', customMu: null}); perf = {...perf, tire: e.tire, surface: e.surface, customMu: e.customMu}; }
       // Before/after for the feedback line: compare with what was on screen before this render.
       const sig = JSON.stringify([setup, perf.tire, perf.surface, perf.customMu]);
       if (!perfShown || perfShown.id !== setup.id) perfLast = null;
@@ -409,6 +417,7 @@ function resetProgress() {
 
 function tuneComparison(key, value) {
   const current = active();
+  if (key === 'grip') delete current.conditions; // a typed grip value replaces the tire/surface setting
   if (value === resolve(current, false)[key] && !Object.hasOwn(componentOverrides(current), key)) delete current.tune[key];
   else current.tune[key] = value;
   state[state.focus + 'Mode'] = modified(current) ? 'after' : 'before';
@@ -558,7 +567,15 @@ function perfLinks() {
   return {loadTransfer: '../tools/load-transfer/' + shareFragment(state, 'tools')};
 }
 
+/** The configuration carries tire/surface/own friction, so Use, Garage, Compare and Build keep them. */
+function syncConditions() {
+  const next = withConditions(active(), perf);
+  state[state.focus] = next;
+  state[state.focus + 'Mode'] = modified(next) ? 'after' : 'before';
+}
+
 function perfCommit(message) {
+  syncConditions();
   savePerf(perf);
   render(view, true);
   if (message) speak(message);
@@ -791,6 +808,7 @@ document.addEventListener('click', event => {
     case 'reset': {
       const next = {...active(), tune: {}, parts: []};
       delete next.components;
+      delete next.conditions;
       commitExperiment(next, 'Modifications reset. Original specifications kept.');
       break;
     }

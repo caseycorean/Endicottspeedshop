@@ -3,7 +3,7 @@
 // experiment already applied (reproducible share fragment). No host services, no network: plain ES modules.
 import { getActive, example, shareFragment } from './configuration.mjs';
 import { newSetup, resolve, usableSetup, presets, validValue } from './models.mjs';
-import { perfModel, perfDefaults, nextSteps, frictionOptions, quickEt } from './performance-view.mjs';
+import { perfModel, perfDefaults, nextSteps, frictionOptions, quickEt, effectivePerf, baseVehicle, withConditions } from './performance-view.mjs';
 import { tractionCheck, frictionFor } from '../engine/traction.mjs';
 import { components } from './components.mjs';
 import { gearChart, lights, tree, ordinal } from './identity.mjs';
@@ -50,9 +50,10 @@ export function journeyCar(plan, active = getActive()) {
 }
 
 /** Light metrics for before/after: quarter mile, launch share of grip, front share, launch grip. */
-export function metrics(setup, perf = perfDefaults()) {
+export function metrics(setup, pagePerf = perfDefaults()) {
+  const perf = effectivePerf(setup, pagePerf);
   const v = resolve(setup, true);
-  const { opts } = frictionOptions(v, perf);
+  const { opts } = frictionOptions(baseVehicle(setup), perf);
   let launch = null;
   if (opts.customMu !== null) {
     const c = tractionCheck(v, { ...opts, gear: 0 });
@@ -82,7 +83,8 @@ const generators = {
   tire(base, perf, m) {
     const step = nextSteps(m, perf).find(s => s.kind === 'tire');
     if (!step) return null;
-    return { setup: clone(base), perf: { ...perf, tire: step.tire, surface: step.surface }, title: step.title, what: step.detail, view: 'performance' };
+    const next = { ...effectivePerf(base, perf), tire: step.tire, surface: step.surface, customMu: null };
+    return { setup: withConditions(clone(base), next), perf: next, title: step.title, what: step.detail, view: 'performance' };
   },
   weight(base, perf, m) {
     if (![m.v.weight, m.v.front, m.v.wheelbase].every(Number.isFinite) || base.parts.length >= 8) return null;

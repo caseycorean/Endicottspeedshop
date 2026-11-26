@@ -1,7 +1,7 @@
 // Vehicle Lab · Performance: gearing, tires and traction on one page (isolated integration slice, Claude 25 Nov).
 // Every number comes from the shared engine: experience/models.mjs → engine/acceleration.mjs for the run and
 // engine/traction.mjs for tractionCheck / byGear / compareTires. Nothing here is a hard-coded outcome.
-import { resolve, straightLine, powerIssue, massIssue, MPH } from './models.mjs';
+import { resolve, straightLine, powerIssue, massIssue, MPH, cleanConditions } from './models.mjs';
 import { tractionCheck, byGear, compareTires, frictionFor, tireClasses, pickerOrder, surfaces,
   missingFor as tractionMissing } from '../engine/traction.mjs';
 import { wheelRpm } from '../engine/acceleration.mjs';
@@ -53,6 +53,33 @@ export function matchedClass(v) {
     Math.abs(tireClasses[id].longitudinal.typical - v.grip) < .001) ?? null;
 }
 
+/**
+ * The configuration's own tire/surface conditions win over page settings, so the gearing page, Compare, Build,
+ * Garage and shared links all use one setting. Page settings apply only to a configuration without conditions.
+ */
+export function effectivePerf(setup, perf = perfDefaults()) {
+  const c = setup.conditions;
+  if (!c) return perf;
+  return { ...perf, tire: c.customMu != null ? 'custom' : (c.tire ?? null), surface: c.surface ?? 'dryAsphalt', customMu: c.customMu ?? null };
+}
+
+/** Conditions object for a configuration from page settings (empty = defaults). */
+export function conditionsFrom(perf) {
+  if (perf.tire === 'custom' && perf.customMu != null) return cleanConditions({ customMu: perf.customMu }) ?? {};
+  return cleanConditions({ tire: perf.tire && perf.tire !== 'setup' ? perf.tire : null, surface: perf.surface }) ?? {};
+}
+
+/** Copy of a setup carrying the given page settings as its conditions. */
+export function withConditions(setup, perf) {
+  const next = { ...setup, tune: { ...setup.tune }, parts: [...setup.parts] };
+  const c = conditionsFrom(perf);
+  if (Object.keys(c).length) { next.conditions = c; delete next.tune.grip; } else delete next.conditions;
+  return next;
+}
+
+/** The car without conditions: its own grip input is what tire classes are matched against. */
+export const baseVehicle = setup => resolve(setup.conditions ? { ...setup, conditions: undefined } : setup, true);
+
 /** Friction options for engine/traction.mjs from the page settings. */
 export function frictionOptions(v, perf) {
   const tire = perf.tire ?? matchedClass(v) ?? 'setup';
@@ -64,10 +91,11 @@ export function frictionOptions(v, perf) {
 const blockedRun = v => powerIssue(v) || massIssue(v);
 
 /** All results for the page. Pure: safe to call from tests with the same inputs the browser uses. */
-export function perfModel(setup, perf) {
+export function perfModel(setup, pagePerf) {
+  const perf = effectivePerf(setup, pagePerf);
   const original = resolve(setup, false);
   const v = resolve(setup, true);
-  const { tire, opts } = frictionOptions(v, perf);
+  const { tire, opts } = frictionOptions(baseVehicle(setup), perf);
   const frictionReady = opts.customMu !== null;
   const mu = frictionReady ? frictionFor(opts) : null;
   const gears = Array.isArray(v.gears) ? v.gears : [];
@@ -116,17 +144,19 @@ export function shareSummary(m) {
 }
 
 /** Small before/after snapshot for the feedback line: quarter mile and launch share of grip. */
-export function snapshot(setup, perf) {
+export function snapshot(setup, pagePerf) {
+  const perf = effectivePerf(setup, pagePerf);
   const v = resolve(setup, true);
-  const { opts } = frictionOptions(v, perf);
+  const { opts } = frictionOptions(baseVehicle(setup), perf);
   const c = opts.customMu === null || tractionMissing(v, opts).length ? null : tractionCheck(v, { ...opts, gear: 0 });
   return { et: quickEt(setup, perf), launch: c?.utilization ?? null };
 }
 
 /** Typical-grip quarter mile for a setup and page settings: same call perfModel uses for its main result. */
-export function quickEt(setup, perf) {
+export function quickEt(setup, pagePerf) {
+  const perf = effectivePerf(setup, pagePerf);
   const v = resolve(setup, true);
-  const { opts } = frictionOptions(v, perf);
+  const { opts } = frictionOptions(baseVehicle(setup), perf);
   if (blockedRun(v) || opts.customMu === null) return null;
   return straightLine(v, { mu: frictionFor(opts).typical }).finish?.t ?? null;
 }
@@ -139,6 +169,7 @@ export function nextSteps(m, perf) {
   const out = [];
   const typical = id => tireClasses[id].longitudinal.typical;
   const currentMu = m.mu?.typical ?? 0;
+  perf = effectivePerf(m.setup, perf);
   // Tires: the next street class with more grip on the same surface, and drag radials at a prepped strip.
   const nextTire = streetOrder.find(id => typical(id) * (surfaces[perf.surface]?.factor.typical ?? 1) > currentMu + .005);
   if (nextTire) out.push({ kind: 'tire', tire: nextTire, surface: perf.surface, title: tireClasses[nextTire].label,
@@ -152,10 +183,10 @@ export function nextSteps(m, perf) {
     out.push({ kind: 'axle', ratio: r, title: `${fmt(r, 2)} final drive`, detail: r > fd ? 'Shorter gear: more force, earlier shifts' : 'Taller gear: less force, fewer shifts' });
   for (const step of out) {
     const setup = { ...m.setup, tune: { ...m.setup.tune }, parts: [...m.setup.parts] };
-    let p = perf;
+    let trial = setup;
     if (step.kind === 'axle') setup.tune.finalDrive = step.ratio;
-    else p = { ...perf, tire: step.tire, surface: step.surface };
-    step.et = quickEt(setup, p);
+    else trial = withConditions(setup, { ...effectivePerf(m.setup, perf), tire: step.tire, surface: step.surface, customMu: null });
+    step.et = quickEt(trial, perf);
     step.change = Number.isFinite(step.et) ? step.et - now : null;
   }
   return out.filter(s => s.change !== null).sort((a, b) => a.change - b.change).slice(0, 3);

@@ -87,7 +87,8 @@ export function removeFromGarage(key) {
   } catch { return false; }
 }
 
-export const modified = s => s.parts.length > 0 || Object.keys(s.tune).length > 0 || Object.keys(s.components ?? {}).length > 0;
+export const modified = s => s.parts.length > 0 || Object.keys(s.tune).length > 0 || Object.keys(s.components ?? {}).length > 0 ||
+  Object.keys(s.conditions ?? {}).length > 0;
 export const clone = s => cleanSetup(s);
 
 function encodePayload(payload) {

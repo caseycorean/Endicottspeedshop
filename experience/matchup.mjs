@@ -3,6 +3,7 @@ import { lanes, labelLane, modeOf, modified } from './configuration.mjs';
 import { resolve, straightLine } from './models.mjs';
 import { ovalLap } from './oval.mjs';
 import { vehicles } from './vehicles.mjs';
+import { tireClasses as tireLabels, surfaces as surfaceLabels } from '../engine/traction.mjs';
 import { changeFromOriginal } from './change.mjs';
 import { missingFor, estimatedFor } from './readiness.mjs';
 import { vehicleSelector, configModes, evidence, explanation, fmt, delta, metricTable, escape } from './ui.mjs';
@@ -61,6 +62,7 @@ function laneEditor(entry) {
   return `<div class="lineup-car car-${key}">
     <div class="pair-grid">${vehicleSelector(labelLane(key), setup.id, {key, name: setup.name})}${configModes(setup, key, mode)}</div>
     <p>${escape(setupName(setup))} · ${fmt(entry.value.weight)} lb · ${fmt(entry.value.hp)} hp</p>
+    ${setup.conditions ? `<p class="quiet small" data-lane-conditions>Tires: ${escape(setup.conditions.customMu != null ? 'own friction μ ' + fmt(setup.conditions.customMu, 2) : (tireLabels[setup.conditions.tire]?.label ?? 'stock class'))} · ${escape(surfaceLabels[setup.conditions.surface ?? 'dryAsphalt'].label)} · grip μ ${fmt(entry.value.grip, 2)}</p>` : ''}
     <div class="actions"><button class="button secondary small" data-edit="${key}">Build ${labelLane(key)}</button>
     <button class="button secondary small" data-use-lane="${key}">Use ${labelLane(key)}</button>
     ${['c', 'd'].includes(key) ? `<button class="button plain small" data-drop-lane="${key}">Remove ${labelLane(key)}</button>` : ''}</div>

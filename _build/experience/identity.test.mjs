@@ -75,3 +75,21 @@ test('feedback snapshot equals the page result', () => {
     assert.equal(snap.launch, launchCheck(m).utilization);
   }
 });
+
+import { cleanSetup, cleanConditions, resolve as resolveSetup } from '../../experience/models.mjs';
+import { withConditions, effectivePerf } from '../../experience/performance-view.mjs';
+import { frictionFor as friction } from '../../engine/traction.mjs';
+
+test('tire/surface conditions travel with the configuration and set grip everywhere', () => {
+  const s = cleanSetup({ id: 'camaro', base: {}, tune: {}, parts: [], conditions: { tire: 'dragRadial', surface: 'preppedStrip' } });
+  assert.equal(resolveSetup(s).grip, friction({ tire: 'dragRadial', surface: 'preppedStrip' }).typical);
+  assert.equal(resolveSetup(s, false).grip, resolveSetup(newSetup('camaro'), false).grip); // original unchanged
+  assert.equal(quickEt(s, perfDefaults()), perfModel(s, perfDefaults()).accel.et);           // gearing page = Compare input
+  assert.equal(cleanSetup({ ...s, conditions: { tire: 'nope' } }), null);
+  assert.deepEqual(cleanConditions({ surface: 'dryAsphalt' }), {});
+  const typed = { ...s, tune: { grip: .9 } };
+  assert.equal(resolveSetup(typed).grip, .9);                                                // an explicit grip value wins
+  const back = withConditions(newSetup('gto'), { ...perfDefaults(), tire: 'slick', surface: 'preppedStrip' });
+  assert.deepEqual(effectivePerf(back, perfDefaults()).tire, 'slick');
+  assert.equal(withConditions(back, perfDefaults()).conditions, undefined);                 // defaults clear it
+});
