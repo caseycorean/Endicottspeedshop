@@ -63,6 +63,9 @@ PYTHONDONTWRITEBYTECODE=1 python3 _build/build.py                 # regenerate p
 | `[data-ig-circles]` | Article figure from the tire model |
 | `[data-perf-gear]`, `[data-axle-ratio]`, `[data-perf-tire]`, `[data-perf-surface]`, `[data-perf-fd]`, `[data-perf-mu]`, `[data-perf-ref]`, `[data-perf-pick-tire]`, `[data-perf-apply-tire]`, `[data-perf-reset]`, `[data-perf-use]`, `[data-perf-share]`, `[data-component]` | Gearing-and-traction controls (`app.mjs`) |
 | `#perf-summary`, `#perf-traction`, `#perf-tires`, `#perf-feedback`, `#perf-next`, `#perf-launch`, `.perf-sticky` | Live-update regions |
+| `[data-lab-try][data-lab-plan]` | In-Lab next experiment (Build, Compare): applies the change to the focused car in place |
+| `[data-lane-conditions]` | Compare lineup line stating tires, surface and grip for a car with conditions |
+| `.ig-home-continue` | Homepage return-visit link (latest Garage entry) |
 | `data-level="green\|yellow\|red\|missing"` | Status. Always shown with a word too: never colour alone |
 
 ## Renderers (pure functions returning HTML strings, safe to restyle)

@@ -13,6 +13,7 @@ import { components, componentOverrides } from './components.mjs';
 import { mountCamber } from './diagrams.mjs';
 import { mountFrontGeometry, frontGeometry } from './front-geometry.mjs';
 import { studies, missingFor } from './readiness.mjs';
+import { labJourneyHtml, experiments as journeyExperiments } from './journey.mjs';
 import { performanceView, performanceExplain, loadPerf, savePerf, perfDefaults, cleanPerf, shareSummary, summaryHtml, tractionHtml, tireTableHtml, feedbackHtml, perfModel, snapshot, launchPanelHtml, withConditions, effectivePerf } from './performance-view.mjs';
 
 const app = document.querySelector('#app');
@@ -124,10 +125,10 @@ function render(next = view, restoreDetails = false) {
   pendingPreset = null;
   view = next;
   switch (view) {
-    case 'build': app.innerHTML = build(state, saved); break;
+    case 'build': app.innerHTML = build(state, saved) + labJourney('lab-build'); break;
     case 'compare': {
       const entries = matchupEntries(state);
-      app.innerHTML = compare(state, entries);
+      app.innerHTML = compare(state, entries) + labJourney('lab-compare');
       setReplay(entries);
       break;
     }
@@ -544,6 +545,21 @@ function carryLane(key, selection = modeOf(state, key)) {
 }
 
 
+// ---- In-Lab next experiments (Build, Compare) ----
+function labJourney(key) {
+  try { return `<div class="shell">${labJourneyHtml(key, active(), labelLane(state.focus) + ' · ' + setupName(active()))}</div>`; }
+  catch { return ''; }
+}
+function applyLabExperiment(el) {
+  const x = journeyExperiments(el.dataset.labPlan, active()).list.find(item => item.gen === el.dataset.labTry);
+  if (!x || !usableSetup(x.setup)) { speak('That experiment no longer applies to this car.'); return; }
+  state[state.focus] = x.setup;
+  state[state.focus + 'Mode'] = modified(x.setup) ? 'after' : 'before';
+  render(view, true);
+  speak(x.title + ' applied to ' + setupName(x.setup) + '.');
+  (view === 'compare' ? byId('race-results') : app.querySelector('h1'))?.scrollIntoView({block: 'start'});
+}
+
 // ---- Performance page (gearing and traction) ----
 let perfObserver, launchTimer = 0;
 function fillLaunchPanel() {
@@ -682,6 +698,7 @@ document.addEventListener('click', event => {
     return;
   }
   if (perfViews.includes(view) && perfClick(el)) return;
+  if (el.dataset.labTry) { applyLabExperiment(el); return; }
   if (el.dataset.preset) { choosePreset(el.dataset.preset); return; }
   if (el.dataset.remove !== undefined) {
     const next = clone(active());

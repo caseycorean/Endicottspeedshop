@@ -31,6 +31,10 @@ export const plans = {
     title: 'Ride is one part of the car', copy: 'Lowering and moving weight also change launch grip. Here is how much, for one car.' },
   'weight-distribution-calculator': { car: 'camaro', gens: ['weight', 'cg'],
     title: 'From a percentage to a result', copy: 'Front percentage is a starting point. Here is what changing it does to launch grip and time.' },
+  'lab-build': { car: 'camaro', gens: ['weight', 'cg', 'tire', 'gearing', 'engine'], rank: true, lab: true,
+    title: 'Next experiment on this car', copy: 'One change at a time from where this build is now, ranked by modelled quarter-mile gain. Apply one and keep going.' },
+  'lab-compare': { car: 'camaro', gens: ['gearing', 'tire', 'weight', 'cg'], rank: true, lab: true,
+    title: 'Next experiment for the selected car', copy: 'Each option is a model run of the car you are tuning. Apply one and the comparison reruns.' },
   tools: { car: 'corvette', gens: ['gearing', 'weight', 'cg'], title: 'Try it on a car', copy: 'Three experiments on one car, each a run of the shared models.' },
   articles: { car: 'corvette', chart: true, gens: ['gearing', 'tire', 'weight'], title: 'Read it, then run it', copy: 'Every article connects to an experiment. Start with this car.' },
   plan: { car: 'camaro', gens: ['gearing', 'tire', 'weight', 'cg', 'engine'], rank: true,
@@ -167,6 +171,24 @@ export function journeyHtml(planKey, labRoot, active) {
     </div>
     ${rows ? `<ol class="ig-exp-list">${rows}</ol>` : '<p>No experiment applies to this car yet. Open it in the Lab to add the missing data.</p>'}
     <p class="ig-journey-note">Model estimates for ${name}${isExample ? '. Choose your own car with the vehicle panel at the top of the page' : ''}. <a href="${escape(labRoot)}#performance">Gearing and traction</a> · <a href="${escape(labRoot)}#build">Build</a> · <a href="${escape(labRoot)}#garage">My Garage</a></p>`;
+}
+
+/** In-Lab version: buttons apply the experiment to the focused car in place (data-lab-try), no navigation. */
+export function labJourneyHtml(planKey, setup, laneLabel) {
+  const plan = plans[planKey];
+  const { before, list } = experiments(planKey, setup);
+  if (!list.length) return '';
+  return `<section class="ig-journey ig-lab-journey" aria-labelledby="lab-journey-title"><p class="ig-eyebrow">${escape(laneLabel)}</p>
+    <h2 id="lab-journey-title">${escape(plan.title)}</h2><p class="ig-journey-copy">${escape(plan.copy)}</p>
+    <ol class="ig-exp-list">${list.map(x => {
+      const gain = x.dEt === null ? '' : Math.abs(x.dEt) < .005 ? '±0.00 s' : `${delta(x.dEt, 2)} s`;
+      const etLine = Number.isFinite(x.before.et) && Number.isFinite(x.after.et) ? `Quarter mile ${fmt(x.before.et, 2)} → ${fmt(x.after.et, 2)} s` : '';
+      return `<li><button type="button" class="ig-exp" data-lab-try="${x.gen}" data-lab-plan="${planKey}">
+        <span class="ig-exp-title">${escape(x.title)}</span><b class="ig-exp-gain ${x.dEt > .004 ? 'worse' : ''}">${escape(gain)}</b>
+        <span class="ig-exp-what">${escape(x.what)}</span><span class="ig-exp-fx">${escape([etLine, x.fx].filter(Boolean).join(' · '))}</span>
+        <span class="ig-exp-go">Apply to this car</span></button></li>`;
+    }).join('')}</ol>
+    <p class="ig-journey-note">${Number.isFinite(before.et) ? `Now ${fmt(before.et, 2)} s for ${escape(setupName(setup))}. ` : ''}Undo any change in Build; save the ones worth testing to My Garage.</p></section>`;
 }
 
 function mountAll() {

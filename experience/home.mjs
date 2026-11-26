@@ -1,4 +1,4 @@
-import { getActive, example, shareFragment, useConfig } from './configuration.mjs';
+import { getActive, example, shareFragment, useConfig, getGarage } from './configuration.mjs';
 import { newSetup } from './models.mjs';
 import { vehicles } from './vehicles.mjs';
 import { installCatalog } from './catalog.mjs';
@@ -39,3 +39,17 @@ if (live) {
 }
 const circles = document.querySelector('[data-home-circles]');
 if (circles) circles.innerHTML = circlesSvg();
+
+// Return visits: continue where you left off (saved builds in this browser).
+const garage = getGarage();
+if (control && garage.length) {
+  const last = garage[0];
+  const name = last.setup.name || vehicles[last.setup.id]?.name || 'your saved build';
+  const p = document.createElement('p');
+  p.className = 'ig-home-continue';
+  const a = document.createElement('a');
+  a.href = control.dataset.labRoot + '#garage';
+  a.textContent = `Continue with ${name}`;
+  p.append(a, ` · ${garage.length} saved in My Garage`);
+  control.after(p);
+}
