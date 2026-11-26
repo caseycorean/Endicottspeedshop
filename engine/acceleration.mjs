@@ -35,7 +35,7 @@ export const tireGrip = {
   dragRadial: { mu: 1.4, label: 'Drag radial on a prepped surface' },
 };
 
-export const defaults = { driveline: .85, shiftSeconds: .25, rollResistance: .015, inertia: true, rolloutFt: 1, dt: .002 };
+export const defaults = { driveline: .85, shiftSeconds: .25, rollResistance: .015, inertia: true, inertiaScale: true, rolloutFt: 1, dt: .002 };
 
 export function torqueAt(v, rpm) {
   const atPower = v.hp * 5252 / v.hpRpm;
@@ -54,6 +54,14 @@ export function torqueAt(v, rpm) {
 
 /** Gillespie's rule-of-thumb mass factor for an overall ratio N (gear × final drive). */
 export const massFactor = overall => 1.04 + .0025 * overall * overall;
+
+/**
+ * Engine inertia seen at the road is I·(N/r)²/m. Gillespie's 0.0025·N² carries one tire radius inside the constant,
+ * so it over-penalises large tires (37 in truck tires: ×2.1) and under-penalises small ones. Scaling N by
+ * 25.5 in / tire diameter keeps his rule for a typical 25.5 in tire (assumed reference, not fitted). Default from
+ * 25 Nov (validation: _build/validation/launch-promotion.mjs); o.inertiaScale = false restores the plain rule.
+ */
+export const inertiaScale = v => 25.5 / v.diameter;
 
 /** Driven-tire limit (lb) from longitudinal load transfer and front-lift cap.
  * AWD assumes that the drivetrain can use the available grip at both axles.
@@ -112,11 +120,18 @@ export function straightLine(v, options = {}) {
     const cap = tractionLimit(v, resistance, o.mu, o.drive);
     const {slipping, force: demand} = availableDrive(v, speed, gear, o);
     const available = shift > 0 ? (o.converter ? .5 * demand : 0) : demand;
-    let limit = shift > 0 ? 'shifting' : available > cap ? 'traction' : slipping ? 'clutch' : 'engine';
-    const force = Math.min(available, cap);
-    // Engine and driveline inertia only load the tires when the engine is coupled and below the grip limit.
-    const factor = !o.inertia ? 1 : (limit === 'engine' ? massFactor(v.gears[gear] * v.finalDrive) : 1.04);
-    const accel = (force - resistance) / v.weight * G / factor;
+    const coupledFactor = !o.inertia ? 1 : massFactor(v.gears[gear] * v.finalDrive * (o.inertiaScale ? inertiaScale(v) : 1)), gripFactor = !o.inertia ? 1 : 1.04;
+    // Traction is limited only when the force that actually reaches the road exceeds grip. With the engine coupled,
+    // part of the drive force spins up the engine and driveline, so compare the inertia-reduced acceleration with the
+    // grip-limited one. Continuous in grip, so more grip is never slower (fix 25 Nov: the old rule compared the
+    // pre-inertia force and made 39 of 90 vehicles slower on a grippier tire). o.legacyTraction restores the old rule.
+    const engineAccel = (available - resistance) / v.weight * G / (slipping || shift > 0 ? gripFactor : coupledFactor);
+    // At the grip limit the engine has torque to spare, so it (not the road) spins up wheels and engine: the car gets
+    // (grip − resistance)/mass, as in launch.mjs. The old rule divided by 1.04 here (legacyTraction keeps it).
+    const gripAccel = (cap - resistance) / v.weight * G / (o.legacyTraction ? gripFactor : 1);
+    const overGrip = o.legacyTraction ? available > cap : engineAccel > gripAccel;
+    let limit = shift > 0 ? 'shifting' : overGrip ? 'traction' : slipping ? 'clutch' : 'engine';
+    const accel = shift > 0 ? (Math.min(available, cap) - resistance) / v.weight * G / gripFactor : overGrip ? gripAccel : engineAccel;
     const nextSpeed = Math.max(0, speed + accel * o.dt);
     const nextX = x + (speed + nextSpeed) / 2 * o.dt;
     time[limit] += o.dt;
