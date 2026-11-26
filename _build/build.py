@@ -3,6 +3,8 @@ Run from the repo root:  python3 _build/build.py
 Pages are defined in _build/pages.py; shared header/footer live here.
 Folders starting with '_' are not published by GitHub Pages (Jekyll default)."""
 import os, sys, re, importlib.util
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import presentation
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GA = """<script async src="https://www.googletagmanager.com/gtag/js?id=G-GGJVMS8CZD"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GGJVMS8CZD',{page_location:location.href.split('#')[0]});</script>"""
@@ -65,10 +67,10 @@ def page(path, title, desc, body, active="", extra_head=""):
 <link rel="stylesheet" href="{rel}assets/ess-search.css">
 <link rel="stylesheet" href="{rel}assets/ess-editorial.css">
 <link rel="stylesheet" href="{rel}assets/ess-identity.css">
-<meta name="theme-color" content="#16191c">
+{presentation.head(rel)}<meta name="theme-color" content="{presentation.theme_color()}">
 {extra_head}
 </head>
-<body class="ess-theme">
+<body class="ess-theme"{presentation.body_attrs()}>
 <header class="site-header"><div class="header-inner">
 <div class="brand-wrap"><a href="{rel}./" class="brand" aria-label="Endicott Speed Shop home"><span class="ess-wordmark"><strong>ENDICOTT</strong><span>SPEED SHOP</span></span></a><a class="beta-pill" href="{rel}about/#beta" title="This site is in beta: tools and articles are still being checked and expanded">Beta</a></div>
 <nav class="topnav" aria-label="Main navigation">{links}</nav>
@@ -84,6 +86,7 @@ def page(path, title, desc, body, active="", extra_head=""):
 </body>
 </html>
 """
+    html = presentation.transform(path, html)
     out = os.path.join(ROOT, path)
     os.makedirs(os.path.dirname(out) or ROOT, exist_ok=True)
     open(out, "w").write(html)

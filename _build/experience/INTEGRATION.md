@@ -37,6 +37,15 @@ PYTHONDONTWRITEBYTECODE=1 python3 _build/build.py                 # regenerate p
   - the footer brand line
   - the journey band on articles, tools and plan
 
+## Work's presentation package (applied)
+- **Where it comes from:** Work's package "Speed you can explain." (ess-knowledge `presentation/ess` @ `bbe647d`) is applied by default.
+  - Assets: `assets/ess-presentation/` (`ess-system.css`, `ess-claude-adapter.css`, mark, self-hosted Open Sans Condensed, Palouse illustration).
+  - Template transforms: `_build/presentation.py`, a port of Work's `prepare-preview.py` (homepage messaging, article rail and experiment order, calculator layout).
+  - The Lab and the weight-distribution calculator load the same CSS directly.
+- **Update path:** copy Work's new assets into `assets/ess-presentation/`, replace the transforms in `presentation.py`, and rebuild. No functional code changes.
+- **Switch:** `ESS_BRAND=none python3 _build/build.py` builds with Claude's base identity layer only. The Lab and the weight-distribution calculator are hand-edited, so remove their three presentation lines and the `data-ess-brand` attribute by hand.
+- **Configuration conditions:** the configuration now carries `conditions {tire, surface, customMu}` (`models.cleanConditions`). They travel to Use, Garage, Compare, Build and links (Work QA finding, fixed in 29a5a4d).
+
 ## Presentation layer: what Work can replace freely
 - `assets/ess-identity.css` holds the tokens (`--ig-*`, mapped onto the older `--ess-*`) and all component styling.
   - Replace or override the whole file. Loading a Work stylesheet after it is the intended path.
