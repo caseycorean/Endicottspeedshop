@@ -39,7 +39,7 @@ export const presets = {
   performance: { label: 'Performance launch', launchRpm: 'model', clutchSeconds: .35, shiftSeconds: .25, shiftAt: 1, driver: 'hold',
     note: 'A skilled road-test driver: the shared model\'s launch rpm, quick clutch, throttle fed in to hold the tires at their limit.' },
   maximum: { label: 'Maximum effort (closed course)', launchRpm: 'best', clutchSeconds: .15, shiftSeconds: .2, shiftAt: 1, driver: 'hold',
-    note: 'Best launch rpm found for this car, fast clutch, tires held right at their limit, quick shifts: the model\'s best case, not a recommendation.' },
+    note: 'Best launch rpm found for this car, fast clutch, tires held right at their limit, quick shifts. On a low-power car a clutch dump can be quicker still (flywheel energy); a comparison scenario, not a recommendation.' },
   dump: { label: 'Clutch dump, no throttle control', launchRpm: 'best', clutchSeconds: .1, shiftSeconds: .2, shiftAt: 1, driver: 'full',
     note: 'Full throttle and a dropped clutch; any wheelspin is not corrected. Shows why spinning the tires is slower on a car that has more power than grip, and the extra shock load. Hard on clutch, axles and tires.' },
 };
