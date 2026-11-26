@@ -9,6 +9,7 @@ Pure ES modules: no DOM, no network, browser and Node alike. Tests: `node --test
 | `acceleration.mjs` | straight-line run (0–60, quarter mile, trap), traction limit with load transfer, tire-type grip defaults, rotating inertia, clutch-slip launch, magazine-style rollout timing, time split by what limited the car | **Private review v2.** Standstill replay with separate 1-ft rollout checkpoints. Disabling the new effects reproduces the independent V3 physics fixtures |
 | `suspension.mjs` | front view: short/long-arm and MacPherson camber change, instant centre, roll-centre height, swing-arm length, track change through travel; side view: anti-squat for four-link, three-link, torque arm, leaf (range), independent; anti-dive, anti-lift; live-axle roll centre for Panhard, Watts, leaf | **Connected to the front-travel and rear-link studies.** SLA agrees with the ESS 3-D solver (`ess-knowledge/archive/2026-11-24_fbody-front-suspension/kinematics.py`) to 0.001° and 0.001 in on a planar test corner |
 | `traction.mjs` | tire grip classes (all-season, max summer, extreme summer, 200TW track, drag radial, slick, period classes) with low/typical/high friction, lateral ratio, surface (dry, concrete, prepped strip, wet, gravel) and cold-temperature factors, each tied to a source; drive force vs available traction (RWD/FWD/AWD, front-lift cap) with green/yellow/red text, class comparison and gear-by-gear view | **New 25 Nov (Claude sprint).** Typical values equal the calibrated `tireGrip`, so no existing result changes. Functions only; Work owns any UI |
+| `launch.mjs` | launch dynamics: clutch engagement, engine rpm (bog), wheelspin with sliding friction, shift timing as explicit states; typical / performance / maximum-effort / clutch-dump presets; best launch rpm sweep; time lost to shifts, traction and launch rpm; one tire/surface setting for the run and the traction check with a low–high friction range | **New 25 Nov (Claude sprint).** Separate module: `straightLine` and every existing result are unchanged. Functions only; Work owns any UI |
 
 Units: lb, in, ft (distance in the acceleration model), s, mph, g, degrees.
 
@@ -77,3 +78,21 @@ curated ids. Every value keeps evidence `historical` with its Wayback capture as
   Trap speed MAE is 2.4 mph.
 - **Tire rule change:** 1990–99 ZR tires at 40-series or 300 mm+ are now `uhp`, not `perf80s`. Before the change, the F40, McLaren F1 and Viper ACR
   were 0.4–0.6 s slow, and the all-car ET MAE was 0.33 s (now 0.30 s). No curated vehicle changes class.
+
+## Launch dynamics (`launch.mjs`, Claude 25 Nov)
+
+Owner directions: validation experiments for the C5 Z06 gap, and launch presets with the time each limit costs.
+- **Model:** car speed, driven-wheel speed and engine speed are separate. The clutch slips while the engine is faster than
+  the driveline; the tires spin while the wheels are faster than the car, and then give sliding friction (Wong: ≈0.88 of peak,
+  estimate). Same inertia basis as v2 (Gillespie). At the grip limit the car accelerates at (grip − resistance)/mass; v2 divides
+  this by 1.04. With unlimited grip and an instant clutch it reproduces `straightLine` to 0.001 s (test).
+- **Presets** (labelled estimates, closed-course comparison, not advice): typical (2,000 rpm, 0.7 s clutch, 0.5 s shifts at 90%
+  of redline), performance (model launch rpm, 0.35 s clutch, 0.25 s shifts), maximum effort (best launch rpm found for the car,
+  0.15 s clutch, 0.2 s shifts, tires held at the limit), clutch dump (full throttle, no correction for wheelspin).
+  Automatics keep the converter model.
+- **Z06 diagnosis:** the 5.96 s 0–60 is the shipped model (μ 0.90, no rollout, 1,800 rpm launch). Rollout clock −0.35 s,
+  tire class μ 1.10 −1.25 s, launch rpm 0, shift time −0.05 s, rotating inertia +0.17 s → v2 4.48 s. Launch dynamics, maximum
+  effort: 4.35 s and ET 12.56 s vs the 4.07 s / 12.48 s test. Traction still costs 0.94 s of the 0–60; the remaining 0.28 s
+  closes at μ ≈ 1.18, inside the extreme-summer range (1.03–1.22). Not adopted (one car).
+- **Hold-out (59 archive road tests, no constant changed):** maximum effort ET MAE 0.26 s, bias +0.08 s (v2: 0.30 s, +0.17 s);
+  0–60 MAE 0.26 s (v2: 0.30 s). Magazine figures are best runs, so maximum effort is the fair comparison.
