@@ -429,14 +429,31 @@ E.compare = {
     const model = cars.map(x => { const m = x.labId && vehicles[x.labId] && x.runs ? run(x.slug === R.slug ? nowV() : resolve(newSetup(x.labId), false)) : null; return m?.magazine ?? null; });
     const rows = [['Power', x => x.key.power, o => U('power', o.value)], ['Torque', x => x.key.torque, o => U('torque', o.value)], ['Weight', x => x.key.weight, o => U('weight', o.value) + (o.basis ? ` <small>${esc(o.basis)}</small>` : '')],
       ['Weight per hp', x => x.key.weightPerHp, o => fx(o.value, 1) + ' lb/hp'], ['Transmission', x => x.key.transmission, o => esc(o.value)], ['Quarter mile (test)', x => x.key.et, o => fx(o.value, 1) + ' s']];
-    const others = (L.filter(x => x.slug !== R.slug && x.runs && x.title.includes(family)).concat((R.compareWith ?? []).map(lib).filter(Boolean))).filter((x, i, a) => a.indexOf(x) === i && !state.compare.includes(x.slug)).slice(0, 6);
+    // Suggestions (owner review 26 Nov: compare selection was cumbersome): same family, the record's own comparisons, and the
+    // nearest cars by weight per horsepower; plus a search over every car the model can run. Up to three cars alongside.
+    const ppw = x => x.key?.weightPerHp?.value ?? (x.key?.weight?.value && x.key?.power?.value ? x.key.weight.value / x.key.power.value : null);
+    const mine = ppw(lib(R.slug)) ?? (R.model?.inputs?.weight?.value && R.key?.power?.value ? R.model.inputs.weight.value / R.key.power.value : null);
+    const near = mine ? L.filter(x => x.slug !== R.slug && x.runs && ppw(x)).sort((a, b) => Math.abs(ppw(a) - mine) - Math.abs(ppw(b) - mine)).slice(0, 4) : [];
+    const free = x => x.slug !== R.slug && !state.compare.includes(x.slug);
+    const fam = L.filter(x => x.runs && x.title.includes(family)).concat((R.compareWith ?? []).map(lib).filter(Boolean)).filter((x, i, a) => x && free(x) && a.indexOf(x) === i).slice(0, 5);
+    const pw = near.filter(x => free(x) && !fam.includes(x)).slice(0, 3);
+    const MAX = 3, room = state.compare.length < MAX;
+    const chip = (x, why) => `<button type="button" class="sg-chip" data-add="${esc(x.slug)}">+ ${esc(x.title.replace(/ · .*/, ''))}${why ? ` <small>${esc(why)}</small>` : ''}</button>`;
+    const pool = L.filter(x => x.runs && free(x));
     root.innerHTML = `<div class="table-wrap"><table class="data sg-cmp"><thead><tr><th></th>${cars.map((x, i) => `<th scope="col">${i ? `<a href="${esc(vehiclePage(x.slug))}">${esc(x.title.replace(/ · .*/, ''))}</a> <button type="button" class="sg-x" data-rm="${esc(x.slug)}" aria-label="Remove ${esc(x.title)}">×</button>` : esc(x.title.replace(/ · .*/, ''))}</th>`).join('')}</tr></thead><tbody>
       ${rows.filter(r => cars.some(x => r[1](x))).map(r => `<tr><th scope="row">${r[0]}</th>${cars.map(x => { const o = r[1](x); return `<td>${o && o.value != null ? r[2](o) : '<span class="sg-missing-v">not on record</span>'}</td>`; }).join('')}</tr>`).join('')}
       <tr class="sg-model-row"><th scope="row">ESS model, quarter mile</th>${model.map((m, i) => `<td class="${i === 0 && isModified() ? 'c-mod' : ''}">${m ? fx(m.et, 2) + ' s' : '<small>not modeled</small>'}</td>`).join('')}</tr></tbody></table></div>
-      ${others.length && state.compare.length < 2 ? `<div class="sg-chips sg-add">${others.map(x => `<button type="button" class="sg-chip" data-add="${esc(x.slug)}">+ ${esc(x.title.replace(/ · .*/, ''))}</button>`).join('')}</div>` : ''}
-      ${cars.length > 1 && model.every(Boolean) ? `<p><a class="btn-small primary sg-a" href="${esc(this.lab(cars))}">Race them in the Vehicle Lab</a></p>` : ''}`;
+      ${room ? `<div class="sg-add-panel"><p class="sg-h4">Add a car <small>(up to ${MAX} alongside)</small></p>
+        ${fam.length ? `<div class="sg-chips sg-add" aria-label="Related cars">${fam.map(x => chip(x)).join('')}</div>` : ''}
+        ${pw.length ? `<div class="sg-chips sg-add" aria-label="Similar power to weight">${pw.map(x => chip(x, fx(ppw(x), 1) + ' lb/hp')).join('')}</div>` : ''}
+        <label class="sg-find"><span>Or find any car</span><input type="search" list="sg-cmp-list" data-find placeholder="Type a make or model" autocomplete="off"></label>
+        <datalist id="sg-cmp-list">${pool.map(x => `<option value="${esc(x.title)}"></option>`).join('')}</datalist></div>`
+        : `<p class="sg-note">Remove a car (×) to add another.</p>`}
+      ${cars.length > 1 && model.slice(0, 3).every(Boolean) ? `<p><a class="btn-small primary sg-a" href="${esc(this.lab(cars.slice(0, 3)))}">Race ${cars.length > 3 ? 'the first three' : 'them'} in the Vehicle Lab</a></p>` : ''}`;
+    const find = root.querySelector('[data-find]');
+    if (find) find.onchange = () => { const x = pool.find(c => c.title === find.value.trim()); if (x && state.compare.length < MAX && !state.compare.includes(x.slug)) { state.compare.push(x.slug); persist(); this.refresh(b); } };
     for (const x of root.querySelectorAll('[data-rm]')) x.onclick = () => { state.compare = state.compare.filter(s => s !== x.dataset.rm); persist(); this.refresh(b); };
-    for (const x of root.querySelectorAll('[data-add]')) x.onclick = () => { if (state.compare.length < 2) state.compare.push(x.dataset.add); persist(); this.refresh(b); };
+    for (const x of root.querySelectorAll('[data-add]')) x.onclick = () => { if (state.compare.length < 3 && !state.compare.includes(x.dataset.add)) state.compare.push(x.dataset.add); persist(); this.refresh(b); };
   },
   lab(cars) { const keys = ['a', 'b', 'c'], st = { focus: 'a', event: 'strip' }; cars.forEach((x, i) => { st[keys[i]] = x.slug === R.slug ? setup() : newSetup(x.labId); st[keys[i] + 'Mode'] = x.slug === R.slug && isModified() ? 'after' : 'before'; }); return new URL('?via=reference' + shareFragment(st, 'compare'), labRoot).href; },
 };
