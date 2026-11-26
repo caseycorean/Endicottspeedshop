@@ -68,7 +68,7 @@ export const TRAVEL = 4; // in each way: wide enough to show real limits, narrow
 export const ROLL = 8;   // degrees, live axle body-to-axle roll
 export const BOUNDS = { planar: { y: [0, 40], z: [-2, 36] }, live: { x: [-20, 60], y: [-34, 34], z: [2, 32] } };
 
-export const defaultEnd = arch => ({ arch, pts: {}, travel: 0, roll: 0, camber: null, history: [] });
+export const defaultEnd = arch => ({ arch, pts: {}, travel: 0, roll: 0, camber: null, history: [], sym: true });
 export const defaults = () => ({ v: 1, tab: 'front', vehicle: null, overlay: true, front: defaultEnd('sla'), rear: defaultEnd('threeLink') });
 
 const finite = (x, lo, hi) => Number.isFinite(x) && x >= lo && x <= hi;
@@ -85,6 +85,7 @@ export function cleanState(raw) {
     if (finite(r.travel, -TRAVEL, TRAVEL)) out.travel = r.travel;
     if (finite(r.roll, -ROLL, ROLL)) out.roll = r.roll;
     if (finite(r.camber, -10, 10)) out.camber = r.camber;
+    if (r.sym === false) out.sym = false;
     if (Array.isArray(r.history)) out.history = r.history.filter(h => typeof h === 'string').slice(-4).map(h => h.slice(0, 160));
     if (r.pts && typeof r.pts === 'object') {
       for (const [k, p] of Object.entries(r.pts)) {
@@ -147,7 +148,15 @@ export function chassisDims(state) {
 /** Share fragment (canonical inches only). */
 export function encodeState(s) {
   const slim = { tab: s.tab, vehicle: s.vehicle, overlay: s.overlay };
-  for (const end of ['front', 'rear']) { const e = s[end]; slim[end] = { arch: e.arch, pts: e.pts, travel: e.travel, roll: e.roll, camber: e.camber }; }
+  for (const end of ['front', 'rear']) { const e = s[end]; slim[end] = { arch: e.arch, pts: e.pts, travel: e.travel, roll: e.roll, camber: e.camber, sym: e.sym }; }
   return btoa(unescape(encodeURIComponent(JSON.stringify(slim)))).replace(/=+$/, '');
 }
 export function decodeState(text) { try { return cleanState(JSON.parse(decodeURIComponent(escape(atob(text))))); } catch { return null; } }
+
+/** Mirror twin of link i (left ↔ right of the same group), or -1 for centre links and the Panhard bar. */
+export function partnerOf(links, i) {
+  const l = links[i];
+  if (!/^(Left|Right) /.test(l.name)) return -1;
+  const twin = l.name.replace(/^(Left|Right) /, m => m === 'Left ' ? 'Right ' : 'Left ');
+  return links.findIndex(m => m.name === twin);
+}

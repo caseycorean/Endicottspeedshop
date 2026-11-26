@@ -53,3 +53,19 @@ test('a too-short link is invalid; extreme travel on a short upper link reports 
   assert.ok([STATUS.limit, STATUS.ok].includes(r.status));
   if (r.status === STATUS.ok) assert.ok(r.residual < 1e-6);
 });
+
+test('kinematic instant centre equals the link-line answer when symmetric; asymmetric links steer the axle', () => {
+  for (const id of ['three', 'triangulated', 'torque']) {
+    const s = axleSolver(linkLayout(id)), r = s.at({ heave: 1 });
+    const a = s.sideView(r, { wheelbase: 108, cg: 20 }), k = s.kinematicIC(r, { wheelbase: 108, cg: 20 });
+    assert.ok(s.symmetric(), id);
+    assert.ok(Math.abs(a.ic[0] - k.ic[0]) < .5 && Math.abs(a.ic[1] - k.ic[1]) < .05, `${id} ${a.ic} vs ${k.ic}`);
+    assert.ok(Math.abs(s.derivatives(r).travelSteer) < 1e-3);
+  }
+  const links = linkLayout('three'); links[0].chassis = [32, -22, 10]; // owner: left lower front mount only
+  const s = axleSolver(links), r = s.at({});
+  assert.equal(s.symmetric(), false);
+  const L = s.sideView(r, {}, { side: -1 }), R = s.sideView(r, {}, { side: 1 });
+  assert.ok(L.ic[0] < 0 && R.ic[0] > 0, 'the two sides disagree');
+  assert.ok(Math.abs(s.derivatives(r).travelSteer) > .05, 'asymmetric lowers steer the axle in heave');
+});

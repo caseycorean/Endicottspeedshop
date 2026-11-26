@@ -188,23 +188,28 @@ export function liveSvg(o) {
     if (labels) b += txt([w - 12, LIVE.top.oy - 6], 'Front →', { anchor: 'end' }) + txt([w - 12, h - 8], 'Centerline and body outline: reference', { anchor: 'end', cls: 'v2-note' });
   } else if (view === 'side') {
     b += ln([8, M([0, 0, heave])[1]], [w - 8, M([0, 0, heave])[1]], C.slate, 1.5);
-    if (labels) b += txt([10, M([0, 0, heave])[1] + 14], 'Road datum') + txt([w - 10, 16], 'Front →', { anchor: 'end' });
+    if (labels) b += txt([w - 10, M([0, 0, heave])[1] + 14], 'Road datum', { anchor: 'end' }) + txt([w - 10, 19], 'Front →', { anchor: 'end' });
   } else {
     b += ln([LIVE.rear.ox, 8], [LIVE.rear.ox, h - 4], C.slate, 1, dash) + ln([8, M([0, 0, heave])[1]], [w - 8, M([0, 0, heave])[1]], C.slate, 1.5);
-    if (labels) b += txt([LIVE.rear.ox + 4, 16], 'Centerline (reference)') + txt([10, M([0, 0, heave])[1] + 14], 'Road') + txt([w - 10, 32], 'Driver’s right →', { anchor: 'end' });
+    if (labels) b += txt([LIVE.rear.ox + 4, 34], 'Centerline (reference)') + txt([w - 10, M([0, 0, heave])[1] + 14], 'Road', { anchor: 'end' }) + txt([w - 10, 19], 'Driver’s right →', { anchor: 'end' });
   }
   if (o.base && labels) b += drawAxle(p => axleWorld(p, o.base.pose, o.base.heave, o.base.roll), true);
   b += drawAxle(A, false);
   // side-view construction: instant centre and anti-squat lines (projections)
   if (view === 'side' && o.side && labels) {
     const s = o.side, contact = M([0, 0, heave]);
-    if (s.hundred) b += ln(contact, M([s.hundred[0], 0, heave + s.hundred[1]]), C.ref, 1.2, dash) + txt([M([s.hundred[0], 0, heave + s.hundred[1]])[0] - 4, M([s.hundred[0], 0, heave + s.hundred[1]])[1] - 6], '100% anti-squat line', { anchor: 'end', cls: 'v2-note' });
+    if (s.hundred) { const e = M([s.hundred[0], 0, heave + s.hundred[1]]); b += ln(contact, e, C.ref, 1.2, dash) + txt([e[0] + 4, e[1] - 4], '100% line', { cls: 'v2-note' }); }
+    if (!s.ic && s.parallel) b += txt([w - 10, 32], 'Links parallel: instant center at infinity', { anchor: 'end' });
     if (s.ic) {
       const icS = M([s.ic[0], 0, s.ic[1]]), inView = icS[0] > 0 && icS[0] < w && icS[1] > 0 && icS[1] < h;
-      const clip = inView ? icS : (() => { const d = [icS[0] - contact[0], icS[1] - contact[1]], k = Math.min(1, (w - 12 - contact[0]) / d[0]); return [contact[0] + d[0] * k, contact[1] + d[1] * k]; })();
+      const ahead = s.ic[0] >= 0;
+      const clip = inView ? icS : (() => { const d = [icS[0] - contact[0], icS[1] - contact[1]], edge = ahead ? w - 12 : 12, k = Math.min(1, (edge - contact[0]) / d[0]); return [contact[0] + d[0] * k, contact[1] + d[1] * k]; })();
       b += ln(contact, clip, C.ic, 1.2, 'stroke-dasharray="2 3"');
       for (const [line, col] of [[s.lower, C.lower], [s.upper, C.upper]]) if (line) b += ln(M([line[0][0], 0, line[0][1]]), clip, col, 1, 'stroke-dasharray="2 3"');
-      b += inView ? dot(icS, 4, C.ic) + txt([icS[0] + 6, icS[1] - 6], 'IC') : txt([w - 12, clip[1] - 6], `IC ${Math.round(s.ic[0])} in ahead →`, { anchor: 'end' });
+      const what = s.kinematic ? 'Axle pitch center' : 'IC';
+      b += inView ? dot(icS, 4, C.ic) + txt([icS[0] + 6, icS[1] - 6], what) : ahead
+        ? txt([w - 10, 46], `${what}: ${Math.round(s.ic[0])} in ahead, off the drawing →`, { anchor: 'end' })
+        : txt([10, 46], `← ${what}: ${Math.round(-s.ic[0])} in behind the axle`);
     }
   }
   // links
@@ -227,6 +232,13 @@ export function liveSvg(o) {
       b += joint(M(a), col);
       return;
     }
+    if (view === 'side' && a[1] > .5 && (l.group === 'lower' || l.group === 'upper')) {
+      // far-side link, hidden behind the near one: coincides when mirrored; drawn dashed (hidden) when it differs
+      if (o.symmetric !== false) return;
+      b += ln(M(a), M(c), col, 1.6, `stroke-dasharray="6 4" data-link="${i}" class="v2-link"`);
+      if (labels && !o._hiddenLabel) { o._hiddenLabel = true; b += ln([10, 30], [26, 30], col, 1.6, 'stroke-dasharray="6 4"') + txt([30, 33], 'Right-side links, hidden behind (not mirrored)', { cls: 'v2-note' }); }
+      return;
+    }
     const pa = M(a), pc = M(c);
     b += ln(pa, pc, col, sel ? 7 : 5, `data-link="${i}" class="v2-link"`) + joint(pa, col) + mount(pc);
   });
@@ -243,7 +255,7 @@ export function liveSvg(o) {
       });
       b += txt([M([0, -TIRE_Y, R])[0] - 30, 14], 'Tire') + txt([M([0, 0, R])[0] + 16, LIVE.top.oy + 44], 'Axle');
     } else if (view === 'side') {
-      b += txt([M([24, 0, 6])[0], M([24, 0, 6])[1] + 4], 'Lower links (overlap)', { anchor: 'middle' });
+      b += txt([M([24, 0, 4])[0], M([24, 0, 4])[1] + 2], o.symmetric === false ? 'Left lower link' : 'Lower links (overlap)', { anchor: 'middle' });
       if (links.some(l => l.group === 'upper')) b += txt([M([12, 0, 22])[0], M([12, 0, 22])[1] - 10], links.filter(l => l.group === 'upper').length > 1 ? 'Upper links' : 'Upper link', { anchor: 'middle' });
       b += txt([M([0, 0, 2 * R + heave])[0] - 30, M([0, 0, 2 * R + heave])[1] - 6], 'Rear tire');
     } else {
@@ -252,7 +264,7 @@ export function liveSvg(o) {
       if (pan) { const m = M(pan.current); b += txt([m[0], m[1] - 12], 'Panhard bar', { anchor: 'middle' }); }
       b += txt([M([0, TIRE_Y, 2 * R])[0] - 14, M([0, TIRE_Y, 2 * R])[1] - 6], 'Tire', { anchor: 'middle' });
     }
-    if (o.base) b += ln([8, h - 10], [26, h - 10], C.ref, 1.4, dash) + txt([30, h - 6], 'Reference: original example', { cls: 'v2-note' });
+    if (o.base) b += ln([10, 16], [26, 16], C.ref, 1.4, dash) + txt([30, 19], o.baseLabel ?? 'Reference: original example', { cls: 'v2-note' });
   }
   const name = { top: 'Top view of the rear axle and links, front to the right', side: 'Side view of the rear axle and links, front to the right', rear: 'Rear view of the axle, looking forward from behind the car' }[view];
   return frame(w, h, b, name);

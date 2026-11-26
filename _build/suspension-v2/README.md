@@ -30,3 +30,15 @@ fails re-measurement; withheld). Travel controls clamp to the reachable range; c
 Planar views only for independent corners (no toe, caster, steering; front top view is orientation-only). Leaf, truck
 arm, semi-trailing, Twin I-Beam and solid front axle are illustrations only. Multilink is an equivalent SLA (stated).
 Tire at constant loaded radius. Live-axle bushings rigid except the reported bind. All hardpoints are generic examples.
+
+## Rear review supplement (owner, 26 Nov) — addressed
+- Left/right mounts move together by default (mirror); untick "Move left and right mounts together" to edit one side.
+- Top view shows a handle on every mounting point; side and rear views show the selected link (twin follows when mirrored).
+- Asymmetric links: no single link-line answer exists, so V2 reports each side's link-line result **and** the axle's
+  actual side-view pitch center from the solved motion (`kinematicIC`, equal to the link-line IC when symmetric, tested),
+  plus the steer the axle picks up with travel. Owner's case (left lower front mount only, 15 → 10 in): left IC behind
+  the axle, right 136%, whole axle 346 in ahead / 42%, 0.20° of steer per inch of travel.
+- Off-drawing instant centers are named with direction and distance (ahead, behind, parallel/at infinity); scale is never distorted.
+- Roll steer in degrees of axle steer per degree of body-to-axle roll. The preserved explanation is kept; its fixed advice
+  is replaced by a computed "Try it" experiment (both lower front mounts ±1 in, whichever reduces roll steer) showing the
+  coupled roll steer, anti-squat and pinion-angle changes, with an Apply button.

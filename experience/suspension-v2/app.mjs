@@ -2,7 +2,7 @@
 // Order of priorities (owner, 26 Nov): reliable engineering, recognizable consistent drawings, direct manipulation,
 // meaningful interpretation, then onward discovery.
 import { architectures, galleryOrder, pointNames, movable, TRAVEL, ROLL, BOUNDS, STATUS, defaults, defaultEnd, cleanState,
-  planarGeometry, liveLinks, isEdited, planarSolver, liveSolver, vehicleChoice, vehicleList, chassisDims, encodeState, decodeState } from './model.mjs';
+  planarGeometry, liveLinks, isEdited, planarSolver, liveSolver, vehicleChoice, vehicleList, chassisDims, encodeState, decodeState, partnerOf } from './model.mjs';
 import { planarSvg, planarTopSvg, liveSvg, illustrationSvg, chartSvg, planarMap, liveMap, PLANAR, LIVE } from './draw.mjs';
 import { interpret, rideHeightGeometry, KINDS, RC_EXTREME } from '../../engine/linkage.mjs';
 import { attachHandles } from '../manipulate.mjs';
@@ -69,13 +69,55 @@ function liveState(st, end, { fast = false } = {}) {
   if (now.status === STATUS.limit || now.status === STATUS.failure) now = { ...now, shown: solver.at({}) };
   const dims = chassisDims(st);
   const zeroRoll = Math.abs(roll) < 1e-9 && now.pose ? now : solver.at({ heave });
-  const side = zeroRoll.pose ? solver.sideView(zeroRoll, dims) : null;
+  const sym = solver.symmetric();
+  const lineSide = zeroRoll.pose ? solver.sideView(zeroRoll, dims) : null;
+  const kin = zeroRoll.pose && !sym ? solver.kinematicIC(zeroRoll, dims) : null;
+  // Symmetric: link-line intersection (classic). Asymmetric: the two sides disagree, so the instant centre shown is
+  // the axle's actual side-view pitch centre from the solver, and each side's link-line answer is listed separately.
+  const side = lineSide && kin ? { ...lineSide, ic: kin.ic, antiSquat: kin.antiSquat, parallel: kin.parallel, kinematic: true } : lineSide;
+  const sides = zeroRoll.pose && !sym ? { L: solver.sideView(zeroRoll, dims, { side: -1 }), R: solver.sideView(zeroRoll, dims, { side: 1 }) } : null;
   const deriv = now.pose && !fast ? solver.derivatives(now) : null;
   const edited = isEdited(e);
   let base = null, baseLabel = '';
   if (edited) { const o = liveSolver(defaultEnd(e.arch), end).at({ heave, roll }); if (o.pose) { base = o; baseLabel = 'Reference: original example'; } }
   else if ((heave || roll) && now.pose) { base = solver.at({}); baseLabel = 'Reference: ride height'; }
-  return { solver, links, now, heave, roll, reach, side, deriv, dims, status: now.status, base, baseLabel, edited };
+  const experiment = !fast ? rollSteerExperiment(st, end, solver, links, dims) : null;
+  return { solver, links, now, heave, roll, reach, side, sides, sym, deriv, dims, status: now.status, base, baseLabel, edited, experiment };
+}
+
+/**
+ * Guided roll-steer experiment (owner liked this in the preserved lab): move BOTH lower-link front mounts 1 in up or
+ * down, run the model, and report the coupled effects. Direction and wording come from the computed result, never
+ * from a rule of thumb.
+ */
+function rollSteerExperiment(st, end, solver, links, dims) {
+  const lowers = links.map((l, i) => [l, i]).filter(([l]) => l.group === 'lower');
+  if (lowers.length !== 2) return null;
+  const r0 = solver.at({}); if (!r0.pose) return null;
+  const d0 = solver.derivatives(r0), as0 = (solver.symmetric() ? solver.sideView(r0, dims) : solver.kinematicIC(r0, dims))?.antiSquat;
+  if (!d0) return null;
+  const tries = [-1, 1].map(dz => {
+    const e2 = { ...st[end], pts: { ...st[end].pts }, travel: 0, roll: 0 };
+    for (const [l, i] of lowers) { const c = [...l.chassis]; c[2] = +(c[2] + dz).toFixed(3); if (c[2] < BOUNDS.live.z[0] || c[2] > BOUNDS.live.z[1]) return null; e2.pts[`${i}.chassis`] = c; }
+    const s2 = liveSolver(e2, end), r2 = s2.at({}); if (!r2.pose || r2.status === STATUS.limit) return null;
+    const d2 = s2.derivatives(r2); if (!d2) return null;
+    const as2 = (s2.symmetric() ? s2.sideView(r2, dims) : s2.kinematicIC(r2, dims))?.antiSquat;
+    return { dz, pts: e2.pts, d: d2, as: as2 };
+  }).filter(Boolean);
+  if (!tries.length) return null;
+  const best = tries.reduce((a, b) => Math.abs(b.d.rollSteer) < Math.abs(a.d.rollSteer) ? b : a);
+  return { ...best, d0, as0 };
+}
+function experimentHtml(x) {
+  if (!x) return '';
+  const rs = v => `${v.toFixed(3)}°`;
+  const less = Math.abs(x.d.rollSteer) < Math.abs(x.d0.rollSteer);
+  const asTxt = Number.isFinite(x.as0) && Number.isFinite(x.as) ? `, anti-squat ${x.as0.toFixed(0)} → <b>${x.as.toFixed(0)}%</b>` : '';
+  const verdict = [less ? 'Less roll steer' : 'More roll steer',
+    Number.isFinite(x.as0) && Number.isFinite(x.as) ? (x.as < x.as0 ? 'less anti-squat' : 'more anti-squat') : null,
+    Math.abs(x.d.pinionRate) < Math.abs(x.d0.pinionRate) ? 'smaller pinion-angle change' : 'larger pinion-angle change'].filter(Boolean).join(', ');
+  return `<div class="v2-exp"><p><b>Try it:</b> ${x.dz < 0 ? 'lower' : 'raise'} both lower links' front mounts ${esc(L(1, { digits: 1 }))}. The model gives roll steer ${rs(x.d0.rollSteer)} → <b>${rs(x.d.rollSteer)}</b> per degree of roll${asTxt}, pinion change ${esc(A(x.d0.pinionRate, { signed: true }))} → <b>${esc(A(x.d.pinionRate, { signed: true }))}</b> per in. ${verdict}: the same two mounts set all three, which is why rear link layouts are a compromise.</p>
+    <button type="button" class="button secondary small" data-exp>Apply this experiment</button></div>`;
 }
 
 // ---------------------------------------------------------------- HTML
@@ -261,6 +303,7 @@ function liveHtml(st, end, D) {
         ${views.map((v, i) => `<figure class="v2-view${i === 0 ? ' on' : ''}" data-view-panel="${v}"><div class="dm-stage v2-stage" data-stage="${v}">${livePicture(st, end, D, v, sel)}<div class="dm-layer" data-layer="${v}"></div></div><figcaption>${caps[v]}</figcaption></figure>`).join('')}
       </div>
       <div class="v2-side">
+        <label class="v2-check v2-sym"><input type="checkbox" data-sym ${e.sym ? 'checked' : ''}> Move left and right mounts together <small>(mirror image; untick to edit one side)</small></label>
         ${travelControl('travel', 'Axle travel', D.heave, reach.heave, TRAVEL, 'length', ['← Droop (rebound)', 'Bump (compression) →'])}
         ${travelControl('roll', 'Body roll relative to the axle', D.roll, reach.roll, ROLL, 'angle', ['← Left turn', 'Right turn →'])}
         <div class="v2-readout" data-v2-readout>${liveReadout(D)}</div>
@@ -286,7 +329,7 @@ function liveHtml(st, end, D) {
 function livePicture(st, end, D, view, sel) {
   const shown = D.now.pose ? D.now : D.now.shown?.pose ? D.now.shown : null;
   const hundred = D.dims ? [D.dims.wheelbase * .45, D.dims.cg * .45] : null;
-  return liveSvg({ view, links: D.links, result: shown, base: st.overlay ? D.base : null, selected: sel,
+  return liveSvg({ view, links: D.links, result: shown, base: st.overlay ? D.base : null, baseLabel: D.baseLabel, selected: sel, symmetric: D.sym !== false,
     side: D.side ? { ...D.side, hundred } : null, rollCentre: D.deriv?.rollCentre });
 }
 function liveBanner(D) {
@@ -308,22 +351,31 @@ function liveReadout(D) {
   const d = D.deriv, s = D.side;
   const metric = getUnits() === 'metric';
   return `<dl>
-    ${row('Anti-squat', Number.isFinite(s?.antiSquat) ? `${s.antiSquat.toFixed(0)}%` : '—', s?.parallel ? 'parallel links: instant center at infinity' : 'at zero roll, this travel')}
-    ${row('Instant center', s?.ic ? `${L(s.ic[0], { digits: 0 })} ahead, ${L(s.ic[1], { digits: 1 })} high` : 'at infinity')}
+    ${row('Anti-squat', Number.isFinite(s?.antiSquat) ? `${s.antiSquat.toFixed(0)}%` : s?.ic && s.ic[0] < 0 ? 'pro-squat' : '—', D.sides ? `whole axle; by link lines: left ${sideAs(D.sides.L)}, right ${sideAs(D.sides.R)}` : s?.parallel ? 'parallel links: instant center at infinity' : 'at zero roll, this travel')}
+    ${row('Instant center', icText(s), D.sides ? 'axle pitch center from the solved motion' : 'where the link lines meet (side view)')}
     ${row('Roll center', d ? L(d.rollCentre, { digits: 1 }) : '—', 'above the road')}
-    ${row('Roll steer', d ? `${(d.rollSteer * 100).toFixed(1)}%` : '—', d ? (d.rollSteer > .01 ? 'steers out of the turn' : d.rollSteer < -.01 ? 'steers into the turn' : 'about neutral') : '')}
+    ${row('Roll steer', d ? `${d.rollSteer.toFixed(3)}° per ° of roll` : '—', d ? `${(Math.abs(d.rollSteer) * 100).toFixed(1)}% · ${d.rollSteer > .01 ? 'steers out of the turn' : d.rollSteer < -.01 ? 'steers into the turn' : 'about neutral'}` : '')}
+    ${d && Math.abs(d.travelSteer) > .01 ? row('Steer with travel', `${A(d.travelSteer, { signed: true })} per in`, 'the axle steers over bumps') : ''}
     ${row('Pinion change', d ? `${A(d.pinionRate * (metric ? 25 / 25.4 : 1), { signed: true })} ${metric ? 'per 25 mm' : 'per in'}` : '—', 'nose up + in bump')}
     ${row('Axle now', `${A(n.pitch, { signed: true })} pitch · ${A(n.yaw, { signed: true })} steer`, `${L(n.pose[0], { signed: true })} fore/aft · ${L(n.pose[1], { signed: true })} sideways`)}
     ${n.bind > 1e-4 ? row('Link bind', L(n.bind, { digits: 3 }), 'bushing deflection needed') : ''}
   </dl>`;
 }
+const sideAs = v => !v ? '—' : Number.isFinite(v.antiSquat) ? `${v.antiSquat.toFixed(0)}%` : v.ic && v.ic[0] < 0 ? 'IC behind the axle' : v.parallel ? 'parallel' : '—';
+function icText(s) {
+  if (!s) return '—';
+  if (!s.ic) return 'at infinity (parallel links)';
+  return `${L(Math.abs(s.ic[0]), { digits: 0 })} ${s.ic[0] >= 0 ? 'ahead of' : 'behind'} the axle, ${L(s.ic[1], { digits: 1 })} high`;
+}
 function liveNotes(D) {
   const notes = [];
+  if (D.sides && D.deriv) notes.push({ level: 'caution', text: `Left and right links are not mirror images. Each side's links point to a different instant center (left: ${sideAs(D.sides.L)}, right: ${sideAs(D.sides.R)}). The axle as a whole pitches about one point (${icText(D.side)}) and also steers ${Math.abs(D.deriv.travelSteer).toFixed(2)}° per inch of travel. The anti-squat figure is the whole-axle estimate: with uneven links, drive force also twists and steers the axle, so treat it as approximate. Tick “Move left and right mounts together” to keep the sides matched.` });
   const s = D.side, d = D.deriv;
   if (Number.isFinite(s?.antiSquat)) notes.push({ level: 'info', text: s.antiSquat > 100 ? `At ${s.antiSquat.toFixed(0)}% anti-squat the rear rises under power: drive force lifts the body more than load transfer squats it. Common for drag launches; on a road course it can make the rear skittish as power comes on.` : s.antiSquat < 60 ? `At ${s.antiSquat.toFixed(0)}% the rear squats noticeably under power.` : `At ${s.antiSquat.toFixed(0)}% the rear squats a little under power.` });
-  if (d) notes.push({ level: Math.abs(d.rollSteer) > .1 ? 'caution' : 'info', text: rollSteerMeaning(d.rollSteer) });
+  // Keep the preserved lab's explanation of what roll steer means; replace its fixed advice with the computed experiment.
+  if (d) notes.push({ level: Math.abs(d.rollSteer) > .1 ? 'caution' : 'info', text: rollSteerMeaning(d.rollSteer).replace(/ Lowering the lower links' front mounts reduces it\./, '') + ` (${d.rollSteer.toFixed(3)}° of axle steer for each degree the body rolls relative to the axle.)` });
   if (D.now.bind > .005) notes.push({ level: 'caution', text: D.now.reason });
-  return notesHtml(notes);
+  return notesHtml(notes) + experimentHtml(D.experiment);
 }
 function liveCharts(D, st, end) {
   const rows = [], base = [];
@@ -606,15 +658,19 @@ export function mount(root) {
       const h = attachHandles(layer, {
         handles: () => {
           if (!stage.closest('.v2-view')?.classList.contains('on') && matchMedia('(max-width: 999px)').matches) return [];
-          const links = liveLinks(st[end], end), i = sel(), l = links[i], list = [];
-          const ends = l.group === 'slider' ? ['axle'] : ['chassis', 'axle'];
-          for (const k of ends) {
-            if (view === 'rear' && l.group !== 'lateral' && k === 'chassis') continue; // end-on links: chassis hidden behind axle mount
-            const p = l[k];
-            list.push({ id: k, point: [p[i0], p[i1]], label: `${l.name} ${k === 'axle' ? (l.group === 'slider' ? 'nose' : 'axle mount') : 'chassis mount'}`, axes: 'xy', selected: endKey() === k,
-              step: [canonicalStep('length'), canonicalStep('length')], describe: q => `${L(q[0], { digits: 1 })}, ${L(q[1], { digits: 1 })}` });
+          const links = liveLinks(st[end], end), selI = sel(), list = [];
+          // Top view: every mounting point is reachable. Side and rear views: the selected link (its twin moves with it when mirrored).
+          const which = view === 'top' ? links.map((l, i) => i) : [selI];
+          for (const i of which) {
+            const l = links[i];
+            for (const k of l.group === 'slider' ? ['axle'] : ['chassis', 'axle']) {
+              if (view === 'rear' && l.group !== 'lateral' && k === 'chassis') continue; // longitudinal link seen end-on
+              const p = l[k];
+              list.push({ id: `${i}.${k}`, point: [p[i0], p[i1]], label: `${l.name} ${k === 'axle' ? (l.group === 'slider' ? 'nose' : 'axle mount') : 'chassis mount'}`, axes: 'xy',
+                selected: i === selI && endKey() === k, step: [canonicalStep('length'), canonicalStep('length')], describe: q => `${L(q[0], { digits: 1 })}, ${L(q[1], { digits: 1 })}` });
+            }
           }
-          if (view !== 'top') { const D = liveState(st, end, { fast: true }); list.push({ id: 'heave', point: view === 'side' ? [0, 13 + D.heave] : [0, 13 + D.heave], label: 'Axle center (travel)', axes: 'y', step: [canonicalStep('length'), canonicalStep('length')], describe: () => L(D.heave, { signed: true }) }); }
+          if (view !== 'top') { const D = liveState(st, end, { fast: true }); list.push({ id: 'heave', point: [0, 13 + D.heave], label: 'Axle center (travel)', axes: 'y', step: [canonicalStep('length'), canonicalStep('length')], describe: () => L(D.heave, { signed: true }) }); }
           return list;
         },
         toScreen: p => { const s = scale(); const full = [0, 0, 0]; full[i0] = p[0]; full[i1] = p[1]; const q = map.to(full); return [q[0] * s, q[1] * s]; },
@@ -628,14 +684,19 @@ export function mount(root) {
           if (id === 'heave') { st[end].travel = Math.max(-TRAVEL, Math.min(TRAVEL, p[1] - 13)); }
           else {
             if (st[end].travel || st[end].roll) { st[end].travel = 0; st[end].roll = 0; announce('Showing ride height while you move mounting points.'); }
-            const i = sel(), cur = liveLinks(st[end], end)[i][id];
-            const next = [...cur]; next[i0] = +p[0].toFixed(3); next[i1] = +p[1].toFixed(3);
-            st[end].pts[`${i}.${id}`] = next; st.ui[end].endpt = id;
+            const [is, k] = id.split('.'), i = +is, links = liveLinks(st[end], end);
+            const next = [...links[i][k]]; next[i0] = +p[0].toFixed(3); next[i1] = +p[1].toFixed(3);
+            setMount(end, i, k, next);
+            st.ui[end].link = i; st.ui[end].endpt = k;
           }
           const D = refresh(end, { charts: phase !== 'move', fast: phase === 'move' });
-          if (phase !== 'move') { clampMsg(end, D); syncLinkFields(panel, end); }
+          if (phase !== 'move') { clampMsg(end, D); syncPickers(panel, end); syncLinkFields(panel, end); }
         },
-        onReset: id => { if (id === 'heave') st[end].travel = 0; else delete st[end].pts[`${sel()}.${id}`]; refresh(end); syncLinkFields(panel, end); },
+        onReset: id => {
+          if (id === 'heave') st[end].travel = 0;
+          else { const [is, k] = id.split('.'); delete st[end].pts[id]; const j = partnerOf(liveLinks(st[end], end), +is); if (st[end].sym && j >= 0) delete st[end].pts[`${j}.${k}`]; }
+          refresh(end); syncLinkFields(panel, end);
+        },
         announce,
       });
       handles.push(h);
@@ -652,18 +713,37 @@ export function mount(root) {
       const ep = panel.querySelector('[data-end-pick]'); ep.disabled = l.group === 'slider'; if (l.group === 'slider') ep.value = 'axle';
       refresh(end, { charts: false }); syncLinkFields(panel, end);
     });
+    panel.querySelector('[data-sym]')?.addEventListener('change', ev => { st[end].sym = ev.target.checked; persist(); announce(ev.target.checked ? 'Left and right mounts now move together.' : 'Editing one side only: the other side stays put.'); });
+    panel.querySelector('[data-v2-notes]').addEventListener('click', ev => {
+      if (!ev.target.closest('[data-exp]')) return;
+      const x = liveState(st, end).experiment; if (!x) return;
+      st[end].pts = x.pts; st[end].travel = 0; st[end].roll = 0;
+      st[end].history = [...st[end].history, `lower links' front mounts ${x.dz < 0 ? 'lowered' : 'raised'} 1 in`].slice(-4);
+      refresh(end); syncLinkFields(panel, end); announce('Experiment applied. Reset returns to the generic example; the dashed outline shows where you started.');
+    });
     panel.querySelector('[data-end-pick]').addEventListener('change', ev => { st.ui[end].endpt = ev.target.value; syncLinkFields(panel, end); handles.forEach(h => h.refresh()); });
     for (const inp of panel.querySelectorAll('[data-lk]')) inp.addEventListener('change', () => {
       const v = parse('length', inp.value), ax = +inp.dataset.lk, lim = BOUNDS.live[['x', 'y', 'z'][ax]], err = panel.querySelector(`[data-err-for="${inp.id}"]`);
       if (!Number.isFinite(v) || v < lim[0] || v > lim[1]) { err.textContent = `Enter ${L(lim[0], { digits: 0 })} to ${L(lim[1], { digits: 0 })}.`; inp.setAttribute('aria-invalid', 'true'); return; }
       err.textContent = ''; inp.removeAttribute('aria-invalid');
       const i = sel(), k = endKey(), p = [...liveLinks(st[end], end)[i][k]]; p[ax] = v;
-      st[end].pts[`${i}.${k}`] = p; st[end].travel = 0; st[end].roll = 0; refresh(end);
+      setMount(end, i, k, p); st[end].travel = 0; st[end].roll = 0; refresh(end);
     });
     function syncLinkFields() {
       const i = sel(), k = endKey(), p = liveLinks(st[end], end)[i][k];
       ['lk-x', 'lk-y', 'lk-z'].forEach((id, ax) => { panel.querySelector('#' + id).value = inputValue('length', p[ax], { us: 2, metric: 0 }); });
     }
+  }
+  function setMount(end, i, k, p) {
+    st[end].pts[`${i}.${k}`] = p;
+    const j = partnerOf(liveLinks(st[end], end), i);
+    if (st[end].sym && j >= 0) st[end].pts[`${j}.${k}`] = [p[0], -p[1], p[2]];
+  }
+  function syncPickers(panel, end) {
+    const i = Math.min(st.ui[end].link ?? 0, liveLinks(st[end], end).length - 1), l = liveLinks(st[end], end)[i];
+    const lp = panel.querySelector('[data-link-pick]'), ep = panel.querySelector('[data-end-pick]');
+    if (lp) lp.value = String(i);
+    if (ep) { ep.disabled = l.group === 'slider'; ep.value = l.group === 'slider' ? 'axle' : (st.ui[end].endpt ?? 'chassis'); }
   }
   function syncLinkFields(panel, end) { panel.querySelector('[data-link-pick]')?.dispatchEvent(new Event('sync')); const i = Math.min(st.ui[end].link ?? 0, liveLinks(st[end], end).length - 1); const l = liveLinks(st[end], end)[i]; const k = l.group === 'slider' || st.ui[end].endpt === 'axle' ? 'axle' : 'chassis'; ['lk-x', 'lk-y', 'lk-z'].forEach((id, ax) => { const el = panel.querySelector('#' + id); if (el) el.value = inputValue('length', l[k][ax], { us: 2, metric: 0 }); }); }
 

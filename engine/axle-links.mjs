@@ -135,15 +135,50 @@ export function axleSolver(links, { radius = 13 } = {}) {
   }
 
   /** Side-view instant centre and anti-squat at zero roll (rear-drive, outboard brakes). */
-  function sideView(r, { wheelbase, cg } = {}) {
+  function sideView(r, { wheelbase, cg } = {}, { side = 0 } = {}) {
     if (!r.current) return null;
     const avg = (pts, a) => pts.reduce((s, p) => s + p[a], 0) / pts.length;
-    const line = g => { const ls = r.current.filter(l => l.group === g); return ls.length ? [[avg(ls.map(l => l.current), 0), avg(ls.map(l => l.current), 2)], [avg(ls.map(l => l.chassis), 0), avg(ls.map(l => l.chassis), 2)]] : null; };
+    const onSide = l => !side || Math.abs(l.axle[1]) < 1e-6 || Math.sign(l.axle[1]) === side;
+    const line = g => { const ls = r.current.filter(l => l.group === g && onSide(l)); return ls.length ? [[avg(ls.map(l => l.current), 0), avg(ls.map(l => l.current), 2)], [avg(ls.map(l => l.chassis), 0), avg(ls.map(l => l.chassis), 2)]] : null; };
     const lower = line('lower'), upper = line('upper'), slider = r.current.find(l => l.group === 'slider');
     const off = ([x, z]) => [x - r.pose[0], z - r.heave];
     const geo = rearGeometry(slider ? 'torqueArm' : 'fourLink', { upper: upper?.map(off), lower: lower.map(off), armFrontX: slider ? slider.current[0] - r.pose[0] : undefined }, { wheelbase, cg });
     const ic = geo.ic ? [geo.ic[0] + r.pose[0], geo.ic[1] + r.heave] : null;
     return { lower, upper, ic, antiSquat: wheelbase && cg && Number.isFinite(geo.antiSquat) && (!geo.ic || geo.ic[0] > .1) ? geo.antiSquat : null, parallel: !geo.ic };
+  }
+
+  /**
+   * Kinematic side-view instant centre from the axle's actual motion (works for any layout, symmetric or not):
+   * the point on the axle's centre plane (y = 0) whose small-heave displacement in x and z is zero. For a symmetric
+   * layout this equals the link-line intersection; for an asymmetric one the link lines of the two sides disagree and
+   * there is no single "line" answer, but the axle still pitches about one point. Null for pure translation.
+   */
+  function kinematicIC(r, { wheelbase, cg } = {}) {
+    if (!r.pose || Math.abs(r.roll) > 1e-9) return null;
+    const dh = .01, q = lm(r.pose, r.heave + dh, 0);
+    if (!over && q.residual > 1e-6) return null;
+    const disp = p => { const a = axlePoint([p[0], 0, p[1]], radius, r.pose, r.heave, 0), b = axlePoint([p[0], 0, p[1]], radius, q.pose, r.heave + dh, 0); return [b[0] - a[0], b[2] - a[2]]; };
+    // displacement is affine in the axle-frame point: d(p) = d0 + M p; solve d = 0
+    const d0 = disp([0, radius]), dx = disp([1, radius]), dz = disp([0, radius + 1]);
+    const M = [[dx[0] - d0[0], dz[0] - d0[0]], [dx[1] - d0[1], dz[1] - d0[1]]];
+    const det = M[0][0] * M[1][1] - M[0][1] * M[1][0];
+    if (Math.abs(det) < 1e-12) return { ic: null, parallel: true, antiSquat: wheelbase && cg ? 100 * (d0[1] ? (d0[1] / (d0[0] || 1e-12)) : 0) / (cg / wheelbase) : null };
+    const px = -(M[1][1] * d0[0] - M[0][1] * d0[1]) / det, pz = -(-M[1][0] * d0[0] + M[0][0] * d0[1]) / det;
+    const world = axlePoint([px, 0, radius + pz], radius, r.pose, r.heave, 0);
+    const ic = [world[0] - r.pose[0], world[2]]; // x from the axle centre, z above the road datum at this travel
+    const slope = (ic[1] - r.heave) / ic[0];
+    return { ic, parallel: false, antiSquat: wheelbase && cg && ic[0] > .1 ? 100 * slope / (cg / wheelbase) : null };
+  }
+
+  /** Is the layout mirror-symmetric (every left link has a right twin, centre links on y = 0)? */
+  function symmetric() {
+    const tol = 1e-6;
+    return links.every(l => {
+      if (l.group === 'slider' || l.group === 'lateral') return true;
+      if (Math.abs(l.axle[1]) < tol && Math.abs(l.chassis[1]) < tol) return true;
+      return links.some(m => m !== l && m.group === l.group && Math.abs(m.axle[0] - l.axle[0]) < tol && Math.abs(m.axle[1] + l.axle[1]) < tol && Math.abs(m.axle[2] - l.axle[2]) < tol &&
+        Math.abs(m.chassis[0] - l.chassis[0]) < tol && Math.abs(m.chassis[1] + l.chassis[1]) < tol && Math.abs(m.chassis[2] - l.chassis[2]) < tol);
+    });
   }
 
   /** Small-motion properties: roll centre height, roll steer (deg/deg), pinion change (deg/in). */
@@ -155,8 +190,8 @@ export function axleSolver(links, { radius = 13 } = {}) {
     };
     const ra = s(0, -.05), rb = s(0, .05), ha = s(-.01, 0), hb = s(.01, 0);
     if (!ra || !rb || !ha || !hb) return null;
-    return { rollCentre: radius + (rb[1] - ra[1]) / rad(.1), rollSteer: (rb[3] - ra[3]) / rad(.1), pinionRate: deg(hb[2] - ha[2]) / .02 };
+    return { rollCentre: radius + (rb[1] - ra[1]) / rad(.1), rollSteer: (rb[3] - ra[3]) / rad(.1), pinionRate: deg(hb[2] - ha[2]) / .02, travelSteer: deg(hb[3] - ha[3]) / .02 };
   }
 
-  return { at, sideView, derivatives, valid, issues, over, lengths };
+  return { at, sideView, kinematicIC, symmetric, derivatives, valid, issues, over, lengths };
 }
