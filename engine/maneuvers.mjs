@@ -20,29 +20,9 @@ export const G = 32.174;
 export const MPH = 5280 / 3600;
 
 // ---------------------------------------------------------------- roll stiffness and roll centers (estimates)
-// Typical static roll-center heights (in above ground) by suspension type. Textbook ranges (e.g. Milliken & Milliken,
-// RCVD ch. 17; Gillespie ch. 9): short/long arm 0.5–4, strut 1–5, live axle at about the axle or locator height
-// (10–14), independent rears 2–6. ESS ESTIMATES; a measured or geometry-derived value replaces them.
-export const ROLL_CENTER_IN = {
-  front: { sla: 2, strut: 3, multilink: 2.5, twinIBeam: 4, solidAxle: 13 },
-  rear: { leaf: 11, truckArm: 12, threeLink: 12, fourLinkParallel: 12, fourLinkTriangulated: 12, fiveLink: 12, torqueArm: 12,
-    irsControlArm: 4, irsMultilink: 4, semiTrailing: 5, irsStrut: 4 },
-};
-/**
- * Estimated front share of roll stiffness. Production cars are set up to push mildly at the limit, which needs the
- * front axle to carry somewhat more of the lateral load transfer than its share of weight. Rule of thumb used here:
- * front weight share + 0.05, clamped 0.45–0.75 (ESS estimate; Milliken RCVD ch. 18 discusses TLLTD ≈ weight
- * distribution + ~5% for neutral-to-mild understeer). Replaced by spring and bar data when ESS has it.
- */
-export function rollDefaults(v) {
-  const front = v.frontLb ? v.frontLb / v.weight : v.front;
-  return {
-    frontRoll: Math.min(.75, Math.max(.45, front + .05)),
-    frontCenter: ROLL_CENTER_IN.front[v.archFront] ?? 2,
-    rearCenter: ROLL_CENTER_IN.rear[v.archRear] ?? (v.drivetrain === 'FWD' ? 5 : 8),
-    estimated: true,
-  };
-}
+// One copy in engine/roll.mjs (roll-centre table, the weight-share + 5 % split, springs/bars/tires stiffness).
+export { ROLL_CENTER_IN, rollEstimate as rollDefaults } from './roll.mjs';
+import { rollEstimate as rollDefaults } from './roll.mjs';
 const withAxles = v => ({ ...v, frontLb: v.frontLb ?? v.weight * v.front, rearLb: v.rearLb ?? v.weight * (1 - v.front) });
 const rollOpts = (v, o = {}) => ({ ...rollDefaults(v), ...Object.fromEntries(Object.entries(o).filter(([k, x]) =>
   ['frontRoll', 'frontCenter', 'rearCenter'].includes(k) && Number.isFinite(x))) });

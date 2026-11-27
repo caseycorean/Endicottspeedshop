@@ -1,5 +1,6 @@
 import { G, MPH, driveForce, driveResistance, tractiveLimit, powerIssue, massIssue } from './models.mjs';
 import { corneringLimit } from '../engine/cornering.mjs';
+import { rollSetup } from '../engine/roll.mjs';
 
 const radius = 200;
 const straight = 520;
@@ -46,11 +47,14 @@ function availableDrive(v, speed, curvature) {
 /**
  * Flying lap. options.loadSensitivity: tire load sensitivity k for the cornering limit (default
  * engine/cornering.mjs LOAD_SENSITIVITY; 0 reproduces the earlier grip-only point mass).
+ * options.roll: 'car' uses engine/roll.mjs rollSetup (per-architecture roll centres and split) instead of the Load
+ * Transfer calculator's fixed defaults; an object passes a given {frontRoll, frontCenter, rearCenter}. Opt-in.
  */
-export function ovalLap(input, { loadSensitivity } = {}) {
+export function ovalLap(input, { loadSensitivity, roll } = {}) {
   const issue = powerIssue(input, 'oval') || massIssue(input);
   if (issue) return { issue };
-  const cornering = corneringLimit(input, loadSensitivity === undefined ? {} : { sensitivity: loadSensitivity });
+  const rollOpts = roll === 'car' ? rollSetup(input) : roll && typeof roll === 'object' ? roll : {};
+  const cornering = corneringLimit(input, { ...rollOpts, ...(loadSensitivity === undefined ? {} : { sensitivity: loadSensitivity }) });
   const v = { ...input, lateralLimit: cornering.ay };
   const n = pieces.length;
   // v². A constant-radius end is capped at 96% of the theoretical lateral limit
