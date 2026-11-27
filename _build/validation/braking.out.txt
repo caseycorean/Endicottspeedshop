@@ -1,4 +1,4 @@
-BRAKING (ABS default, rise 0.15 s, k 0.15, absEfficiency 0.95) — model distance vs published
+BRAKING (ABS default, rise 0.15 s, k 0.15, absEfficiency 0.95, longitudinalRatio 1) — model distance vs published
 id | mph | test ft | model ft | error | test g | model g | grip | publisher
 pontiac-gto-v2--2004-gto-ls1-m6-coupe | 70 | 185 | 170 | -7.9% | 0.89 | 0.96 | 1.05 | Car and Driver
 ford-mustang-s197--2005-gt-4.6-m5-3.55-coupe | 70 | 183 | 170 | -6.9% | 0.90 | 0.96 | 1.05 | Car and Driver
@@ -81,3 +81,52 @@ nissan-350z-z33--2003-track-3.5-m6-coupe | 0.86 | 0.978 | +13.7% | front | 0.58 
 
 Summary: n=19 signed +3.9% MAD +5.9% within ±5%: 11/19, ±10%: 14/19
 Limiting axle — calculator defaults: rear 19; rollSetup: front 12, rear 7
+
+STOP g ÷ SKIDPAD g on the same car (measurement ÷ measurement) vs the model with longitudinalRatio 1
+porsche-911-991--2014-gt3-3.8-a7-coupe | 70 | Car and Driver | test 1.083 | model 0.976
+ford-mustang-s550--2018-gt-pp2-5.0-m6-fastback | 70 | Car and Driver | test 1.058 | model 0.997
+chevrolet-camaro-6th-gen--2017-zl1-lt4-a10-coupe | 70 | Car and Driver | test 1.101 | model 0.993
+honda-civic-fl5--2023-type-r-k20c1-m6-hatch | 100 | Car and Driver | test 1.064 | model 1.052
+honda-civic-fl5--2023-type-r-k20c1-m6-hatch | 70 | Car and Driver | test 1.050 | model 1.023
+hyundai-elantra-cn7--2024-n-2.0-m6-sedan | 60 | MotorTrend | test 1.161 | model 1.014
+chevrolet-colorado-3rd-gen--2023-zr2-2.7-a8-crew-cab-4wd | 70 | Car and Driver | test 1.200 | model 1.021
+ford-mustang-s650--2024-gt-premium-pp-active-exhaust-m6-fastback | 100 | Car and Driver | test 1.082 | model 1.022
+ford-mustang-s650--2024-gt-premium-pp-active-exhaust-m6-fastback | 70 | Car and Driver | test 1.081 | model 0.996
+toyota-tacoma-4th-gen--2024-trd-pro-2.4-hybrid-a8-double-cab-4wd | 70 | Car and Driver | test 1.173 | model 1.020
+chevrolet-corvette-c5--2002-z06-ls6-m6-hardtop | 60 | MotorTrend | test 1.169 | model 0.984
+chevrolet-corvette-c6--2006-z06-ls7-m6-coupe | 70 | Car and Driver | test 1.032 | model 0.991
+toyota-gr86-zn8--2022-premium-2.4-m6-coupe | 100 | Car and Driver | test 1.080 | model 1.027
+toyota-gr86-zn8--2022-premium-2.4-m6-coupe | 70 | Car and Driver | test 1.097 | model 0.997
+subaru-wrx-vb--2022-limited-2.4-m6-sedan | 100 | Car and Driver | test 1.110 | model 1.041
+subaru-wrx-vb--2022-limited-2.4-m6-sedan | 70 | Car and Driver | test 1.127 | model 1.013
+ford-ranger-p703--2024-raptor-3.0-a10-supercrew-4wd | 70 | Car and Driver | test 1.089 | model 1.024
+ford-f150-p702--2024-raptor-r-5.2-a10-supercrew-37 | 100 | Car and Driver | test 1.111 | model 1.042
+ford-f150-p702--2024-raptor-r-5.2-a10-supercrew-37 | 70 | Car and Driver | test 1.084 | model 1.011
+chevrolet-silverado-1500-t1--2022-zr2-l87-a10-crew-cab-4wd | 60 | MotorTrend | test 1.341 | model 0.991
+ford-mustang-s197--2005-gt-4.6-m5-3.55-coupe | 70 | Car and Driver | test 1.029 | model 0.995
+pontiac-gto-v2--2004-gto-ls1-m6-coupe | 70 | Car and Driver | test 1.006 | model 0.996
+nissan-350z-z33--2003-track-3.5-m6-coupe | 60 | AutoWeek | test 1.228 | model 0.987
+Car and Driver cars: n=14, median per-car ratio 1.086, range 1.01–1.20; model ratio median 1.011
+
+STOPS: brake build-up (riseTime; 0.05 = maneuvers.mjs roadTest convention, 0.15 = engine default) × longitudinalRatio
+  rise 0.15 s, ratio 1: all: n=24 signed +7.1% MAD +8.8% within ±5% 8/24, ±10% 15/24 | C/D: n=20 signed +5.2% MAD +7.2% within ±5% 8/20, ±10% 15/20
+  rise 0.15 s, ratio 1.04: all: n=24 signed +3.4% MAD +7.2% within ±5% 12/24, ±10% 16/24 | C/D: n=20 signed +1.6% MAD +6.1% within ±5% 12/20, ±10% 15/20
+  rise 0.15 s, ratio 1.08: all: n=24 signed +0.1% MAD +6.6% within ±5% 10/24, ±10% 20/24 | C/D: n=20 signed -1.8% MAD +6.0% within ±5% 9/20, ±10% 17/20
+  rise 0.05 s, ratio 1: all: n=24 signed +4.3% MAD +7.3% within ±5% 12/24, ±10% 17/24 | C/D: n=20 signed +2.5% MAD +6.1% within ±5% 12/20, ±10% 16/20
+  rise 0.05 s, ratio 1.04: all: n=24 signed +0.6% MAD +6.3% within ±5% 10/24, ±10% 20/24 | C/D: n=20 signed -1.1% MAD +5.7% within ±5% 9/20, ±10% 17/20
+  rise 0.05 s, ratio 1.08: all: n=24 signed -2.8% MAD +6.9% within ±5% 10/24, ±10% 19/24 | C/D: n=20 signed -4.4% MAD +7.1% within ±5% 9/20, ±10% 16/20
+
+STOPS before/after longitudinalRatio (engine default rise 0.15 s)
+  all publishers
+    ratio 1 (default): n=24 signed +7.1% MAD +8.8% within ±5% 8/24, ±10% 15/24
+    ratio 1.08 (median cross-maneuver ratio): n=24 signed +0.1% MAD +6.6% within ±5% 10/24, ±10% 20/24
+    leave-one-car-out ratio: n=24 signed -0.4% MAD +6.6% within ±5% 10/24, ±10% 19/24
+  Car and Driver only
+    ratio 1 (default): n=20 signed +5.2% MAD +7.2% within ±5% 8/20, ±10% 15/20
+    ratio 1.08 (median cross-maneuver ratio): n=20 signed -1.8% MAD +6.0% within ±5% 9/20, ±10% 17/20
+    leave-one-car-out ratio: n=20 signed -2.2% MAD +6.2% within ±5% 9/20, ±10% 16/20
+  MotorTrend + AutoWeek
+    ratio 1 (default): n=4 signed +16.9% MAD +16.9% within ±5% 0/4, ±10% 0/4
+    ratio 1.08 (median cross-maneuver ratio): n=4 signed +9.2% MAD +9.2% within ±5% 1/4, ±10% 3/4
+    leave-one-car-out ratio: n=4 signed +8.6% MAD +8.6% within ±5% 1/4, ±10% 3/4
+  leave-one-car-out ratios used: 1.083–1.088
