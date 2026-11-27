@@ -7,6 +7,7 @@
 //  • Each axle's tire capacity uses the SAME degressive load sensitivity as engine/cornering.mjs:
 //      μ(Fz) = μ0·(1 − k·(Fz/F0 − 1)),  axle capacity = μ0·N·(1 − k·(N/N0 − 1)),
 //    so total capacity = μ0·(W − k·ΔW²·(1/Wf + 1/Wr)): moving load forward costs grip, and a lower CG stops shorter.
+//  • Peak braking friction = grip × longitudinalRatio (default 1; opt-in, basis at the default).
 //  • ABS (default): each axle is held near its own peak; it averages absEfficiency × peak (cycling around peak slip).
 //  • No ABS: a fixed front/rear brake split (bias) and an ideal "threshold" driver; the stop is limited by the first
 //    axle to reach its peak (front lock = car goes straight; rear lock = car can spin, flagged as unstable).
@@ -33,6 +34,15 @@ export const brakingDefaults = {
   absEfficiency: .95,
   // Fully locked tires slide at roughly 0.7–0.8 of peak on dry asphalt (Wong, Theory of Ground Vehicles, ch. 1).
   slideRatio: .78,
+  // Longitudinal ÷ lateral peak friction (opt-in; 1 = unchanged). Tires generally brake somewhat harder than they
+  // corner (Gillespie, Fundamentals of Vehicle Dynamics, ch. 10; Milliken, Race Car Vehicle Dynamics, ch. 2), and
+  // the published tests show it: on the 14 cars Car and Driver both stopped and skidpadded, measured stop g ÷
+  // measured skidpad g has median 1.086 (range 1.01–1.20), while this model's own ratio is ~1.01 (Claude sprint
+  // 26 Nov 2026, _build/validation/braking.mjs). NOT the default: the road-test timing convention in maneuvers.mjs
+  // (riseTime 0.05 s, fitted on 117 archive stops) already absorbs most of the resulting stop-length bias, and the
+  // two together over-correct. Which side the tire-class grip represents (lateral or longitudinal) needs a joint
+  // fit on the archive stops and skidpads; see the validation script's cross-maneuver section.
+  longitudinalRatio: 1,
   // Time for deceleration to build after the brake is applied. Hydraulic pressure rise with a booster is
   // about 0.1–0.3 s (Limpert ch. 5); 0.15 s estimate. Shown in results so its effect is visible.
   riseTime: .15,
@@ -87,7 +97,7 @@ function resistance(v, speed, o) {
  */
 export function decelAt(v, speed, options = {}) {
   const o = { ...brakingDefaults, ...options };
-  const Wf = frontOf(v), Wr = v.weight - Wf, k = o.sensitivity, mu = v.grip;
+  const Wf = frontOf(v), Wr = v.weight - Wf, k = o.sensitivity, mu = v.grip * (o.longitudinalRatio ?? 1);
   const R = resistance(v, speed, o);
   const r = (v.diameter ?? 25.5) / 24 * .97; // loaded radius (ft) ≈ 97% of unloaded
   const torqueCap = o.brakeTorque ? { front: o.brakeTorque.front / r, rear: o.brakeTorque.rear / r } : { front: Infinity, rear: Infinity };

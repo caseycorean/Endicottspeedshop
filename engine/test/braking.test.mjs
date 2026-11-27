@@ -9,7 +9,7 @@ import { brakingStop, decelAt, idealBias, installedBias, axleLoadsAt, lockedStop
 
 const G = 32.174, MPH = 5280 / 3600;
 const car = { weight: 3400, frontLb: 1870, rearLb: 1530, cg: 20, wheelbase: 106, grip: 1.05, cda: 7, diameter: 26 };
-const bare = { riseTime: 0, sensitivity: 0, absEfficiency: 1, rollResistance: 0 };
+const bare = { riseTime: 0, sensitivity: 0, absEfficiency: 1, rollResistance: 0, longitudinalRatio: 1 };
 
 test('constant-deceleration baseline: no drag, no rise, no load sensitivity → v²/2μg', () => {
   for (const mph of [60, 70, 100]) {
@@ -32,7 +32,7 @@ test('peak deceleration with load sensitivity matches the hand-derived quadratic
     const { weight: W, frontLb: Wf, rearLb: Wr, cg: h, wheelbase: L, grip: mu } = car;
     const A = eta * mu * k * W * W * h * h / (L * L) * (1 / Wf + 1 / Wr);
     const a = (-W + Math.sqrt(W * W + 4 * A * eta * mu * W)) / (2 * A);
-    const got = decelAt({ ...car, cda: 0 }, 0, { sensitivity: k, absEfficiency: eta, rollResistance: 0 }).a;
+    const got = decelAt({ ...car, cda: 0 }, 0, { sensitivity: k, absEfficiency: eta, rollResistance: 0, longitudinalRatio: 1 }).a;
     assert.ok(Math.abs(got - a) < 1e-6, `k ${k} η ${eta}: ${got} vs ${a}`);
   }
 });
@@ -96,4 +96,13 @@ test('readiness, helpers and finite results', () => {
   const s = standardStops(car);
   for (const mph of [60, 70, 100]) assert.ok(Number.isFinite(s[mph].distance) && Number.isFinite(s[mph].time) && s[mph].time > 0);
   assert.ok(s[100].distance > s[70].distance && s[70].distance > s[60].distance);
+});
+
+test('longitudinalRatio scales peak braking friction: constant-decel stop = v²/(2·L·μ·g); default 1 leaves stops unchanged', () => {
+  for (const L of [1, 1.04, 1.08]) {
+    const d = brakingStop({ ...car, cda: 0 }, { from: 70, ...bare, longitudinalRatio: L }).distance;
+    const expect = (70 * MPH) ** 2 / (2 * L * car.grip * G);
+    assert.ok(Math.abs(d - expect) < .3, `L ${L}: ${d} vs ${expect}`);
+  }
+  assert.equal(brakingStop(car, { from: 60 }).distance, brakingStop(car, { from: 60, longitudinalRatio: 1 }).distance);
 });
