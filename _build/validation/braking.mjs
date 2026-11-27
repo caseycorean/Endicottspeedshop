@@ -4,6 +4,7 @@
 import { readFileSync } from 'node:fs';
 import { brakingStop, impliedG } from '../../engine/braking.mjs';
 import { corneringLimit } from '../../engine/cornering.mjs';
+import { rollSetup } from '../../engine/roll.mjs';
 
 const { records } = JSON.parse(readFileSync(new URL('../knowledge/vehicle-knowledge.json', import.meta.url)));
 const val = x => (x && typeof x === 'object' && 'value' in x ? x.value : x);
@@ -15,7 +16,8 @@ for (const r of records) {
   if (!tests.length && !pads.length) continue;
   const inp = Object.fromEntries(Object.entries(r.model?.inputs ?? {}).map(([k, x]) => [k, val(x)]));
   if (!inp.weight) { rows.push({ id: r.id, skipped: 'no model inputs' }); continue; }
-  const v = { ...inp, frontLb: inp.weight * inp.front, rearLb: inp.weight * (1 - inp.front) };
+  const evidence = Object.fromEntries(Object.entries(r.model?.inputs ?? {}).map(([k, x]) => [k, x?.evidence]));
+  const v = { ...inp, evidence, frontLb: inp.weight * inp.front, rearLb: inp.weight * (1 - inp.front) };
   for (const f of tests) {
     const mph = +f.label.match(/(\d+)–0/)[1];
     const s = brakingStop(v, { from: mph });
@@ -23,8 +25,9 @@ for (const r of records) {
       err: (s.distance - f.value) / f.value, testG: impliedG(mph, f.value), modelG: s.meanG, limit: s.limit, pub: f.source?.publisher });
   }
   for (const f of pads) {
-    const c = corneringLimit(v);
-    skid.push({ id: r.id, test: f.value, model: c.ay, grip: v.grip, err: (c.ay - f.value) / f.value, axle: c.limitingAxle, gripOnly: c.gripOnly });
+    const c = corneringLimit(v), rs = rollSetup(v), cr = corneringLimit(v, rs);
+    skid.push({ id: r.id, test: f.value, model: c.ay, grip: v.grip, err: (c.ay - f.value) / f.value, axle: c.limitingAxle, gripOnly: c.gripOnly,
+      roll: { model: cr.ay, err: (cr.ay - f.value) / f.value, axle: cr.limitingAxle, setup: rs, arch: `${v.archFront}/${v.archRear}` } });
   }
 }
 const ok = rows.filter(r => !r.skipped);
@@ -50,4 +53,11 @@ console.log('id | test g | model g | error | grip | limiting axle');
 for (const r of skid.sort((a, b) => a.err - b.err)) console.log(`${r.id} | ${r.test} | ${r.model.toFixed(3)} | ${pct(r.err)} | ${r.grip} | ${r.gripOnly ? 'grip-only (missing inputs)' : r.axle}`);
 const k = stats(skid.map(r => r.err));
 console.log(`\nSummary: n=${k.n} signed ${pct(k.signed)} MAD ${pct(k.mad)} within ±5%: ${k.within5}/${k.n}, ±10%: ${k.within10}/${k.n}`);
+
+console.log('\nSKIDPAD — same, with engine/roll.mjs rollSetup (per-architecture roll centres, split = front weight share + 5 %)');
+console.log('id | test g | model g | error | limiting axle | front roll share | RC front/rear in | architecture | split basis');
+for (const r of skid.sort((a, b) => a.roll.err - b.roll.err)) console.log(`${r.id} | ${r.test} | ${r.roll.model.toFixed(3)} | ${pct(r.roll.err)} | ${r.roll.axle} | ${r.roll.setup.frontRoll.toFixed(2)} | ${r.roll.setup.frontCenter}/${r.roll.setup.rearCenter} | ${r.roll.arch} | ${r.roll.setup.basis.split}`);
+const kr = stats(skid.map(r => r.roll.err)), axles = xs => Object.entries(xs.reduce((m, a) => (m[a] = (m[a] ?? 0) + 1, m), {})).map(([a, n]) => `${a} ${n}`).join(', ');
+console.log(`\nSummary: n=${kr.n} signed ${pct(kr.signed)} MAD ${pct(kr.mad)} within ±5%: ${kr.within5}/${kr.n}, ±10%: ${kr.within10}/${kr.n}`);
+console.log(`Limiting axle — calculator defaults: ${axles(skid.map(r => r.axle))}; rollSetup: ${axles(skid.map(r => r.roll.axle))}`);
 export { rows, skid };
